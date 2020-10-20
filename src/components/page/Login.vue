@@ -33,12 +33,12 @@ export default {
         return {
             param: {
                 username: '',
-                password: '',
+                password: ''
             },
             rules: {
                 username: [{ required: true, message: '请输入用户名', trigger: 'blur' }],
-                password: [{ required: true, message: '请输入密码', trigger: 'blur' }],
-            },
+                password: [{ required: true, message: '请输入密码', trigger: 'blur' }]
+            }
         };
     },
     methods: {
@@ -48,14 +48,15 @@ export default {
                 const { data: res } = await this.$http.post('/auth/login', this.param);
                 if (res.meta.status === 200) {
                     this.$message.success('登录成功');
+                    localStorage.setItem('username', this.param.username);
                     window.sessionStorage.setItem('Authorization', res.token);
                     this.$router.push('/');
                 } else {
                     this.$message.info('登录失败:' + res.meta.msg);
                 }
             });
-        },
-    },
+        }
+    }
 };
 </script>
 
@@ -67,6 +68,7 @@ export default {
     background-image: url(../../assets/img/login-bg.jpg);
     background-size: 100%;
 }
+
 .ms-title {
     width: 100%;
     line-height: 50px;
@@ -75,6 +77,7 @@ export default {
     color: #fff;
     border-bottom: 1px solid #ddd;
 }
+
 .ms-login {
     position: absolute;
     left: 50%;
@@ -85,17 +88,21 @@ export default {
     background: rgba(255, 255, 255, 0.3);
     overflow: hidden;
 }
+
 .ms-content {
     padding: 30px 30px;
 }
+
 .login-btn {
     text-align: center;
 }
+
 .login-btn button {
     width: 100%;
     height: 36px;
     margin-bottom: 10px;
 }
+
 .login-tips {
     font-size: 12px;
     line-height: 30px;

@@ -14,6 +14,10 @@ import axios from 'axios';
 
 //请求部分
 axios.defaults.baseURL = 'http://192.168.174.7:8080/api/v1';
+axios.interceptors.request.use(config => {
+    config.headers.Authorization = window.sessionStorage.getItem('Authorization');
+    return config;
+});
 Vue.prototype.$http = axios;
 
 Vue.config.productionTip = false;

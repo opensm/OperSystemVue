@@ -6,8 +6,8 @@
                     <div class="user-info">
                         <img src="../../assets/img/img.jpg" class="user-avator" alt />
                         <div class="user-info-cont">
-                            <div class="user-info-name">{{name}}</div>
-                            <div>{{role}}</div>
+                            <div class="user-info-name">{{ name }}</div>
+                            <div>{{ role }}</div>
                         </div>
                     </div>
                     <div class="user-info-list">
@@ -22,10 +22,14 @@
                 <el-card shadow="hover" style="height:252px;">
                     <div slot="header" class="clearfix">
                         <span>语言详情</span>
-                    </div>Vue
-                    <el-progress :percentage="71.3" color="#42b983"></el-progress>JavaScript
-                    <el-progress :percentage="24.1" color="#f1e05a"></el-progress>CSS
-                    <el-progress :percentage="13.7"></el-progress>HTML
+                    </div>
+                    Vue
+                    <el-progress :percentage="71.3" color="#42b983"></el-progress>
+                    JavaScript
+                    <el-progress :percentage="24.1" color="#f1e05a"></el-progress>
+                    CSS
+                    <el-progress :percentage="13.7"></el-progress>
+                    HTML
                     <el-progress :percentage="5.9" color="#f56c6c"></el-progress>
                 </el-card>
             </el-col>
@@ -81,7 +85,8 @@
                                 <div
                                     class="todo-item"
                                     :class="{'todo-item-del': scope.row.status}"
-                                >{{scope.row.title}}</div>
+                                >{{ scope.row.title }}
+                                </div>
                             </template>
                         </el-table-column>
                         <el-table-column width="60">
@@ -112,6 +117,7 @@
 <script>
 import Schart from 'vue-schart';
 import bus from '../common/bus';
+
 export default {
     name: 'dashboard',
     data() {
@@ -226,6 +232,9 @@ export default {
             return this.name === 'admin' ? '超级管理员' : '普通用户';
         }
     },
+    created() {
+        this.getUserData();
+    },
     // created() {
     //     this.handleListener();
     //     this.changeDate();
@@ -244,7 +253,18 @@ export default {
                 const date = new Date(now - (6 - index) * 86400000);
                 item.name = `${date.getFullYear()}/${date.getMonth() + 1}/${date.getDate()}`;
             });
+        },
+        async getUserData() {
+            const { data: res } = await this.$http.get('/user/6');
+            if (res.meta.status !== 200) {
+                this.$message.error('登录验证失败:' + res.meta.msg);
+            }
+            console.log(res);
+            this.$router.push('/login');
+            // window.sessionStorage.clear();
+
         }
+
         // handleListener() {
         //     bus.$on('collapse', this.handleBus);
         //     // 调用renderChart方法对图表进行重新渲染
