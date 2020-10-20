@@ -32,8 +32,8 @@ export default {
     data: function() {
         return {
             param: {
-                username: 'admin',
-                password: '123123',
+                username: '',
+                password: '',
             },
             rules: {
                 username: [{ required: true, message: '请输入用户名', trigger: 'blur' }],
@@ -43,15 +43,15 @@ export default {
     },
     methods: {
         submitForm() {
-            this.$refs.login.validate(valid => {
-                if (valid) {
+            this.$refs.login.validate(async valid => {
+                if (!valid) return;
+                const { data: res } = await this.$http.post('/auth/login', this.param);
+                if (res.meta.status === 200) {
                     this.$message.success('登录成功');
-                    localStorage.setItem('ms_username', this.param.username);
+                    window.sessionStorage.setItem('Authorization', res.token);
                     this.$router.push('/');
                 } else {
-                    this.$message.error('请输入账号和密码');
-                    console.log('error submit!!');
-                    return false;
+                    this.$message.info('登录失败:' + res.meta.msg);
                 }
             });
         },

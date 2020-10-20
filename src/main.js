@@ -9,6 +9,12 @@ import 'element-ui/lib/theme-chalk/index.css'; // 默认主题
 import './assets/css/icon.css';
 import './components/common/directives';
 import 'babel-polyfill';
+import axios from 'axios';
+
+
+//请求部分
+axios.defaults.baseURL = 'http://192.168.174.7:8080/api/v1';
+Vue.prototype.$http = axios;
 
 Vue.config.productionTip = false;
 Vue.use(VueI18n);
@@ -20,11 +26,12 @@ const i18n = new VueI18n({
     messages
 });
 
-//使用钩子函数对路由进行权限跳转
+//使用钩子函数对路由进行权限跳转 路由守卫
 router.beforeEach((to, from, next) => {
-    document.title = `${to.meta.title} | vue-manage-system`;
-    const role = localStorage.getItem('ms_username');
+    document.title = `${to.meta.title} | kubernetes 管理`;
+    const role = window.sessionStorage.getItem('Authorization');
     if (!role && to.path !== '/login') {
+        console.log(role);
         next('/login');
     } else if (to.meta.permission) {
         // 如果是管理员权限则可进入，这里只是简单的模拟管理员权限而已
