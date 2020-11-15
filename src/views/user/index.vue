@@ -68,11 +68,12 @@ export default {
   },
   methods: {
     fetchData() {
+      const _this = this
       this.listLoading = true
       getUserList().then(response => {
         // console.log(response.data)
-        this.list = response.data.item
-        console.log(this.list)
+        _this.list = response.data
+        console.log(_this.list)
         this.listLoading = false
       })
     }
