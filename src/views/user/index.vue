@@ -73,7 +73,7 @@ export default {
       getUserList().then(response => {
         // console.log(response.data)
         _this.list = response.data
-        console.log(_this.list)
+        // console.log(_this.list)
         this.listLoading = false
       })
     }
