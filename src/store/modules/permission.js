@@ -51,7 +51,7 @@ function generateRouter(item, isParent) {
     name: item.name,
     meta: {title: item.name, icon: item.icon},
     // component: isParent ? Layout : () => import(item.component)
-    component: isParent ? Layout : componentsMap[item.component]
+    component: isParent ? Layout : componentsMap[item.auth]
     // component: () => import("@/views/user/index")
   }
   return router
