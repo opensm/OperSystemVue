@@ -45,6 +45,7 @@ function convertRouter(asyncRouterMap) {
 }
 
 function generateRouter(item, isParent) {
+  console.log(item.component);
   let router = {
     path: item.path,
     name: item.name,
