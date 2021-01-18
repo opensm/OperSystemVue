@@ -46,13 +46,13 @@ function convertRouter(asyncRouterMap) {
 
 function generateRouter(item, isParent) {
   console.log(item)
-  console.log(item.auth);
+  console.log(item.model);
   let router = {
     path: item.path,
     name: item.name,
     meta: {title: item.name, icon: item.icon},
     // component: isParent ? Layout : () => import(item.component)
-    component: isParent ? Layout : componentsMap[item.auth]
+    component: isParent ? Layout : componentsMap[item.model]
     // component: () => import("@/views/user/index")
   }
   return router
