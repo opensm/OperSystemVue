@@ -18,6 +18,11 @@
           {{ scope.row.username }}
         </template>
       </el-table-column>
+      <el-table-column label="邮箱">
+        <template slot-scope="scope">
+          {{ scope.row.email }}
+        </template>
+      </el-table-column>
       <el-table-column label="角色" width="110" align="center">
         <template slot-scope="scope">
           <span>{{ scope.row.roles }}</span>
@@ -25,18 +30,29 @@
       </el-table-column>
       <el-table-column label="超级用户" width="110" align="center">
         <template slot-scope="scope">
-          {{ scope.row.is_superuser }}
+          {{ scope.row.is_superuser|statusChoice }}
         </template>
       </el-table-column>
-      <el-table-column class-name="status-col" label="Status" width="110" align="center">
+      <el-table-column class-name="status-col" label="状态" width="110" align="center">
         <template slot-scope="scope">
-          <el-tag :type="scope.row.is_active | statusFilter">{{ scope.row.is_active }}</el-tag>
+          <el-tag :type="scope.row.is_active | statusFilter">{{ scope.row.is_active|statusChoice }}</el-tag>
+<!--          <el-tag :type="scope.row.is_active | statusFilter">{{ scope.row.is_active }}</el-tag>-->
         </template>
       </el-table-column>
-      <el-table-column align="center" prop="created_at" label="Display_time" width="200">
+      <el-table-column align="center" prop="create_date" label="创建日期" width="200">
         <template slot-scope="scope">
-          <i class="el-icon-time" />
+          <i class="el-icon-time"/>
           <span>{{ scope.row.create_date }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="修改" width="110" align="center">
+        <template slot-scope="scope">
+          <span>{{ scope.row.desc }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="删除" width="110" align="center">
+        <template slot-scope="scope">
+          <span>{{ scope.row.desc }}</span>
         </template>
       </el-table-column>
     </el-table>
@@ -50,17 +66,28 @@ export default {
   filters: {
     statusFilter(status) {
       const statusMap = {
-        1: 'success',
+        'true': 'success',
         // draft: 'gray',
-        0: 'danger'
+        'false': 'danger'
       }
       return statusMap[status]
+    },
+    statusChoice(status) {
+      const valueMap = {
+        'true': '是',
+        'false': '否'
+      }
+      return valueMap[status]
     }
   },
   data() {
     return {
       list: null,
-      listLoading: true
+      listLoading: true,
+      statusChioce: {
+        'true': '是',
+        'false': '否'
+      }
     }
   },
   created() {
@@ -68,12 +95,8 @@ export default {
   },
   methods: {
     fetchData() {
-      const _this = this
-      this.listLoading = true
       getUserList().then(response => {
-        // console.log(response.data)
-        _this.list = response.data
-        // console.log(_this.list)
+        this.list = response.data
         this.listLoading = false
       })
     }

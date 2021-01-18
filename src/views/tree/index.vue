@@ -66,7 +66,9 @@ export default {
       this.$refs.tree2.filter(val)
     }
   },
+created() {
 
+},
   methods: {
     filterNode(value, data) {
       if (!value) return true

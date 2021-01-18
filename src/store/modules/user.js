@@ -64,14 +64,12 @@ const actions = {
 
         const { roles, username,user_permissions } = data
         // roles must be a non-empty array
-        console.log(user_permissions)
         if (!user_permissions || user_permissions.length <= 0) {
           reject('getInfo: user_permissions must be a non-null array!')
         }
         if (!roles || roles.length <= 0) {
           reject('角色获取异常！')
         }
-        console.log(roles)
         const mobile = 'https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif'
         commit('SET_MENUS', user_permissions)
         commit('SET_ROLES', roles)

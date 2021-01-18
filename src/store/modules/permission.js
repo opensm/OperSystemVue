@@ -45,14 +45,12 @@ function convertRouter(asyncRouterMap) {
 }
 
 function generateRouter(item, isParent) {
-  console.log(item)
-  console.log(item.model);
   let router = {
-    path: item.path,
+    path: '/' + item.path,
     name: item.name,
     meta: {title: item.name, icon: item.icon},
     // component: isParent ? Layout : () => import(item.component)
-    component: isParent ? Layout : componentsMap[item.model]
+    component: isParent ? Layout : componentsMap[item.path]
     // component: () => import("@/views/user/index")
   }
   return router
@@ -96,7 +94,6 @@ const actions = {
     return new Promise(resolve => {
       // console.log(data)
       const asyncRouterMap = data
-      // console.log(data[0])
       const accessedRouters = convertRouter(asyncRouterMap)
       commit('SET_ROUTES', accessedRouters)
       resolve(accessedRouters)
@@ -111,7 +108,7 @@ export default {
   actions
 }
 export const componentsMap = {
-  example_table: () => import('@/views/table/index'),
-  user: () => import('@/views/user/index'),
-  form_index: () => import('@/views/dashboard/index')
+  role: () => import('@/views/roles/role'),
+  users: () => import('@/views/users/index'),
+  permissions: () => import('@/views/permissions/complex-table')
 }

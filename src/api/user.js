@@ -7,7 +7,13 @@ export function login(data) {
     data
   })
 }
-
+export function resetPassword(data) {
+  return request({
+    url: '/auth/login',
+    method: 'post',
+    data
+  })
+}
 export function getInfo(token) {
   return request({
     url: '/auth/user',
