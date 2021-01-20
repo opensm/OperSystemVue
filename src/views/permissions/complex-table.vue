@@ -126,7 +126,11 @@
           </el-select>
         </el-form-item>
         <el-form-item label="父级菜单" prop="parent">
-          <el-input v-model="temp.parent.name"/>
+          <select v-model="selected">
+            <option v-for="option in this.list" v-bind:value="option.id">
+              {{ option.name }}
+            </option>
+          </select>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
