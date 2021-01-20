@@ -253,6 +253,7 @@ export default {
       }
       getPermissions(this.listQuery).then(response => {
         this.list = response.data
+        console.log(this.list)
         this.total = response.total
 
         // Just to simulate the time of the request
