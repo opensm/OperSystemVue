@@ -126,7 +126,7 @@
           </el-select>
         </el-form-item>
         <el-form-item label="父级菜单" prop="parent">
-          <el-select v-model="selected" placeholder="请选择">
+          <el-select v-model="temp.parent" placeholder="请选择">
             <el-option v-for="option in this.list" v-bind:key="option.id" v-bind:value="temp.parent.id">
               {{ option.name }}
             </el-option>
@@ -336,7 +336,6 @@ export default {
     },
     handleUpdate(row) {
       this.temp = Object.assign({}, row) // copy obj
-      console.log(row)
       // this.temp.timestamp = new Date(this.temp.timestamp)
       this.dialogStatus = 'update'
       this.dialogFormVisible = true
