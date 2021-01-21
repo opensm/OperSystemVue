@@ -127,7 +127,7 @@
         </el-form-item>
         <el-form-item label="父级菜单" prop="parent">
           <el-select v-model="selected" placeholder="请选择">
-            <el-option v-for="option in this.list" v-bind:value="option.id">
+            <el-option v-for="option in this.list" :key="option.id" v-bind:value="option.id">
               {{ option.name }}
             </el-option>
           </el-select>
