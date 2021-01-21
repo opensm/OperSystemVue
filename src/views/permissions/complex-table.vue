@@ -363,16 +363,16 @@ export default {
       })
     },
     handleDelete(row, index) {
-      this.$notify({
-        title: 'Success',
-        message: 'Delete Successfully',
-        type: 'success',
-        duration: 2000
-      })
       deletePermission(row.id).then(response => {
         const {meta} = response.data
         this.list.splice(index, 1)
         // this.total = response.data.total
+        this.$notify({
+          title: 'Success',
+          message: meta.message,
+          type: 'success',
+          duration: 2000
+        })
 
         // Just to simulate the time of the request
         setTimeout(() => {
