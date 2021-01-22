@@ -67,7 +67,8 @@
       </el-table-column>
       <el-table-column label="图标" width="110px" align="center">
         <template slot-scope="{row}">
-          <svg-icon :icon-class="row.icon"/>
+          <span v-if="row.icon"><svg-icon :icon-class="row.icon"/></span>
+<!--          <svg-icon :icon-class="row.icon"/>-->
         </template>
       </el-table-column>
       <el-table-column label="菜单等级" min-width="110px" align="center">
@@ -99,7 +100,7 @@
         <el-form-item label="url" prop="path">
           <el-input v-model="temp.path"/>
         </el-form-item>
-        <el-form-item label="菜单等级" prop="icon">
+        <el-form-item label="菜单等级" prop="level">
           <el-select ref="select" v-model="temp.level" placeholder="请选择">
             <el-option v-for="item in calendarTypeOptions" :key="item.level" :value="item.level"
                        :label="item.display_name"/>
@@ -108,7 +109,8 @@
         <el-form-item label="图标" prop="icon">
           <el-select ref="select" v-model="temp.icon" placeholder="请选择">
             <el-option v-for="(item,index) in iconOptions" :key="index" :value="item">
-              <span><svg-icon :icon-class="item"/></span>
+
+              <span v-if="item"><svg-icon :icon-class="item"/></span>
               <span>: {{ item }}</span>
             </el-option>
           </el-select>
@@ -257,7 +259,7 @@ export default {
       }
       getPermissions(this.listQuery).then(response => {
         this.list = response.data
-        console.log(this.list)
+        // console.log(this.list)
         this.total = response.total
 
         // Just to simulate the time of the request
@@ -268,7 +270,9 @@ export default {
     },
     getMenu() {
       getMenus().then(response => {
+        console.log("11111111111111111111111111111111")
         console.log(response)
+        console.log("11111111111111111111111111111111")
       })
     },
     handleFilter() {
@@ -347,6 +351,7 @@ export default {
       this.$refs['dataForm'].validate((valid) => {
         if (valid) {
           const tempData = Object.assign({}, this.temp)
+          console.log(tempData)
           updatePermission(tempData.id, tempData).then(() => {
             const index = this.list.findIndex(v => v.id === this.temp.id)
             this.list.splice(index, 1, this.temp)
