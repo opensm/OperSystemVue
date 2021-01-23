@@ -49,9 +49,7 @@ function generateRouter(item, isParent) {
     path: '/' + item.path,
     name: item.name,
     meta: {title: item.name, icon: item.icon},
-    // component: isParent ? Layout : () => import(item.component)
     component: isParent ? Layout : componentsMap[item.path]
-    // component: () => import("@/views/user/index")
   }
   return router
 }
@@ -108,7 +106,8 @@ export default {
   actions
 }
 export const componentsMap = {
-  role: () => import('@/views/roles/role'),
-  users: () => import('@/views/users/index'),
-  permissions: () => import('@/views/permissions/complex-table')
+  reset_passoword: () => import('@/views/reset_passoword/index'),
+  roles: () => import('@/views/roles/index'),
+  users: () => import('@/views/users/user'),
+  permissions: () => import('@/views/permissions/index')
 }

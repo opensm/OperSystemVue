@@ -1,20 +1,29 @@
 <template>
   <div class="app-container">
     <div class="filter-container">
-      <el-input v-model="listQuery.name" placeholder="权限" style="width: 200px;" class="filter-item"
-                @keyup.enter.native="handleFilter"/>
-      <el-select v-model="listQuery.level" placeholder="菜单等级" clearable class="filter-item" style="width: 130px">
-        <el-option v-for="item in calendarTypeOptions" :key="item.level" :label="item.display_name+'('+item.level+')'"
-                   :value="item.level"/>
-      </el-select>
-      <el-select v-model="listQuery.sort" style="width: 140px" class="filter-item" @change="handleFilter">
-        <el-option v-for="item in sortOptions" :key="item.key" :label="item.label" :value="item.key"/>
-      </el-select>
-      <el-button v-waves class="filter-item" type="primary" icon="el-icon-search" @click="handleFilter">
+      <el-input
+        v-model="listQuery.username"
+        placeholder="用户名"
+        style="width: 200px;"
+        class="filter-item"
+        @keyup.enter.native="handleFilter"
+      />
+      <el-button
+        v-waves
+        class="filter-item"
+        type="primary"
+        icon="el-icon-search"
+        @click="handleFilter"
+      >
         搜索
       </el-button>
-      <el-button class="filter-item" style="margin-left: 10px;" type="primary" icon="el-icon-edit"
-                 @click="handleCreate">
+      <el-button
+        class="filter-item"
+        style="margin-left: 10px;"
+        type="primary"
+        icon="el-icon-edit"
+        @click="handleCreate"
+      >
         新增
       </el-button>
     </div>
@@ -35,45 +44,36 @@
           <span>{{ row.id }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="权限" min-width="50px" align="center">
+      <el-table-column label="用户" min-width="50px" align="center">
         <template slot-scope="{row}">
-          <span class="link-type">{{ row.name }}</span>
+          <span class="link-type">{{ row.username }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="父菜单" width="110px" align="center">
+      <el-table-column label="邮箱" width="110px" align="center">
         <template slot-scope="{row}">
-          <span v-if="row.parent">{{ row.parent.name }}</span>
+          <span>{{ row.email }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="相关资源" width="110px" align="center">
+      <el-table-column label="角色" width="110px" align="center">
         <template slot-scope="{row}">
-          <span>{{ row.model }}</span>
+          <span>{{ row.roles }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="资源代码" width="110px" align="center">
+      <el-table-column label="超级用户" width="110px" align="center">
         <template slot-scope="{row}">
-          <span>{{ row.path }}</span>
+          {{ row.is_superuser|statusChoice }}
         </template>
       </el-table-column>
-      <el-table-column label="是否隐藏" width="110px" align="center">
+      <el-table-column label="状态" width="110px" align="center">
         <template slot-scope="{row}">
-          <el-tag>{{ row.hidden | hiddenFilter }}</el-tag>
+          <el-tag :type="row.is_active | statusFilter">{{ row.is_active|statusChoice }}</el-tag>
+          <!--          <el-tag :type="scope.row.is_active | statusFilter">{{ scope.row.is_active }}</el-tag>-->
         </template>
       </el-table-column>
-      <el-table-column label="显示序列" width="110px" align="center">
+      <el-table-column label="创建日期" width="110px" align="center">
         <template slot-scope="{row}">
-          <span>{{ row.index }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="图标" width="110px" align="center">
-        <template slot-scope="{row}">
-          <span v-if="row.icon"><svg-icon :icon-class="row.icon"/></span>
-<!--          <svg-icon :icon-class="row.icon"/>-->
-        </template>
-      </el-table-column>
-      <el-table-column label="菜单等级" min-width="110px" align="center">
-        <template slot-scope="{row}">
-          <el-tag>{{ row.level | typeFilter }}</el-tag>
+          <i class="el-icon-time"/>
+          <span>{{ row.create_date }}</span>
         </template>
       </el-table-column>
 
@@ -94,45 +94,19 @@
     <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible">
       <el-form ref="dataForm" :rules="rules" :model="temp" label-position="left" label-width="70px"
                style="width: 400px; margin-left:50px;">
-        <el-form-item label="权限" prop="name">
+        <el-form-item label="用户" prop="username">
+          <el-input v-model="temp.username"/>
+        </el-form-item>
+        <el-form-item label="姓名" prop="name">
           <el-input v-model="temp.name"/>
         </el-form-item>
-        <el-form-item label="url" prop="path">
-          <el-input v-model="temp.path"/>
-        </el-form-item>
-        <el-form-item label="菜单等级" prop="level">
-          <el-select ref="select" v-model="temp.level" placeholder="请选择">
-            <el-option v-for="item in calendarTypeOptions" :key="item.level" :value="item.level"
-                       :label="item.display_name"/>
+        <el-form-item label="角色" prop="roles">
+          <el-select ref="select" v-model="temp.roles" placeholder="请选择">
+            <el-option v-for="item in this.roles" :key="item.id" :value="item.id" :label="item.name"/>
           </el-select>
         </el-form-item>
-        <el-form-item label="图标" prop="icon">
-          <el-select ref="select" v-model="temp.icon" placeholder="请选择">
-            <el-option v-for="(item,index) in iconOptions" :key="index" :value="item">
-
-              <span v-if="item"><svg-icon :icon-class="item"/></span>
-              <span>: {{ item }}</span>
-            </el-option>
-          </el-select>
-        </el-form-item>
-        <el-form-item label="显示序列" prop="index">
-          <el-input v-model="temp.index"/>
-        </el-form-item>
-        <el-form-item label="调用实例" prop="model">
-          <el-input v-model="temp.model"/>
-        </el-form-item>
-        <el-form-item label="是否隐藏" prop="hidden">
-          <el-select ref="select" v-model="temp.hidden" placeholder="请选择">
-            <el-option v-for="item in calendarHiddenOptions" :key="item.key" :value="item.key"
-                       :label="item.display_name"/>
-          </el-select>
-        </el-form-item>
-        <el-form-item label="父级菜单" prop="parent">
-          <el-select v-model="temp.parent" placeholder="请选择">
-            <el-option v-for="option in this.list" v-bind:key="option.id" v-bind:value="temp.parent.id">
-              {{ option.name }}
-            </el-option>
-          </el-select>
+        <el-form-item label="电话" prop="mobile">
+          <el-input v-model="temp.mobile"/>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -148,35 +122,11 @@
 </template>
 
 <script>
-import {getPermissions, updatePermission, deletePermission, addPermission, getMenus} from '@/api/permission'
+import {getUsersInfo, deleteUser, updateUser, updateUserRoles, updateUserState, addUser} from '@/api/user'
 import waves from '@/directive/waves' // waves directive
-import {parseTime} from '@/utils'
+import {getRoles} from '@/api/role'
 import Pagination from '@/components/Pagination'
-import {constantRoutes} from "@/router"; // secondary package based on el-pagination
 
-
-const calendarHiddenOptions = [
-  {hidden: 'true', display_name: '隐藏'},
-  {hidden: 'false', display_name: '不隐藏'},
-]
-
-const calendarTypeOptions = [
-  {level: '0', display_name: '一级菜单'},
-  {level: '1', display_name: '二级菜单'},
-  {level: '2', display_name: '三级菜单'},
-  {level: '3', display_name: '四级菜单'},
-  {level: '999', display_name: '按钮权限'}
-]
-
-// arr to obj, such as { CN : "China", US : "USA" }
-const calendarTypeKeyValue = calendarTypeOptions.reduce((acc, cur) => {
-  acc[cur.level] = cur.display_name
-  return acc
-}, {})
-const calendarHiddenKeyValue = calendarHiddenOptions.reduce((acc, cur) => {
-  acc[cur.hidden] = cur.display_name
-  return acc
-}, {})
 
 export default {
   name: 'ComplexTable',
@@ -185,23 +135,24 @@ export default {
   filters: {
     statusFilter(status) {
       const statusMap = {
-        published: 'success',
-        draft: 'info',
-        deleted: 'danger'
+        'true': 'success',
+        // draft: 'gray',
+        'false': 'danger'
       }
       return statusMap[status]
     },
-    typeFilter(type) {
-      return calendarTypeKeyValue[type]
-    },
-    hiddenFilter(hidden) {
-      return calendarHiddenKeyValue[hidden]
+    statusChoice(status) {
+      const valueMap = {
+        'true': '是',
+        'false': '否'
+      }
+      return valueMap[status]
     }
   },
   data() {
     return {
       tableKey: 0,
-      list: null,
+      roles: null,
       total: 0,
       listLoading: true,
       listQuery: {
@@ -211,8 +162,6 @@ export default {
         level: undefined,
         sort: '+id'
       },
-      calendarTypeOptions,
-      calendarHiddenOptions,
       sortOptions: [{label: 'ID 正序', key: '+id'}, {label: 'ID 逆序', key: '-id'}],
       showReviewer: false,
       iconOptions: [
@@ -220,36 +169,42 @@ export default {
       ],
       temp: {
         id: undefined,
-        path: '',
-        model: '',
+        username: '',
         name: '',
-        icon: '',
-        level: '',
-        hidden: 'false',
-        parent: {},
-        index: 0,
-        children: []
+        mobile: '',
+        roles: '',
+        email: '',
+        is_active: "",
+        is_staff: 0
       },
       dialogFormVisible: false,
       dialogStatus: '',
       textMap: {
-        update: '修改权限',
-        create: '添加权限'
+        update: '修改信息',
+        create: '添加用户'
       },
       dialogPvVisible: false,
       pvData: [],
       rules: {
-        path: [{required: true, message: '权限路径必须存在!', trigger: 'change'}],
-        name: [{required: true, message: '权限名称必须填写！', trigger: 'blur'}]
+        username: [{required: true, message: '用户名称(账号)必须填写!', trigger: 'blur'}],
+        name: [{required: true, message: '姓名名称必须填写！', trigger: 'blur'}],
+        model: [{required: true, message: '资源必须填写！', trigger: 'blur'}],
+        roles: [{required: true, message: '角色必须填写！', trigger: 'blur'}],
+        mobile: [{required: true, message: '电话必须填写！', trigger: 'blur'}]
       },
       downloadLoading: false
     }
   },
   created() {
     this.getList()
-    this.getMenu()
+    this.getRoles()
   },
   methods: {
+    getRoles(){
+      getRoles().then(response=>{
+        this.roles = response.data
+      })
+    },
     getList() {
       this.listLoading = true
       this.listQuery.size = this.listQuery.limit
@@ -257,22 +212,14 @@ export default {
       if (this.listQuery.level === '') {
         this.listQuery.level = undefined
       }
-      getPermissions(this.listQuery).then(response => {
+      getUsersInfo().then(response => {
         this.list = response.data
-        // console.log(this.list)
         this.total = response.total
 
         // Just to simulate the time of the request
         setTimeout(() => {
           this.listLoading = false
         }, 1.5 * 1000)
-      })
-    },
-    getMenu() {
-      getMenus().then(response => {
-        console.log("11111111111111111111111111111111")
-        console.log(response)
-        console.log("11111111111111111111111111111111")
       })
     },
     handleFilter() {
@@ -303,13 +250,16 @@ export default {
     resetTemp() {
       this.temp = {
         id: undefined,
-        path: '',
-        resource: '',
+        username: '',
         name: '',
-        icon: '',
-        level: '',
-        parent: {},
-        component: ''
+        mobile: '',
+        roles: '',
+        email: '',
+        is_active: '',
+        is_staff: '',
+        create_date: '',
+        update_date: '',
+        last_login: ''
       }
     },
     handleCreate() {
@@ -324,8 +274,7 @@ export default {
       this.$refs['dataForm'].validate((valid) => {
         if (valid) {
           this.temp.id = parseInt(Math.random() * 100) + 1024 // mock a id
-          this.temp.author = 'vue-element-admin'
-          addPermission(this.temp).then(() => {
+          addUser(this.temp).then(() => {
             this.list.unshift(this.temp)
             this.dialogFormVisible = false
             this.$notify({
@@ -351,8 +300,7 @@ export default {
       this.$refs['dataForm'].validate((valid) => {
         if (valid) {
           const tempData = Object.assign({}, this.temp)
-          console.log(tempData)
-          updatePermission(tempData.id, tempData).then(() => {
+          updateUser(tempData.id, tempData).then(() => {
             const index = this.list.findIndex(v => v.id === this.temp.id)
             this.list.splice(index, 1, this.temp)
             this.dialogFormVisible = false

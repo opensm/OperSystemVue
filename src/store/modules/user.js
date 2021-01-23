@@ -1,4 +1,4 @@
-import { login, logout, getInfo } from '@/api/user'
+import { login, logout, getUserInfo } from '@/api/user'
 import { getToken, setToken, removeToken } from '@/utils/auth'
 import { resetRouter } from '@/router'
 import da from "element-ui/src/locale/lang/da";
@@ -55,9 +55,8 @@ const actions = {
   // get user info
   getInfo({ commit, state }) {
     return new Promise((resolve, reject) => {
-      getInfo(state.token).then(response => {
+      getUserInfo().then(response => {
         const { data } = response
-        // console.log(data)
         if (!data) {
           reject('Verification failed, please Login again.')
         }
