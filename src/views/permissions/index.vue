@@ -246,7 +246,7 @@ export default {
         icon: '',
         level: '',
         hidden: 'false',
-        parent: {},
+        parent: '',
         index: 0,
         children: []
       },
@@ -326,11 +326,11 @@ export default {
       this.temp = {
         id: undefined,
         path: '',
-        resource: '',
+        model: '',
         name: '',
         icon: '',
         level: '',
-        parent: {},
+        parent: '',
         component: ''
       }
     },
@@ -346,13 +346,12 @@ export default {
       this.$refs['dataForm'].validate((valid) => {
         if (valid) {
           this.temp.id = parseInt(Math.random() * 100) + 1024 // mock a id
-          this.temp.author = 'vue-element-admin'
           addPermission(this.temp).then(() => {
             this.list.unshift(this.temp)
             this.dialogFormVisible = false
             this.$notify({
-              title: 'Success',
-              message: 'Created Successfully',
+              title: '成功',
+              message: '创建成功',
               type: 'success',
               duration: 2000
             })
@@ -393,7 +392,7 @@ export default {
         this.list.splice(index, 1)
         // this.total = response.data.total
         this.$notify({
-          title: 'Success',
+          title: '成功',
           message: meta.message,
           type: 'success',
           duration: 2000
