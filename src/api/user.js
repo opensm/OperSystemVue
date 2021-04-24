@@ -29,7 +29,7 @@ export function deleteUser(id) {
 }
 export function getUserInfo() {
   return request({
-    url: '/auth/user',
+    url: '/auth/user?id=1',
     method: 'get',
   })
 }
