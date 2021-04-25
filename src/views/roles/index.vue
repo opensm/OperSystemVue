@@ -29,7 +29,10 @@
     <el-dialog :visible.sync="dialogVisible" :title="dialogType==='edit'?'修改角色信息':'新增角色'">
       <el-form :model="role" label-width="80px" label-position="left">
         <el-form-item label="角色名称">
-          <el-input v-model="role.name" placeholder="角色名称"/>
+          <el-input
+            v-model="role.name"
+            placeholder="角色名称"
+          />
         </el-form-item>
         <el-form-item label="描述">
           <el-input
@@ -61,8 +64,12 @@
 
 <script>
 import path from 'path'
-import {deepClone} from '@/utils'
-import {getRoutes, getRoles, addRole, deleteRole, updateRole} from '@/api/role'
+import {
+  deepClone
+} from '@/utils'
+import {
+  getRoutes, getRoles, addRole, deleteRole, updateRole
+} from '@/api/role'
 
 const defaultRole = {
   id: '',
@@ -83,7 +90,7 @@ export default {
       checkStrictly: false,
       defaultProps: {
         children: 'children',
-        label: 'name',
+        label: 'name'
       }
     }
   },
@@ -99,7 +106,9 @@ export default {
   },
   methods: {
     async getRoutes() {
-      const {data} = await getRoutes()
+      const {
+        data
+      } = await getRoutes()
       this.serviceRoutes = data
       this.permissions = this.generateRoutes(data)
     },
@@ -170,13 +179,13 @@ export default {
         this.checkStrictly = false
       })
     },
-    handleDelete({$index, row}) {
+    handleDelete({ $index, row }) {
       this.$confirm('确定删除角色：' + row.name + '?', 'Warning', {
         confirmButtonText: 'Confirm',
         cancelButtonText: 'Cancel',
         type: 'warning'
       })
-        .then(async () => {
+        .then(async() => {
           await deleteRole(row.id)
           this.rolesList.splice($index, 1)
           this.$message({
@@ -221,21 +230,21 @@ export default {
           }
         }
       } else {
-        const {data} = await addRole(this.role)
+        const {
+          data
+        } = await addRole(this.role)
         this.role.id = data.id
         this.rolesList.push(this.role)
       }
 
-      const {desc, id, name} = this.role
+      const {
+        desc, id, name
+      } = this.role
       this.dialogVisible = false
       this.$notify({
         title: '添加成功',
         dangerouslyUseHTMLString: true,
-        message: `
-            <div>角色ID: ${id}</div>
-            <div>角色名称: ${name}</div>
-            <div>描述: ${desc}</div>
-          `,
+        message: `<div>角色ID: ${id}</div><div>角色名称: ${name}</div><div>描述: ${desc}</div>`,
         type: 'success'
       })
     },
@@ -254,7 +263,9 @@ export default {
 
       // Show parent if there are no child route to display
       if (showingChildren.length === 0) {
-        onlyOneChild = {...parent, path: parent.path}
+        onlyOneChild = {
+          ...parent, path: parent.path
+        }
         return onlyOneChild
       }
 

@@ -226,7 +226,9 @@
 </template>
 
 <script>
-import {getPermissions, updatePermission, deletePermission, addPermission, getMenus} from '@/api/permission'
+import {
+  getPermissions, updatePermission, deletePermission, addPermission, getMenus
+} from '@/api/permission'
 import waves from '@/directive/waves' // waves directive
 // import { parseTime } from '@/utils'
 import Pagination from '@/components/Pagination'

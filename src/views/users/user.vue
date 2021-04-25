@@ -152,7 +152,7 @@
 </template>
 
 <script>
-import { getUsersInfo, deleteUser, updateUser, updateUserRoles, updateUserState, addUser } from '@/api/user'
+import { getUsersInfo, deleteUser, updateUser, addUser } from '@/api/user'
 import waves from '@/directive/waves' // waves directive
 import {
   getRoles

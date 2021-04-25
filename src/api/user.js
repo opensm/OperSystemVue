@@ -7,7 +7,7 @@ export function login(data) {
     data
   })
 }
-export function resetPassword(id,data) {
+export function resetPassword(id, data) {
   return request({
     url: '/auth/user/$id/reset_passoword',
     method: 'post',
@@ -30,28 +30,28 @@ export function deleteUser(id) {
 export function getUserInfo() {
   return request({
     url: '/auth/current_user',
-    method: 'get',
+    method: 'get'
   })
 }
 export function getUsersInfo() {
   return request({
     url: '/auth/users',
-    method: 'get',
+    method: 'get'
   })
 }
-export function updateUser(id,data) {
+export function updateUser(id, data) {
   return request({
     url: '/auth/user',
     method: 'put'
   })
 }
-export function updateUserState(id,data) {
+export function updateUserState(id, data) {
   return request({
     url: '/auth/user/$id/state',
     method: 'put'
   })
 }
-export function updateUserRoles(id,data) {
+export function updateUserRoles(id, data) {
   return request({
     url: '/auth/user/$id/roles',
     method: 'put'

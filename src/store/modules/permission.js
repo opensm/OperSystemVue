@@ -1,8 +1,5 @@
-import {asyncRoutes, constantRoutes} from '@/router'
-
 /* Layout */
 import Layout from '@/layout'
-import da from "element-ui/src/locale/lang/da";
 
 // import da from "element-ui/src/locale/lang/da";
 
@@ -29,8 +26,8 @@ function convertRouter(asyncRouterMap) {
   if (asyncRouterMap) {
     // console.log(asyncRouterMap)
     asyncRouterMap.forEach(item => {
-      let parent = generateRouter(item, true)
-      let children = []
+      const parent = generateRouter(item, true)
+      const children = []
       if (item.children) {
         item.children.forEach(child => {
           children.push(generateRouter(child, false))
@@ -40,18 +37,21 @@ function convertRouter(asyncRouterMap) {
       accessedRouters.push(parent)
     })
   }
-  accessedRouters.push({path: '*', redirect: '/404', hidden: true})
+  accessedRouters.push({
+    path: '*', redirect: '/404', hidden: true
+  })
   return accessedRouters
 }
 
 function generateRouter(item, isParent) {
-  let router = {
+  return {
     path: '/' + item.path,
     name: item.name,
-    meta: {title: item.name, icon: item.icon},
+    meta: {
+      title: item.name, icon: item.icon
+    },
     component: isParent ? Layout : componentsMap[item.path]
   }
-  return router
 }
 
 /**
@@ -63,7 +63,7 @@ export function filterAsyncRoutes(routes, roles) {
   const res = []
 
   routes.forEach(route => {
-    const tmp = {...route}
+    const tmp = { ...route }
     if (hasPermission(roles, tmp)) {
       if (tmp.children) {
         tmp.children = filterAsyncRoutes(tmp.children, roles)
@@ -88,12 +88,10 @@ const mutations = {
 }
 
 const actions = {
-  generateRoutes({commit}, data) {
+  generateRoutes: function({ commit }, data) {
     return new Promise(resolve => {
       // console.log(data)
-      const asyncRouterMap = data
-      console.log(data);
-      const accessedRouters = convertRouter(asyncRouterMap)
+      const accessedRouters = convertRouter(data)
       commit('SET_ROUTES', accessedRouters)
       resolve(accessedRouters)
     })

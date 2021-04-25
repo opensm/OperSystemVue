@@ -36,12 +36,13 @@
       <el-table-column class-name="status-col" label="状态" width="110" align="center">
         <template slot-scope="scope">
           <el-tag :type="scope.row.is_active | statusFilter">{{ scope.row.is_active|statusChoice }}</el-tag>
-<!--          <el-tag :type="scope.row.is_active | statusFilter">{{ scope.row.is_active }}</el-tag>-->
         </template>
       </el-table-column>
       <el-table-column align="center" prop="create_date" label="创建日期" width="200">
         <template slot-scope="scope">
-          <i class="el-icon-time"/>
+          <i
+            class="el-icon-time"
+          />
           <span>{{ scope.row.create_date }}</span>
         </template>
       </el-table-column>
@@ -60,7 +61,9 @@
 </template>
 
 <script>
-import {getUserList} from '@/api/table'
+import {
+  getUserList
+} from '@/api/table'
 
 export default {
   filters: {
