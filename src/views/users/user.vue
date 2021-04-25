@@ -94,7 +94,7 @@
     <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible">
       <el-form ref="dataForm" :rules="rules" :model="temp" label-position="left" label-width="70px"
                style="width: 400px; margin-left:50px;">
-        <el-form-item label="用户" prop="username">
+        <el-form-item label="用户" prop="username" label-width="70px">
           <el-input v-model="temp.username"/>
         </el-form-item>
         <el-form-item label="姓名" prop="name">
