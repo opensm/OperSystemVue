@@ -22,7 +22,7 @@
         style="margin-left: 10px;"
         type="primary"
         icon="el-icon-edit"
-        disabled="{{ this.post }}"
+        :disabled="post ==='false'"
         @click="handleCreate"
       >
         新增
@@ -88,7 +88,7 @@
 
       <el-table-column label="操作" align="center" width="230" class-name="small-padding fixed-width">
         <template slot-scope="{row,$index}">
-          <el-button type="primary" size="mini" @click="handleUpdate(row)">
+          <el-button type="primary" size="mini" @click="handleUpdate(row)" :disabled="post==='false'">
             修改
           </el-button>
           <el-button size="mini" type="danger" @click="handleDelete(row,$index)">
@@ -153,7 +153,9 @@
 </template>
 
 <script>
-import {getUsersInfo, deleteUser, updateUser, addUser} from '@/api/user'
+import {
+  getUsersInfo, deleteUser, updateUser, addUser
+} from '@/api/user'
 import waves from '@/directive/waves' // waves directive
 import {
   getRoles
@@ -162,8 +164,12 @@ import Pagination from '@/components/Pagination'
 
 export default {
   name: 'ComplexTable',
-  components: {Pagination},
-  directives: {waves},
+  components: {
+    Pagination
+  },
+  directives: {
+    waves
+  },
   filters: {
     statusFilter(status) {
       const statusMap = {
@@ -390,7 +396,7 @@ export default {
         this.dialogPvVisible = true
       })
     },
-    getSortClass: function (key) {
+    getSortClass: function(key) {
       const sort = this.listQuery.sort
       return sort === `+${key}` ? 'ascending' : 'descending'
     }
