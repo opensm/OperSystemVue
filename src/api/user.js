@@ -23,7 +23,7 @@ export function addUser(data) {
 }
 export function deleteUser(id) {
   return request({
-    url: '/auth/user/$id',
+    url: '/auth/user?id=$id',
     method: 'delete'
   })
 }
