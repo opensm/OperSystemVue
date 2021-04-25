@@ -22,7 +22,7 @@
         style="margin-left: 10px;"
         type="primary"
         icon="el-icon-edit"
-        disabled="{{ this.post === 'false' }}"
+        disabled="{{ this.post }}"
         @click="handleCreate"
       >
         新增
