@@ -88,10 +88,10 @@
 
       <el-table-column label="操作" align="center" width="230" class-name="small-padding fixed-width">
         <template slot-scope="{row,$index}">
-          <el-button type="primary" size="mini" :disabled="post==='false'" @click="handleUpdate(row)">
+          <el-button type="primary" size="mini" :disabled="temp.button.contains('PUT')" @click="handleUpdate(row)">
             修改
           </el-button>
-          <el-button size="mini" type="danger" @click="handleDelete(row,$index)">
+          <el-button size="mini" type="danger" :disabled="temp.button.contains('DELETE')" @click="handleDelete(row,$index)">
             删除
           </el-button>
         </template>
@@ -218,7 +218,8 @@ export default {
         roles: '',
         email: '',
         is_active: '',
-        is_staff: 0
+        is_staff: 0,
+        button: [],
       },
       dialogFormVisible: false,
       dialogStatus: '',
@@ -315,7 +316,8 @@ export default {
         is_staff: '',
         create_date: '',
         update_date: '',
-        last_login: ''
+        last_login: '',
+        button: []
       }
     },
     handleCreate() {
