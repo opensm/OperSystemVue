@@ -92,6 +92,7 @@ const actions = {
     return new Promise(resolve => {
       // console.log(data)
       const asyncRouterMap = data
+      console.log(data);
       const accessedRouters = convertRouter(asyncRouterMap)
       commit('SET_ROUTES', accessedRouters)
       resolve(accessedRouters)
