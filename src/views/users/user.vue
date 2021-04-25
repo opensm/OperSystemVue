@@ -17,15 +17,18 @@
       >
         搜索
       </el-button>
-      <el-button
-        class="filter-item"
-        style="margin-left: 10px;"
-        type="primary"
-        icon="el-icon-edit"
-        @click="handleCreate"
-      >
+      <span v-if="this.post">
+        <el-button
+          class="filter-item"
+          style="margin-left: 10px;"
+          type="primary"
+          icon="el-icon-edit"
+          @click="handleCreate"
+        >
         新增
       </el-button>
+      </span>
+
     </div>
 
     <el-table
@@ -154,6 +157,7 @@ export default {
       tableKey: 0,
       roles: null,
       total: 0,
+      post: null,
       listLoading: true,
       listQuery: {
         page: 1,
@@ -200,8 +204,8 @@ export default {
     this.getRoles()
   },
   methods: {
-    getRoles(){
-      getRoles().then(response=>{
+    getRoles() {
+      getRoles().then(response => {
         this.roles = response.data
       })
     },
@@ -215,6 +219,7 @@ export default {
       getUsersInfo().then(response => {
         this.list = response.data
         this.total = response.total
+        this.post = response.meta.post
 
         // Just to simulate the time of the request
         setTimeout(() => {
