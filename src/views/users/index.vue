@@ -13,7 +13,7 @@
           {{ scope.$index }}
         </template>
       </el-table-column>
-      <el-table-column label="用户" width="auto">
+      <el-table-column label="用户" width="95">
         <template slot-scope="scope">
           {{ scope.row.username }}
         </template>
