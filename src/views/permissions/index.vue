@@ -1,20 +1,39 @@
 <template>
   <div class="app-container">
     <div class="filter-container">
-      <el-input v-model="listQuery.name" placeholder="权限" style="width: 200px;" class="filter-item"
-                @keyup.enter.native="handleFilter"/>
+      <el-input
+        v-model="listQuery.name"
+        placeholder="权限"
+        style="width: 200px;"
+        class="filter-item"
+        @keyup.enter.native="handleFilter"
+      />
       <el-select v-model="listQuery.level" placeholder="菜单等级" clearable class="filter-item" style="width: 130px">
-        <el-option v-for="item in calendarTypeOptions" :key="item.level" :label="item.display_name+'('+item.level+')'"
-                   :value="item.level"/>
+        <el-option
+          v-for="item in calendarTypeOptions"
+          :key="item.level"
+          :label="item.display_name+'('+item.level+')'"
+          :value="item.level"
+        />
       </el-select>
       <el-select v-model="listQuery.sort" style="width: 140px" class="filter-item" @change="handleFilter">
-        <el-option v-for="item in sortOptions" :key="item.key" :label="item.label" :value="item.key"/>
+        <el-option
+          v-for="item in sortOptions"
+          :key="item.key"
+          :label="item.label"
+          :value="item.key"
+        />
       </el-select>
       <el-button v-waves class="filter-item" type="primary" icon="el-icon-search" @click="handleFilter">
         搜索
       </el-button>
-      <el-button class="filter-item" style="margin-left: 10px;" type="primary" icon="el-icon-edit"
-                 @click="handleCreate">
+      <el-button
+        class="filter-item"
+        style="margin-left: 10px;"
+        type="primary"
+        icon="el-icon-edit"
+        @click="handleCreate"
+      >
         新增
       </el-button>
     </div>
@@ -29,8 +48,14 @@
       style="width: 100%;"
       @sort-change="sortChange"
     >
-      <el-table-column label="ID" prop="id" sortable="custom" align="center" width="80"
-                       :class-name="getSortClass('id')">
+      <el-table-column
+        label="ID"
+        prop="id"
+        sortable="custom"
+        align="center"
+        width="80"
+        :class-name="getSortClass('id')"
+      >
         <template slot-scope="{row}">
           <span>{{ row.id }}</span>
         </template>
@@ -67,7 +92,13 @@
       </el-table-column>
       <el-table-column label="图标" width="110px" align="center">
         <template slot-scope="{row}">
-          <span v-if="row.icon"><svg-icon :icon-class="row.icon"/></span>
+          <span
+            v-if="row.icon"
+          >
+            <svg-icon
+              :icon-class="row.icon"
+            />
+          </span>
           <!--          <svg-icon :icon-class="row.icon"/>-->
         </template>
       </el-table-column>
@@ -89,23 +120,39 @@
       </el-table-column>
     </el-table>
 
-    <pagination v-show="total>0" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.limit"
-                @pagination="getList"/>
+    <pagination
+      v-show="total>0"
+      :total="total"
+      :page.sync="listQuery.page"
+      :limit.sync="listQuery.limit"
+      @pagination="getList"
+    />
     <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible">
-      <el-form ref="dataForm" :rules="rules" :model="temp" label-position="left" label-width="70px"
-               style="width: 400px; margin-left:50px;">
+      <el-form
+        ref="dataForm"
+        :rules="rules"
+        :model="temp"
+        label-position="left"
+        label-width="70px"
+        style="width: 400px; margin-left:50px;"
+      >
         <el-form-item label="权限" prop="name">
-          <el-input v-model="temp.name"/>
+          <el-input
+            v-model="temp.name"
+          />
         </el-form-item>
         <el-form-item label="url" prop="path">
-          <el-input v-model="temp.path"/>
+          <el-input
+            v-model="temp.path"
+          />
         </el-form-item>
         <el-form-item label="菜单等级" prop="level">
           <el-select ref="select" v-model="temp.level" placeholder="请选择">
-            <el-option v-for="item in calendarTypeOptions"
-                       :key="item.level"
-                       :value="item.level"
-                       :label="item.display_name"
+            <el-option
+              v-for="item in calendarTypeOptions"
+              :key="item.level"
+              :value="item.level"
+              :label="item.display_name"
             />
           </el-select>
         </el-form-item>
@@ -113,17 +160,25 @@
           <el-select ref="select" v-model="temp.icon" placeholder="请选择">
             <el-option v-for="(item,index) in iconOptions" :key="index" :value="item">
               <template>
-                <span v-if="item"><svg-icon :icon-class="item"/></span>
+                <span v-if="item">
+                  <svg-icon
+                    :icon-class="item"
+                  />
+                </span>
                 <span>: {{ item }}</span>
               </template>
             </el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="显示序列" prop="index">
-          <el-input v-model="temp.index"/>
+          <el-input
+            v-model="temp.index"
+          />
         </el-form-item>
         <el-form-item label="调用实例" prop="model">
-          <el-input v-model="temp.model"/>
+          <el-input
+            v-model="temp.model"
+          />
         </el-form-item>
         <!--        <el-form-item label="是否隐藏" prop="hidden">-->
         <!--          <el-select ref="select" v-model="temp.hidden" placeholder="请选择">-->
@@ -139,16 +194,19 @@
         <!--        </el-form-item>-->
         <el-form-item label="父级菜单" prop="parent">
           <el-select v-model="temp.parent" filterable clearable placeholder="请选择">
-            <template v-for="option in this.list">
+            <template v-for="option in temp.list">
               <el-option
-                :value="option.id"
                 :key="option.id"
+                :value="option.id"
                 :label="option.name"
                 :disabled="temp.id === option.id || temp.level===0"
               >
                 <span>
-                <span v-if="option.icon"><svg-icon :icon-class="option.icon"/> :</span>
-                <span>{{ option.name }}</span>
+                  <span v-if="option.icon">
+                    <svg-icon
+                      :icon-class="option.icon"
+                    /> :</span>
+                  <span>{{ option.name }}</span>
                 </span>
               </el-option>
             </template>
@@ -170,22 +228,34 @@
 <script>
 import {getPermissions, updatePermission, deletePermission, addPermission, getMenus} from '@/api/permission'
 import waves from '@/directive/waves' // waves directive
-import {parseTime} from '@/utils'
+// import { parseTime } from '@/utils'
 import Pagination from '@/components/Pagination'
-import {constantRoutes} from "@/router"; // secondary package based on el-pagination
-
+// import { constantRoutes } from "@/router"; // secondary package based on el-pagination
 
 const calendarHiddenOptions = [
-  {hidden: 'true', display_name: '隐藏', index: 1},
-  {hidden: 'false', display_name: '不隐藏', index: 0},
+  {
+    hidden: 'true', display_name: '隐藏', index: 1
+  }, {
+    hidden: 'false', display_name: '不隐藏', index: 0
+  }
 ]
 
 const calendarTypeOptions = [
-  {level: 0, display_name: '一级菜单'},
-  {level: 1, display_name: '二级菜单'},
-  {level: 2, display_name: '三级菜单'},
-  {level: 3, display_name: '四级菜单'},
-  {level: 999, display_name: '按钮权限'}
+  {
+    level: 0, display_name: '一级菜单'
+  },
+  {
+    level: 1, display_name: '二级菜单'
+  },
+  {
+    level: 2, display_name: '三级菜单'
+  },
+  {
+    level: 3, display_name: '四级菜单'
+  },
+  {
+    level: 999, display_name: '按钮权限'
+  }
 ]
 
 // arr to obj, such as { CN : "China", US : "USA" }
@@ -200,8 +270,8 @@ const calendarHiddenKeyValue = calendarHiddenOptions.reduce((acc, cur) => {
 
 export default {
   name: 'ComplexTable',
-  components: {Pagination},
-  directives: {waves},
+  components: { Pagination },
+  directives: { waves },
   filters: {
     statusFilter(status) {
       const statusMap = {
@@ -233,10 +303,14 @@ export default {
       },
       calendarTypeOptions,
       calendarHiddenOptions,
-      sortOptions: [{label: 'ID 正序', key: '+id'}, {label: 'ID 逆序', key: '-id'}],
+      sortOptions: [{
+        label: 'ID 正序', key: '+id'
+      }, {
+        label: 'ID 逆序', key: '-id'
+      }],
       showReviewer: false,
       iconOptions: [
-        "404", "bug", "chart", "clipboard", "component", "dashboard", "documentation", "drag", "edit", "education", "email", "example", "excel", "exit-fullscreen", "eye-open", "eye", "form", "fullscreen", "guide", "icon", "international", "language", "link", "list", "lock", "message", "money", "nested", "password", "pdf", "people", "peoples", "qq", "search", "shopping", "size", "skill", "star", "tab", "table", "theme", "tree-table", "tree", "user", "wechat", "zip"
+        '404', 'bug', 'chart', 'clipboard', 'component', 'dashboard', 'documentation', 'drag', 'edit', 'education', 'email', 'example', 'excel', 'exit-fullscreen', 'eye-open', 'eye', 'form', 'fullscreen', 'guide', 'icon', 'international', 'language', 'link', 'list', 'lock', 'message', 'money', 'nested', 'password', 'pdf', 'people', 'peoples', 'qq', 'search', 'shopping', 'size', 'skill', 'star', 'tab', 'table', 'theme', 'tree-table', 'tree', 'user', 'wechat', 'zip'
       ],
       temp: {
         id: undefined,
@@ -259,10 +333,18 @@ export default {
       dialogPvVisible: false,
       pvData: [],
       rules: {
-        path: [{required: true, message: '资源路径必须填写!', trigger: 'blur'}],
-        name: [{required: true, message: '权限名称必须填写！', trigger: 'blur'}],
-        model: [{required: true, message: '资源必须填写！', trigger: 'blur'}],
-        level: [{required: true, message: '菜单级别必须填写！', trigger: 'blur'}]
+        path: [{
+          required: true, message: '资源路径必须填写!', trigger: 'blur'
+        }],
+        name: [{
+          required: true, message: '权限名称必须填写！', trigger: 'blur'
+        }],
+        model: [{
+          required: true, message: '资源必须填写！', trigger: 'blur'
+        }],
+        level: [{
+          required: true, message: '菜单级别必须填写！', trigger: 'blur'
+        }]
       },
       downloadLoading: false
     }
@@ -281,9 +363,6 @@ export default {
       }
       getPermissions(this.listQuery).then(response => {
         this.list = response.data
-        console.log("1111111111111111111a");
-        console.log(this.list)
-        console.log("1111111111111111111b");
         this.total = response.total
 
         // Just to simulate the time of the request
@@ -309,7 +388,9 @@ export default {
       row.status = status
     },
     sortChange(data) {
-      const {prop, order} = data
+      const {
+        prop, order
+      } = data
       if (prop === 'id') {
         this.sortByID(order)
       }
@@ -388,7 +469,9 @@ export default {
     },
     handleDelete(row, index) {
       deletePermission(row.id).then(response => {
-        const {meta} = response.data
+        const {
+          meta
+        } = response.data
         this.list.splice(index, 1)
         // this.total = response.data.total
         this.$notify({
@@ -410,7 +493,7 @@ export default {
         this.dialogPvVisible = true
       })
     },
-    getSortClass: function (key) {
+    getSortClass: function(key) {
       const sort = this.listQuery.sort
       return sort === `+${key}` ? 'ascending' : 'descending'
     }

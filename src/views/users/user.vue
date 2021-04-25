@@ -38,8 +38,14 @@
       style="width: 100%;"
       @sort-change="sortChange"
     >
-      <el-table-column label="ID" prop="id" sortable="custom" align="center" width="80"
-                       :class-name="getSortClass('id')">
+      <el-table-column
+        label="ID"
+        prop="id"
+        sortable="custom"
+        align="center"
+        width="80"
+        :class-name="getSortClass('id')"
+      >
         <template slot-scope="{row}">
           <span>{{ row.id }}</span>
         </template>
@@ -72,7 +78,9 @@
       </el-table-column>
       <el-table-column label="创建日期" width="110px" align="center">
         <template slot-scope="{row}">
-          <i class="el-icon-time"/>
+          <i
+            class="el-icon-time"
+          />
           <span>{{ row.create_date }}</span>
         </template>
       </el-table-column>
@@ -89,24 +97,46 @@
       </el-table-column>
     </el-table>
 
-    <pagination v-show="total>0" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.limit"
-                @pagination="getList"/>
+    <pagination
+      v-show="total>0"
+      :total="total"
+      :page.sync="listQuery.page"
+      :limit.sync="listQuery.limit"
+      @pagination="getList"
+    />
     <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible">
-      <el-form ref="dataForm" :rules="rules" :model="temp" label-position="left" label-width="70px"
-               style="width: 400px; margin-left:50px;">
+      <el-form
+        ref="dataForm"
+        :rules="rules"
+        :model="temp"
+        label-position="left"
+        label-width="70px"
+        style="width: 400px; margin-left:50px;"
+      >
         <el-form-item label="用户" prop="username" label-width="70px">
-          <el-input v-model="temp.username"/>
+          <el-input
+            v-model="temp.username"
+          />
         </el-form-item>
         <el-form-item label="姓名" prop="name">
-          <el-input v-model="temp.name"/>
+          <el-input
+            v-model="temp.name"
+          />
         </el-form-item>
         <el-form-item label="角色" prop="roles">
           <el-select ref="select" v-model="temp.roles" placeholder="请选择">
-            <el-option v-for="item in this.roles" :key="item.id" :value="item.id" :label="item.name"/>
+            <el-option
+              v-for="item in temp.roles"
+              :key="item.id"
+              :value="item.id"
+              :label="item.name"
+            />
           </el-select>
         </el-form-item>
         <el-form-item label="电话" prop="mobile">
-          <el-input v-model="temp.mobile"/>
+          <el-input
+            v-model="temp.mobile"
+          />
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -122,16 +152,17 @@
 </template>
 
 <script>
-import {getUsersInfo, deleteUser, updateUser, updateUserRoles, updateUserState, addUser} from '@/api/user'
+import { getUsersInfo, deleteUser, updateUser, updateUserRoles, updateUserState, addUser } from '@/api/user'
 import waves from '@/directive/waves' // waves directive
-import {getRoles} from '@/api/role'
+import {
+  getRoles
+} from '@/api/role'
 import Pagination from '@/components/Pagination'
-
 
 export default {
   name: 'ComplexTable',
-  components: {Pagination},
-  directives: {waves},
+  components: { Pagination },
+  directives: { waves },
   filters: {
     statusFilter(status) {
       const statusMap = {
@@ -163,10 +194,14 @@ export default {
         level: undefined,
         sort: '+id'
       },
-      sortOptions: [{label: 'ID 正序', key: '+id'}, {label: 'ID 逆序', key: '-id'}],
+      sortOptions: [{
+        label: 'ID 正序', key: '+id'
+      }, {
+        label: 'ID 逆序', key: '-id'
+      }],
       showReviewer: false,
       iconOptions: [
-        "404", "bug", "chart", "clipboard", "component", "dashboard", "documentation", "drag", "edit", "education", "email", "example", "excel", "exit-fullscreen", "eye-open", "eye", "form", "fullscreen", "guide", "icon", "international", "language", "link", "list", "lock", "message", "money", "nested", "password", "pdf", "people", "peoples", "qq", "search", "shopping", "size", "skill", "star", "tab", "table", "theme", "tree-table", "tree", "user", "wechat", "zip"
+        '404', 'bug', 'chart', 'clipboard', 'component', 'dashboard', 'documentation', 'drag', 'edit', 'education', 'email', 'example', 'excel', 'exit-fullscreen', 'eye-open', 'eye', 'form', 'fullscreen', 'guide', 'icon', 'international', 'language', 'link', 'list', 'lock', 'message', 'money', 'nested', 'password', 'pdf', 'people', 'peoples', 'qq', 'search', 'shopping', 'size', 'skill', 'star', 'tab', 'table', 'theme', 'tree-table', 'tree', 'user', 'wechat', 'zip'
       ],
       temp: {
         id: undefined,
@@ -175,7 +210,7 @@ export default {
         mobile: '',
         roles: '',
         email: '',
-        is_active: "",
+        is_active: '',
         is_staff: 0
       },
       dialogFormVisible: false,
@@ -187,11 +222,21 @@ export default {
       dialogPvVisible: false,
       pvData: [],
       rules: {
-        username: [{required: true, message: '用户名称(账号)必须填写!', trigger: 'blur'}],
-        name: [{required: true, message: '姓名名称必须填写！', trigger: 'blur'}],
-        model: [{required: true, message: '资源必须填写！', trigger: 'blur'}],
-        roles: [{required: true, message: '角色必须填写！', trigger: 'blur'}],
-        mobile: [{required: true, message: '电话必须填写！', trigger: 'blur'}]
+        username: [{
+          required: true, message: '用户名称(账号)必须填写!', trigger: 'blur'
+        }],
+        name: [{
+          required: true, message: '姓名名称必须填写！', trigger: 'blur'
+        }],
+        model: [{
+          required: true, message: '资源必须填写！', trigger: 'blur'
+        }],
+        roles: [{
+          required: true, message: '角色必须填写！', trigger: 'blur'
+        }],
+        mobile: [{
+          required: true, message: '电话必须填写！', trigger: 'blur'
+        }]
       },
       downloadLoading: false
     }
@@ -236,7 +281,9 @@ export default {
       row.status = status
     },
     sortChange(data) {
-      const {prop, order} = data
+      const {
+        prop, order
+      } = data
       if (prop === 'id') {
         this.sortByID(order)
       }
@@ -317,8 +364,10 @@ export default {
       })
     },
     handleDelete(row, index) {
-      deletePermission(row.id).then(response => {
-        const {meta} = response.data
+      deleteUser(row.id).then(response => {
+        const {
+          meta
+        } = response.data
         this.list.splice(index, 1)
         // this.total = response.data.total
         this.$notify({
@@ -340,7 +389,7 @@ export default {
         this.dialogPvVisible = true
       })
     },
-    getSortClass: function (key) {
+    getSortClass: function(key) {
       const sort = this.listQuery.sort
       return sort === `+${key}` ? 'ascending' : 'descending'
     }
