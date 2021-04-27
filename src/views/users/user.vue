@@ -91,7 +91,7 @@
           <el-button type="primary" size="mini" :disabled=" 'PUT' in temp.button" @click="handleUpdate(row)">
             修改
           </el-button>
-          <el-button size="mini" type="danger" :disabled="temp.button.contains('DELETE')" @click="handleDelete(row,$index)">
+          <el-button size="mini" type="danger" :disabled="'DELETE' in temp.button" @click="handleDelete(row,$index)">
             删除
           </el-button>
         </template>
