@@ -88,7 +88,7 @@
 
       <el-table-column label="操作" align="center" width="230" class-name="small-padding fixed-width">
         <template slot-scope="{row,$index}">
-          <el-button type="primary" size="mini" :disabled="temp.button.contains('PUT')" @click="handleUpdate(row)">
+          <el-button type="primary" size="mini" :disabled=" 'PUT' in temp.button" @click="handleUpdate(row)">
             修改
           </el-button>
           <el-button size="mini" type="danger" :disabled="temp.button.contains('DELETE')" @click="handleDelete(row,$index)">
