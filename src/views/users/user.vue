@@ -138,6 +138,16 @@
             v-model="temp.mobile"
           />
         </el-form-item>
+        <el-form-item label="email" prop="email">
+          <el-input
+            v-model="temp.email"
+          />
+        </el-form-item>
+        <el-form-item label="有效" prop="is_active">
+          <el-input
+            v-model="temp.is_active"
+          />
+        </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogFormVisible = false">
