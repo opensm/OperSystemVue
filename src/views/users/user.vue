@@ -74,7 +74,6 @@
       <el-table-column label="状态" width="110px" align="center">
         <template slot-scope="{row}">
           <el-tag :type="row.is_active | statusFilter">{{ row.is_active|statusChoice }}</el-tag>
-          <!--          <el-tag :type="scope.row.is_active | statusFilter">{{ scope.row.is_active }}</el-tag>-->
         </template>
       </el-table-column>
       <el-table-column label="创建日期" width="110px" align="center">

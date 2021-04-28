@@ -23,7 +23,7 @@ export function addUser(data) {
 }
 export function deleteUser(id) {
   return request({
-    url: '/auth/user?id=$id',
+    url: '/auth/user?id=' + id,
     method: 'delete'
   })
 }
@@ -41,8 +41,9 @@ export function getUsersInfo() {
 }
 export function updateUser(id, data) {
   return request({
-    url: '/auth/user',
-    method: 'put'
+    url: '/auth/user?id=' + id,
+    method: 'put',
+    data: data
   })
 }
 export function updateUserState(id, data) {
