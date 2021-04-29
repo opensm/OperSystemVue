@@ -45,7 +45,7 @@ function convertRouter(asyncRouterMap) {
 
 function generateRouter(item, isParent) {
   return {
-    path: '/' + item.path,
+    path: item.path === '/' ? '/' : '/' + item.path,
     name: item.name,
     meta: {
       title: item.name, icon: item.icon
@@ -108,5 +108,5 @@ export const componentsMap = {
   reset_passoword: () => import('@/views/reset_passoword/index'),
   roles: () => import('@/views/roles/index'),
   users: () => import('@/views/users/user'),
-  permissions: () => import('@/views/permissions/index')
+  menus: () => import('@/views/system/menus')
 }

@@ -6,6 +6,12 @@ export function getRoutes() {
     method: 'get'
   })
 }
+export function getUserInfo() {
+  return request({
+    url: '/auth/current_user',
+    method: 'get'
+  })
+}
 
 export function getRoles() {
   return request({
@@ -24,7 +30,7 @@ export function addRole(data) {
 
 export function updateRole(id, data) {
   return request({
-    url: `/auth/role/${id}`,
+    url: `/auth/role?id=${id}`,
     method: 'put',
     data
   })

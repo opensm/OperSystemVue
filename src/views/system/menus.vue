@@ -60,37 +60,27 @@
           <span>{{ row.id }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="权限" min-width="50px" align="center">
+      <el-table-column label="权限" align="center">
         <template slot-scope="{row}">
           <span class="link-type">{{ row.name }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="父菜单" width="110px" align="center">
+      <el-table-column label="父菜单" align="center">
         <template slot-scope="{row}">
-          <span v-if="row.parent">{{ row.parent }}</span>
+          <span v-if="row.parent">{{ row.parent.name }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="相关资源" width="110px" align="center">
-        <template slot-scope="{row}">
-          <span>{{ row.model }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="URL" width="110px" align="center">
+      <el-table-column label="URL" align="center">
         <template slot-scope="{row}">
           <span>{{ row.path }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="是否隐藏" width="110px" align="center">
-        <template slot-scope="{row}">
-          <el-tag>{{ row.hidden | hiddenFilter }}</el-tag>
-        </template>
-      </el-table-column>
-      <el-table-column label="显示序列" width="110px" align="center">
+      <el-table-column label="显示序列" align="center">
         <template slot-scope="{row}">
           <span>{{ row.index }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="图标" width="110px" align="center">
+      <el-table-column label="图标" align="center">
         <template slot-scope="{row}">
           <span
             v-if="row.icon"
@@ -102,13 +92,13 @@
           <!--          <svg-icon :icon-class="row.icon"/>-->
         </template>
       </el-table-column>
-      <el-table-column label="菜单等级" min-width="110px" align="center">
+      <el-table-column label="菜单等级" align="center">
         <template slot-scope="{row}">
           <el-tag>{{ row.level | typeFilter }}</el-tag>
         </template>
       </el-table-column>
 
-      <el-table-column label="操作" align="center" width="230" class-name="small-padding fixed-width">
+      <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template slot-scope="{row,$index}">
           <el-button type="primary" size="mini" @click="handleUpdate(row)">
             修改
@@ -175,30 +165,13 @@
             v-model="temp.index"
           />
         </el-form-item>
-        <el-form-item label="调用实例" prop="model">
-          <el-input
-            v-model="temp.model"
-          />
-        </el-form-item>
-        <!--        <el-form-item label="是否隐藏" prop="hidden">-->
-        <!--          <el-select ref="select" v-model="temp.hidden" placeholder="请选择">-->
-        <!--            &lt;!&ndash;            <el-option v-for="item in calendarHiddenOptions" :key="item.hidden" :value="item.hidden"&ndash;&gt;-->
-        <!--            &lt;!&ndash;                       :label="item.display_name"/>&ndash;&gt;-->
-        <!--            <el-option v-for="item in calendarHiddenOptions"-->
-        <!--                       :key="item.index"-->
-        <!--                       :label="item.display_name"-->
-        <!--                       :value="item.hidden">-->
-        <!--              <span style="float: left">{{ item.display_name }}</span>-->
-        <!--            </el-option>-->
-        <!--          </el-select>-->
-        <!--        </el-form-item>-->
         <el-form-item label="父级菜单" prop="parent">
           <el-select v-model="temp.parent" filterable clearable placeholder="请选择">
-            <template v-for="option in temp.list">
+            <template v-for="option in list">
               <el-option
                 :key="option.id"
                 :value="option.id"
-                :label="option.name"
+                :label="option.id"
                 :disabled="temp.id === option.id || temp.level===0"
               >
                 <span>
@@ -227,8 +200,8 @@
 
 <script>
 import {
-  getPermissions, updatePermission, deletePermission, addPermission, getMenus
-} from '@/api/permission'
+  getMenus, addMenu, updateMenu, deleteMenu
+} from '@/api/menus'
 import waves from '@/directive/waves' // waves directive
 // import { parseTime } from '@/utils'
 import Pagination from '@/components/Pagination'
@@ -363,7 +336,7 @@ export default {
       if (this.listQuery.level === '') {
         this.listQuery.level = undefined
       }
-      getPermissions(this.listQuery).then(response => {
+      getMenus(this.listQuery).then(response => {
         this.list = response.data
         this.total = response.total
 
@@ -429,7 +402,7 @@ export default {
       this.$refs['dataForm'].validate((valid) => {
         if (valid) {
           this.temp.id = parseInt(Math.random() * 100) + 1024 // mock a id
-          addPermission(this.temp).then(() => {
+          addMenu(this.temp).then(() => {
             this.list.unshift(this.temp)
             this.dialogFormVisible = false
             this.$notify({
@@ -455,7 +428,7 @@ export default {
       this.$refs['dataForm'].validate((valid) => {
         if (valid) {
           const tempData = Object.assign({}, this.temp)
-          updatePermission(tempData.id, tempData).then(() => {
+          updateMenu(tempData.id, tempData).then(() => {
             const index = this.list.findIndex(v => v.id === this.temp.id)
             this.list.splice(index, 1, this.temp)
             this.dialogFormVisible = false
@@ -470,11 +443,11 @@ export default {
       })
     },
     handleDelete(row, index) {
-      deletePermission(row.id).then(response => {
+      deleteMenu(row.id).then(response => {
         const {
           meta
         } = response.data
-        this.list.splice(index, 1)
+        this.list.splice(meta, 1)
         // this.total = response.data.total
         this.$notify({
           title: '成功',

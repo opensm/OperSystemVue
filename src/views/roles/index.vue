@@ -1,48 +1,45 @@
 <template>
   <div class="app-container">
-    <el-button type="primary" @click="handleAddRole">新增角色</el-button>
+    <el-button type="primary" @click="handleAddRole">New Role</el-button>
 
     <el-table :data="rolesList" style="width: 100%;margin-top:30px;" border>
-      <el-table-column align="center" label="角色ID" width="220">
+      <el-table-column align="center" label="Role Key" width="220">
         <template slot-scope="scope">
           {{ scope.row.id }}
         </template>
       </el-table-column>
-      <el-table-column align="center" label="角色名称" width="220">
+      <el-table-column align="center" label="Role Name" width="220">
         <template slot-scope="scope">
           {{ scope.row.name }}
         </template>
       </el-table-column>
-      <el-table-column align="header-center" label="描述">
+      <el-table-column align="header-center" label="Description">
         <template slot-scope="scope">
           {{ scope.row.desc }}
         </template>
       </el-table-column>
-      <el-table-column align="center" label="操作">
+      <el-table-column align="center" label="Operations">
         <template slot-scope="scope">
-          <el-button type="primary" size="small" @click="handleEdit(scope)">编辑</el-button>
+          <el-button type="primary" size="small" @click="handleEdit(scope)">修改</el-button>
           <el-button type="danger" size="small" @click="handleDelete(scope)">删除</el-button>
         </template>
       </el-table-column>
     </el-table>
 
-    <el-dialog :visible.sync="dialogVisible" :title="dialogType==='edit'?'修改角色信息':'新增角色'">
+    <el-dialog :visible.sync="dialogVisible" :title="dialogType==='edit'?'编辑角色':'新增角色'">
       <el-form :model="role" label-width="80px" label-position="left">
         <el-form-item label="角色名称">
-          <el-input
-            v-model="role.name"
-            placeholder="角色名称"
-          />
+          <el-input v-model="role.name" placeholder="Role Name" />
         </el-form-item>
         <el-form-item label="描述">
           <el-input
             v-model="role.desc"
             :autosize="{ minRows: 2, maxRows: 4}"
             type="textarea"
-            placeholder="描述"
+            placeholder="备注"
           />
         </el-form-item>
-        <el-form-item label="关联权限">
+        <el-form-item label="关联菜单">
           <el-tree
             ref="tree"
             :check-strictly="checkStrictly"
@@ -64,37 +61,34 @@
 
 <script>
 import path from 'path'
-import {
-  deepClone
-} from '@/utils'
-import {
-  getRoutes, getRoles, addRole, deleteRole, updateRole
-} from '@/api/role'
+import { deepClone } from '@/utils'
+import { getUserInfo, getRoles, addRole, deleteRole, updateRole } from '@/api/role'
+import { constantRoutes } from "@/router";
 const defaultRole = {
   id: '',
   name: '',
   desc: '',
-  permissions: []
+  menu: []
 }
 export default {
   data() {
     return {
       role: Object.assign({}, defaultRole),
-      // routes: [],
-      permissions: [],
+      routes: [],
       rolesList: [],
       dialogVisible: false,
       dialogType: 'new',
       checkStrictly: false,
       defaultProps: {
         children: 'children',
-        label: 'name'
+        name: 'name'
       }
     }
   },
   computed: {
     routesData() {
-      return this.permissions
+      console.log(this.routes)
+      return this.routes
     }
   },
   created() {
@@ -104,11 +98,9 @@ export default {
   },
   methods: {
     async getRoutes() {
-      const {
-        data
-      } = await getRoutes()
-      this.serviceRoutes = data
-      this.permissions = this.generateRoutes(data)
+      const { data } = await getUserInfo()
+      this.serviceRoutes = data.user_permissions
+      this.routes = this.generateRoutes(data.user_permissions)
     },
     async getRoles() {
       const res = await getRoles()
@@ -119,17 +111,13 @@ export default {
       const res = []
       for (let route of routes) {
         // skip some route
-        // if (route.hidden) {
-        //   continue
+        // if (route.hidden) { continue }
+        // const onlyOneShowingChild = this.onlyOneShowingChild(route.children, route)
+        // if (route.children && onlyOneShowingChild) {
+        //   route = onlyOneShowingChild
         // }
-        const onlyOneShowingChild = this.onlyOneShowingChild(route.children, route)
-        // if (route.children && onlyOneShowingChild && route.level !== 999) {
-        if (route.children && onlyOneShowingChild) {
-          route = onlyOneShowingChild
-        }
         const data = {
           path: path.resolve(basePath, route.path),
-          // title: route.meta && route.meta.title
           name: route.name
         }
         // recursive child routes
@@ -144,7 +132,7 @@ export default {
       let data = []
       routes.forEach(route => {
         data.push(route)
-        if (route.children && route.children.length >= 1) {
+        if (route.children) {
           const temp = this.generateArr(route.children)
           if (temp.length > 0) {
             data = [...data, ...temp]
@@ -167,36 +155,34 @@ export default {
       this.checkStrictly = true
       this.role = deepClone(scope.row)
       this.$nextTick(() => {
-        const routes = this.generateRoutes(this.role.permissions)
+        const routes = this.generateRoutes(this.role.menu)
         this.$refs.tree.setCheckedNodes(this.generateArr(routes))
         // set checked state of a node not affects its father and child nodes
         this.checkStrictly = false
       })
     },
     handleDelete({ $index, row }) {
-      this.$confirm('确定删除角色：' + row.name + '?', 'Warning', {
+      this.$confirm('Confirm to remove the role?', 'Warning', {
         confirmButtonText: 'Confirm',
         cancelButtonText: 'Cancel',
         type: 'warning'
       })
         .then(async() => {
-          await deleteRole(row.id)
+          await deleteRole(row.key)
           this.rolesList.splice($index, 1)
           this.$message({
             type: 'success',
-            message: '删除成功!'
+            message: 'Delete succed!'
           })
         })
-        .catch(err => {
-          console.error(err)
-        })
+        .catch(err => { console.error(err) })
     },
     generateTree(routes, basePath = '/', checkedKeys) {
       const res = []
       for (const route of routes) {
         const routePath = path.resolve(basePath, route.path)
         // recursive child routes
-        if (route.children && route.children.length >= 1) {
+        if (route.children) {
           route.children = this.generateTree(route.children, routePath, checkedKeys)
         }
         if (checkedKeys.includes(routePath) || (route.children && route.children.length >= 1)) {
@@ -208,34 +194,30 @@ export default {
     async confirmRole() {
       const isEdit = this.dialogType === 'edit'
       const checkedKeys = this.$refs.tree.getCheckedKeys()
-      // const checkedKeys = ['/monitor','/task']
-      console.log(this.$refs.tree.getCurrentNode())
-      console.log(this.permissions)
-      console.log(checkedKeys)
-      this.role.permissions = this.generateTree(deepClone(this.serviceRoutes), '/', checkedKeys)
+      this.role.routes = this.generateTree(deepClone(this.serviceRoutes), '/', checkedKeys)
       if (isEdit) {
         await updateRole(this.role.id, this.role)
         for (let index = 0; index < this.rolesList.length; index++) {
-          if (this.rolesList[index].key === this.role.id) {
+          if (this.rolesList[index].id === this.role.id) {
             this.rolesList.splice(index, 1, Object.assign({}, this.role))
             break
           }
         }
       } else {
-        const {
-          data
-        } = await addRole(this.role)
-        this.role.id = data.id
+        const { data } = await addRole(this.role)
+        this.role.key = data.id
         this.rolesList.push(this.role)
       }
-      const {
-        desc, id, name
-      } = this.role
+      const { desc, id, name } = this.role
       this.dialogVisible = false
       this.$notify({
-        title: '添加成功',
+        title: 'Success',
         dangerouslyUseHTMLString: true,
-        message: `<div>角色ID: ${id}</div><div>角色名称: ${name}</div><div>描述: ${desc}</div>`,
+        message: `
+            <div>Role Key: ${id}</div>
+            <div>Role Name: ${name}</div>
+            <div>Description: ${desc}</div>
+          `,
         type: 'success'
       })
     },
@@ -252,9 +234,7 @@ export default {
       }
       // Show parent if there are no child route to display
       if (showingChildren.length === 0) {
-        onlyOneChild = {
-          ...parent, path: parent.path
-        }
+        onlyOneChild = { ... parent, path: '', noShowingChildren: true }
         return onlyOneChild
       }
       return false
