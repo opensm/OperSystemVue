@@ -70,14 +70,12 @@ import {
 import {
   getRoutes, getRoles, addRole, deleteRole, updateRole
 } from '@/api/role'
-
 const defaultRole = {
   id: '',
   name: '',
   desc: '',
   permissions: []
 }
-
 export default {
   data() {
     return {
@@ -116,7 +114,6 @@ export default {
       const res = await getRoles()
       this.rolesList = res.data
     },
-
     // Reshape the routes structure so that it looks the same as the sidebar
     generateRoutes(routes, basePath = '/') {
       const res = []
@@ -125,9 +122,7 @@ export default {
         // if (route.hidden) {
         //   continue
         // }
-
         const onlyOneShowingChild = this.onlyOneShowingChild(route.children, route)
-
         // if (route.children && onlyOneShowingChild && route.level !== 999) {
         if (route.children && onlyOneShowingChild) {
           route = onlyOneShowingChild
@@ -137,7 +132,6 @@ export default {
           // title: route.meta && route.meta.title
           name: route.name
         }
-
         // recursive child routes
         if (route.children) {
           data.children = this.generateRoutes(route.children, data.path)
@@ -213,14 +207,12 @@ export default {
     },
     async confirmRole() {
       const isEdit = this.dialogType === 'edit'
-
       const checkedKeys = this.$refs.tree.getCheckedKeys()
       // const checkedKeys = ['/monitor','/task']
       console.log(this.$refs.tree.getCurrentNode())
       console.log(this.permissions)
       console.log(checkedKeys)
       this.role.permissions = this.generateTree(deepClone(this.serviceRoutes), '/', checkedKeys)
-
       if (isEdit) {
         await updateRole(this.role.id, this.role)
         for (let index = 0; index < this.rolesList.length; index++) {
@@ -236,7 +228,6 @@ export default {
         this.role.id = data.id
         this.rolesList.push(this.role)
       }
-
       const {
         desc, id, name
       } = this.role
@@ -253,14 +244,12 @@ export default {
       let onlyOneChild = null
       // const showingChildren = children.filter(item => !item.hidden)
       const showingChildren = children
-
       // When there is only one child route, the child route is displayed by default
       if (showingChildren.length === 1) {
         onlyOneChild = showingChildren[0]
         onlyOneChild.path = path.resolve(parent.path, onlyOneChild.path)
         return onlyOneChild
       }
-
       // Show parent if there are no child route to display
       if (showingChildren.length === 0) {
         onlyOneChild = {
@@ -268,7 +257,6 @@ export default {
         }
         return onlyOneChild
       }
-
       return false
     }
   }
@@ -280,7 +268,6 @@ export default {
   .roles-table {
     margin-top: 30px;
   }
-
   .permission-tree {
     margin-bottom: 30px;
   }
