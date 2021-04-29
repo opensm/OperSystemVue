@@ -51,32 +51,39 @@
           <span>{{ row.id }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="用户" min-width="50px" align="center">
+      <el-table-column label="用户" align="center">
         <template slot-scope="{row}">
           <span class="link-type">{{ row.username }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="邮箱" width="110px" align="center">
+      <el-table-column label="姓名" align="center">
+        <template slot-scope="{row}">
+          <span class="link-type">{{ row.name }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="邮箱" align="center">
         <template slot-scope="{row}">
           <span>{{ row.email }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="角色" width="110px" align="center">
+      <el-table-column label="角色" align="center">
         <template slot-scope="{row}">
-          <span>{{ row.roles }}</span>
+          <template v-for="(value ,key, index ) in role">
+            <el-button v-if="value.id in row.roles" :key="index" type="success">{{ value.name }}</el-button>
+          </template>
         </template>
       </el-table-column>
-      <el-table-column label="超级用户" width="110px" align="center">
+      <el-table-column label="超级用户" align="center">
         <template slot-scope="{row}">
           {{ row.is_superuser|statusChoice }}
         </template>
       </el-table-column>
-      <el-table-column label="状态" width="110px" align="center">
+      <el-table-column label="状态" align="center">
         <template slot-scope="{row}">
           <el-tag :type="row.is_active | statusFilter">{{ row.is_active|statusChoice }}</el-tag>
         </template>
       </el-table-column>
-      <el-table-column label="创建日期" width="110px" align="center">
+      <el-table-column label="创建日期" align="center">
         <template slot-scope="{row}">
           <i
             class="el-icon-time"
@@ -113,7 +120,7 @@
         label-width="70px"
         style="width: 400px; margin-left:50px;"
       >
-        <el-form-item label="用户" prop="username" label-width="70px">
+        <el-form-item label="用户" prop="username">
           <el-input
             v-model="temp.username"
           />
@@ -124,12 +131,19 @@
           />
         </el-form-item>
         <el-form-item label="角色" prop="roles">
-          <el-select ref="select" v-model="temp.roles" placeholder="请选择">
+          <el-select
+            v-model="temp.roles"
+            multiple
+            filterable
+            allow-create
+            default-first-option
+            placeholder="请选择角色"
+          >
             <el-option
-              v-for="item in temp.roles"
+              v-for="item in role"
               :key="item.id"
-              :value="item.id"
               :label="item.name"
+              :value="item.id"
             />
           </el-select>
         </el-form-item>
@@ -143,9 +157,11 @@
             v-model="temp.email"
           />
         </el-form-item>
-        <el-form-item label="有效" prop="is_active">
-          <el-input
+        <el-form-item label="状态" prop="is_active">
+          <el-switch
             v-model="temp.is_active"
+            active-color="#13ce66"
+            inactive-color="#ff4949"
           />
         </el-form-item>
       </el-form>
@@ -197,9 +213,42 @@ export default {
     }
   },
   data() {
+    const checkPhone = (rule, value, callback) => {
+      const phoneReg = /^1[3|4|5|7|8][0-9]{9}$/
+      if (!value) {
+        return callback(new Error('电话号码不能为空'))
+      }
+      setTimeout(() => {
+        // Number.isInteger是es6验证数字是否为整数的方法,但是我实际用的时候输入的数字总是识别成字符串
+        // 所以我就在前面加了一个+实现隐式转换
+
+        if (!Number.isInteger(+value)) {
+          callback(new Error('请输入数字值'))
+        } else {
+          if (phoneReg.test(value)) {
+            callback()
+          } else {
+            callback(new Error('电话号码格式不正确'))
+          }
+        }
+      }, 100)
+    }
+    const checkEmail = (rule, value, callback) => {
+      const mailReg = /^([a-zA-Z0-9_-])+@([a-zA-Z0-9_-])+(.[a-zA-Z0-9_-])+/
+      if (!value) {
+        return callback(new Error('邮箱不能为空'))
+      }
+      setTimeout(() => {
+        if (mailReg.test(value)) {
+          callback()
+        } else {
+          callback(new Error('请输入正确的邮箱格式'))
+        }
+      }, 100)
+    }
     return {
       tableKey: 0,
-      roles: null,
+      role: [],
       total: 0,
       post: null,
       listLoading: true,
@@ -224,11 +273,11 @@ export default {
         username: '',
         name: '',
         mobile: '',
-        roles: '',
+        roles: [],
         email: '',
-        is_active: '',
+        is_active: true,
         is_staff: 0,
-        button: [],
+        button: []
       },
       dialogFormVisible: false,
       dialogStatus: '',
@@ -253,6 +302,14 @@ export default {
         }],
         mobile: [{
           required: true, message: '电话必须填写！', trigger: 'blur'
+        }, { validator: checkPhone, trigger: 'blur' }],
+        is_active: [{
+          required: true, message: '状态必须选择！', trigger: 'blur'
+        }],
+        email: [{
+          required: true, message: '邮件地址必填！', trigger: 'blur'
+        }, {
+          validator: checkEmail, trigger: 'blur'
         }]
       },
       downloadLoading: false
@@ -265,7 +322,7 @@ export default {
   methods: {
     getRoles() {
       getRoles().then(response => {
-        this.roles = response.data
+        this.role = response.data
       })
     },
     getList() {
@@ -321,12 +378,11 @@ export default {
         mobile: '',
         roles: '',
         email: '',
-        is_active: '',
-        is_staff: '',
+        is_active: true,
+        is_staff: true,
         create_date: '',
         update_date: '',
-        last_login: '',
-        button: []
+        last_login: ''
       }
     },
     handleCreate() {
@@ -345,8 +401,8 @@ export default {
             this.list.unshift(this.temp)
             this.dialogFormVisible = false
             this.$notify({
-              title: 'Success',
-              message: 'Created Successfully',
+              title: '成功',
+              message: '创建用户成功',
               type: 'success',
               duration: 2000
             })
@@ -372,8 +428,8 @@ export default {
             this.list.splice(index, 1, this.temp)
             this.dialogFormVisible = false
             this.$notify({
-              title: '修改权限成功：' + tempData.name,
-              message: '修改权限成功',
+              title: '成功' + tempData.name,
+              message: '修改成功:' + tempData.name,
               type: 'success',
               duration: 2000
             })
@@ -389,7 +445,7 @@ export default {
         this.list.splice(index, 1)
         // this.total = response.data.total
         this.$notify({
-          title: 'Success',
+          title: '成功',
           message: meta.message,
           type: 'success',
           duration: 2000
