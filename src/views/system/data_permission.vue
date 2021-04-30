@@ -60,51 +60,24 @@
           <span>{{ row.id }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="权限" min-width="50px" align="center">
+      <el-table-column label="权限" align="center">
         <template slot-scope="{row}">
           <span class="link-type">{{ row.name }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="父菜单" width="110px" align="center">
+      <el-table-column label="资源model" align="center">
         <template slot-scope="{row}">
-          <span v-if="row.parent">{{ row.parent.name }}</span>
+          <span v-if="row.content_type">{{ row.content_type }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="相关资源" width="110px" align="center">
+      <el-table-column label="请求类型" align="center">
         <template slot-scope="{row}">
-          <span>{{ row.model }}</span>
+          <span>{{ row.request_type }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="URL" width="110px" align="center">
+      <el-table-column label="是否是全部资源" align="center">
         <template slot-scope="{row}">
-          <span>{{ row.path }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="是否隐藏" width="110px" align="center">
-        <template slot-scope="{row}">
-          <el-tag>{{ row.hidden | hiddenFilter }}</el-tag>
-        </template>
-      </el-table-column>
-      <el-table-column label="显示序列" width="110px" align="center">
-        <template slot-scope="{row}">
-          <span>{{ row.index }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="图标" width="110px" align="center">
-        <template slot-scope="{row}">
-          <span
-            v-if="row.icon"
-          >
-            <svg-icon
-              :icon-class="row.icon"
-            />
-          </span>
-          <!--          <svg-icon :icon-class="row.icon"/>-->
-        </template>
-      </el-table-column>
-      <el-table-column label="菜单等级" min-width="110px" align="center">
-        <template slot-scope="{row}">
-          <el-tag>{{ row.level | typeFilter }}</el-tag>
+          <el-tag> {{ row.is_all }}</el-tag>
         </template>
       </el-table-column>
 
@@ -141,76 +114,34 @@
             v-model="temp.name"
           />
         </el-form-item>
-        <el-form-item label="url" prop="path">
+        <el-form-item label="url" prop="content_type">
           <el-input
-            v-model="temp.path"
+            v-model="temp.content_type"
           />
         </el-form-item>
-        <el-form-item label="菜单等级" prop="level">
-          <el-select ref="select" v-model="temp.level" placeholder="请选择">
+        <el-form-item label="显示序列" prop="request_type">
+          <el-select
+            v-model="temp.request_type"
+            multiple
+            filterable
+            allow-create
+            default-first-option
+            placeholder="请选择角色"
+          >
             <el-option
-              v-for="item in calendarTypeOptions"
-              :key="item.level"
-              :value="item.level"
-              :label="item.display_name"
+              v-for="item in temp.request_type"
+              :key="item.id"
+              :label="item.name"
+              :value="item.id"
             />
           </el-select>
         </el-form-item>
-        <el-form-item label="图标" prop="icon">
-          <el-select ref="select" v-model="temp.icon" placeholder="请选择">
-            <el-option v-for="(item,index) in iconOptions" :key="meni" :value="item">
-              <template>
-                <span v-if="item">
-                  <svg-icon
-                    :icon-class="item"
-                  />
-                </span>
-                <span>: {{ item }}</span>
-              </template>
-            </el-option>
-          </el-select>
-        </el-form-item>
-        <el-form-item label="显示序列" prop="index">
-          <el-input
-            v-model="temp.index"
+        <el-form-item label="全部资源" prop="is_all">
+          <el-switch
+            v-model="temp.is_all"
+            active-color="#13ce66"
+            inactive-color="#ff4949"
           />
-        </el-form-item>
-        <el-form-item label="调用实例" prop="model">
-          <el-input
-            v-model="temp.model"
-          />
-        </el-form-item>
-        <!--        <el-form-item label="是否隐藏" prop="hidden">-->
-        <!--          <el-select ref="select" v-model="temp.hidden" placeholder="请选择">-->
-        <!--            &lt;!&ndash;            <el-option v-for="item in calendarHiddenOptions" :key="item.hidden" :value="item.hidden"&ndash;&gt;-->
-        <!--            &lt;!&ndash;                       :label="item.display_name"/>&ndash;&gt;-->
-        <!--            <el-option v-for="item in calendarHiddenOptions"-->
-        <!--                       :key="item.index"-->
-        <!--                       :label="item.display_name"-->
-        <!--                       :value="item.hidden">-->
-        <!--              <span style="float: left">{{ item.display_name }}</span>-->
-        <!--            </el-option>-->
-        <!--          </el-select>-->
-        <!--        </el-form-item>-->
-        <el-form-item label="父级菜单" prop="parent">
-          <el-select v-model="temp.parent" filterable clearable placeholder="请选择">
-            <template v-for="option in temp.list">
-              <el-option
-                :key="option.id"
-                :value="option.id"
-                :label="option.name"
-                :disabled="temp.id === option.id || temp.level===0"
-              >
-                <span>
-                  <span v-if="option.icon">
-                    <svg-icon
-                      :icon-class="option.icon"
-                    /> :</span>
-                  <span>{{ option.name }}</span>
-                </span>
-              </el-option>
-            </template>
-          </el-select>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -227,8 +158,8 @@
 
 <script>
 import {
-  getMenus, addMenu, updateMenu, deleteMenu
-} from '@/api/menus'
+  getDataPermissions, addDataPermission, updateDataPermission, deleteDataPermission
+} from '@/api/data_permission'
 import waves from '@/directive/waves' // waves directive
 // import { parseTime } from '@/utils'
 import Pagination from '@/components/Pagination'
@@ -316,36 +247,31 @@ export default {
       ],
       temp: {
         id: undefined,
-        path: '',
-        model: '',
         name: '',
-        icon: '',
-        level: '',
-        hidden: 'false',
-        parent: '',
-        index: 0,
-        children: []
+        content_type: '',
+        request_type: [],
+        is_all: []
       },
       dialogFormVisible: false,
       dialogStatus: '',
       textMap: {
-        update: '修改权限',
-        create: '添加权限'
+        update: '修改数据权限',
+        create: '添加数据权限'
       },
       dialogPvVisible: false,
       pvData: [],
       rules: {
-        path: [{
-          required: true, message: '资源路径必须填写!', trigger: 'blur'
-        }],
         name: [{
-          required: true, message: '权限名称必须填写！', trigger: 'blur'
+          required: true, message: '数据权限名称必须填写!', trigger: 'blur'
         }],
-        model: [{
-          required: true, message: '资源必须填写！', trigger: 'blur'
+        content_type: [{
+          required: true, message: '关联数据模型必须填写！', trigger: 'blur'
         }],
-        level: [{
-          required: true, message: '菜单级别必须填写！', trigger: 'blur'
+        request_type: [{
+          required: true, message: '请求方式必须填写！', trigger: 'blur'
+        }],
+        is_all: [{
+          required: true, message: '权限范围必须填写！', trigger: 'blur'
         }]
       },
       downloadLoading: false
@@ -363,7 +289,7 @@ export default {
       if (this.listQuery.level === '') {
         this.listQuery.level = undefined
       }
-      getMenus(this.listQuery).then(response => {
+      getDataPermissions(this.listQuery).then(response => {
         this.list = response.data
         this.total = response.total
 
@@ -371,11 +297,6 @@ export default {
         setTimeout(() => {
           this.listLoading = false
         }, 1.5 * 1000)
-      })
-    },
-    getMenu() {
-      getMenus().then(response => {
-        console.log(response)
       })
     },
     handleFilter() {
@@ -429,7 +350,7 @@ export default {
       this.$refs['dataForm'].validate((valid) => {
         if (valid) {
           this.temp.id = parseInt(Math.random() * 100) + 1024 // mock a id
-          addMenu(this.temp).then(() => {
+          addDataPermission(this.temp).then(() => {
             this.list.unshift(this.temp)
             this.dialogFormVisible = false
             this.$notify({
@@ -455,7 +376,7 @@ export default {
       this.$refs['dataForm'].validate((valid) => {
         if (valid) {
           const tempData = Object.assign({}, this.temp)
-          updateMenu(tempData.id, tempData).then(() => {
+          updateDataPermission(tempData.id, tempData).then(() => {
             const index = this.list.findIndex(v => v.id === this.temp.id)
             this.list.splice(index, 1, this.temp)
             this.dialogFormVisible = false
@@ -470,7 +391,7 @@ export default {
       })
     },
     handleDelete(row, index) {
-      deleteMenu(row.id).then(response => {
+      deleteDataPermission(row.id).then(response => {
         const {
           meta
         } = response.data
@@ -495,7 +416,7 @@ export default {
         this.dialogPvVisible = true
       })
     },
-    getSortClass: function(key) {
+    getSortClass: function (key) {
       const sort = this.listQuery.sort
       return sort === `+${key}` ? 'ascending' : 'descending'
     }

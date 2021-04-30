@@ -108,5 +108,6 @@ export const componentsMap = {
   reset_passoword: () => import('@/views/reset_passoword/index'),
   roles: () => import('@/views/roles/index'),
   users: () => import('@/views/users/user'),
-  menus: () => import('@/views/system/menus')
+  menus: () => import('@/views/system/menus'),
+  data_permission: () => import('@/views/system/data_permission')
 }

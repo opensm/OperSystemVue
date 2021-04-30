@@ -1,38 +1,38 @@
 import request from '@/utils/request'
 
-export function getMenus(params) {
+export function getDataPermissions(params) {
   return request({
-    url: '/auth/menus',
+    url: '/auth/data_permissions',
     method: 'get',
     params
   })
 }
 
-export function addMenu(data) {
+export function addDataPermission(data) {
   return request({
-    url: '/auth/menus',
+    url: '/auth/data_permissions',
     method: 'post',
     data
   })
 }
 
-export function updateMenu(id, data) {
+export function updateDataPermission(id, data) {
   return request({
-    url: `/auth/menu?id=${id}`,
+    url: `/auth/data_permission?id=${id}`,
     method: 'put',
     data
   })
 }
 
-export function deleteMenu(id) {
+export function deleteDataPermission(id) {
   return request({
-    url: `/auth/menu?id=${id}`,
+    url: `/auth/data_permission?id=${id}`,
     method: 'delete'
   })
 }
-export function getMenu(id) {
+export function getDataPermission(id) {
   return request({
-    url: `/auth/menu?id=${id}`,
+    url: `/auth/data_permission?id=${id}`,
     method: 'get'
   })
 }

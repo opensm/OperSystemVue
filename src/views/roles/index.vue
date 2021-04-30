@@ -81,7 +81,7 @@ export default {
       checkStrictly: false,
       defaultProps: {
         children: 'children',
-        name: 'name'
+        label: 'name'
       }
     }
   },
