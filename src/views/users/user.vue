@@ -67,10 +67,8 @@
         </template>
       </el-table-column>
       <el-table-column label="角色" align="center">
-        <template slot-scope="{row}">
-          <template v-for="(value ,key, index ) in role">
-            <el-button v-if="value.id in row.roles" :key="index" type="success">{{ value.name }}</el-button>
-          </template>
+        <template  slot-scope="{row}">
+          <el-tag size="small" closable>{{ row.roles| roleChoice }}</el-tag>
         </template>
       </el-table-column>
       <el-table-column label="超级用户" align="center">

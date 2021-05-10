@@ -67,7 +67,7 @@
       </el-table-column>
       <el-table-column label="资源model" align="center">
         <template slot-scope="{row}">
-          <span v-if="row.content_type">{{ row.content_type }}</span>
+          <span v-if="row.content_type">模块:{{ row.content_type.app_label }},数据模型:{{ row.content_type.model }}</span>
         </template>
       </el-table-column>
       <el-table-column label="请求类型" align="center">
@@ -114,25 +114,25 @@
             v-model="temp.name"
           />
         </el-form-item>
-        <el-form-item label="url" prop="content_type">
+        <el-form-item label="数据模型" prop="content_type">
           <el-input
             v-model="temp.content_type"
           />
         </el-form-item>
-        <el-form-item label="显示序列" prop="request_type">
+        <el-form-item label="请求方式" prop="request_type">
           <el-select
             v-model="temp.request_type"
             multiple
             filterable
             allow-create
             default-first-option
-            placeholder="请选择角色"
+            placeholder="请选择请求方式"
           >
             <el-option
-              v-for="item in temp.request_type"
-              :key="item.id"
-              :label="item.name"
-              :value="item.id"
+              v-for="(value, key, index) in requestTypeoption"
+              :key="key"
+              :label="value.name"
+              :value="value.id"
             />
           </el-select>
         </el-form-item>
@@ -173,33 +173,22 @@ const calendarHiddenOptions = [
   }
 ]
 
-const calendarTypeOptions = [
-  {
-    level: 0, display_name: '一级菜单'
-  },
-  {
-    level: 1, display_name: '二级菜单'
-  },
-  {
-    level: 2, display_name: '三级菜单'
-  },
-  {
-    level: 3, display_name: '四级菜单'
-  },
-  {
-    level: 999, display_name: '按钮权限'
-  }
+const requestTypeoption = [
+  { 'id': 1, 'name': '添加', 'method': 'POST' },
+  { 'id': 2, 'name': '查看', 'method': 'GET' },
+  { 'id': 3, 'name': '删除', 'method': 'DELETE' },
+  { 'id': 4, 'name': '修改', 'method': 'PUT' }
 ]
 
 // arr to obj, such as { CN : "China", US : "USA" }
-const calendarTypeKeyValue = calendarTypeOptions.reduce((acc, cur) => {
-  acc[cur.level] = cur.display_name
-  return acc
-}, {})
-const calendarHiddenKeyValue = calendarHiddenOptions.reduce((acc, cur) => {
-  acc[cur.hidden] = cur.display_name
-  return acc
-}, {})
+// const calendarTypeKeyValue = calendarTypeOptions.reduce((acc, cur) => {
+//   acc[cur.level] = cur.display_name
+//   return acc
+// }, {})
+// const calendarHiddenKeyValue = calendarHiddenOptions.reduce((acc, cur) => {
+//   acc[cur.hidden] = cur.display_name
+//   return acc
+// }, {})
 
 export default {
   name: 'ComplexTable',
@@ -234,7 +223,7 @@ export default {
         level: undefined,
         sort: '+id'
       },
-      calendarTypeOptions,
+      requestTypeoption,
       calendarHiddenOptions,
       sortOptions: [{
         label: 'ID 正序', key: '+id'
