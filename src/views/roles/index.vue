@@ -87,7 +87,6 @@ export default {
   },
   computed: {
     routesData() {
-      console.log(this.routes)
       return this.routes
     }
   },
@@ -112,10 +111,11 @@ export default {
       for (let route of routes) {
         // skip some route
         // if (route.hidden) { continue }
-        // const onlyOneShowingChild = this.onlyOneShowingChild(route.children, route)
-        // if (route.children && onlyOneShowingChild) {
-        //   route = onlyOneShowingChild
-        // }
+        const onlyOneShowingChild = this.onlyOneShowingChild(route.children, route)
+        if (route.children && onlyOneShowingChild) {
+          route = onlyOneShowingChild
+        }
+        console.log(route.path)
         const data = {
           path: path.resolve(basePath, route.path),
           name: route.name

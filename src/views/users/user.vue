@@ -67,8 +67,8 @@
         </template>
       </el-table-column>
       <el-table-column label="角色" align="center">
-        <template  slot-scope="{row}">
-          <el-tag size="small" closable>{{ row.roles| roleChoice }}</el-tag>
+        <template slot-scope="{row}">
+          {{ row.roles | roleList(role) }}
         </template>
       </el-table-column>
       <el-table-column label="超级用户" align="center">
@@ -208,6 +208,14 @@ export default {
         'false': '否'
       }
       return valueMap[status]
+    },
+    roleList(roles, role) {
+      const map = {}
+      role.map((item) => {
+        map[item.id] = item.name
+      })
+
+      return roles.map((item) => map[item]).join(',')
     }
   },
   data() {
@@ -249,6 +257,7 @@ export default {
       role: [],
       total: 0,
       post: null,
+      list: [],
       listLoading: true,
       listQuery: {
         page: 1,

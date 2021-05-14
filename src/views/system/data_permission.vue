@@ -8,14 +8,6 @@
         class="filter-item"
         @keyup.enter.native="handleFilter"
       />
-      <el-select v-model="listQuery.level" placeholder="菜单等级" clearable class="filter-item" style="width: 130px">
-        <el-option
-          v-for="item in calendarTypeOptions"
-          :key="item.level"
-          :label="item.display_name+'('+item.level+')'"
-          :value="item.level"
-        />
-      </el-select>
       <el-select v-model="listQuery.sort" style="width: 140px" class="filter-item" @change="handleFilter">
         <el-option
           v-for="item in sortOptions"
@@ -67,12 +59,12 @@
       </el-table-column>
       <el-table-column label="资源model" align="center">
         <template slot-scope="{row}">
-          <span v-if="row.content_type">模块:{{ row.content_type.app_label }},数据模型:{{ row.content_type.model }}</span>
+          <span v-if="row.content_type">{{ row.content_type|contentFilter(content) }}</span>
         </template>
       </el-table-column>
       <el-table-column label="请求类型" align="center">
         <template slot-scope="{row}">
-          <span>{{ row.request_type }}</span>
+          <span>{{ row.request_type | typeFilter }}</span>
         </template>
       </el-table-column>
       <el-table-column label="是否是全部资源" align="center">
@@ -115,9 +107,25 @@
           />
         </el-form-item>
         <el-form-item label="数据模型" prop="content_type">
-          <el-input
+<!--          <el-input-->
+<!--            v-model="temp.content_type"-->
+<!--          />-->
+          <el-select
             v-model="temp.content_type"
-          />
+            filterable
+            allow-create
+            default-first-option
+            placeholder="请选择数据模型"
+          >
+            <el-option
+              v-for="(value, key, index) in content"
+              :key="key"
+              :label="value.model"
+              :value="value.id"
+            >
+              <a>应用程序标签：{{ value.app_label }},数据模型：{{ value.model }}</a>
+            </el-option>
+          </el-select>
         </el-form-item>
         <el-form-item label="请求方式" prop="request_type">
           <el-select
@@ -158,7 +166,7 @@
 
 <script>
 import {
-  getDataPermissions, addDataPermission, updateDataPermission, deleteDataPermission
+  getDataPermissions, addDataPermission, updateDataPermission, deleteDataPermission, getContentType
 } from '@/api/data_permission'
 import waves from '@/directive/waves' // waves directive
 // import { parseTime } from '@/utils'
@@ -203,11 +211,20 @@ export default {
       }
       return statusMap[status]
     },
-    typeFilter(type) {
-      return calendarTypeKeyValue[type]
+    contentFilter(content, contents) {
+      const map = {}
+      contents.map((item) => {
+        map[item.id] = '应用程序标签:' + item['app_label'] + ';' + '数据模型:' + item['model']
+      })
+      return map[content]
     },
-    hiddenFilter(hidden) {
-      return calendarHiddenKeyValue[hidden]
+    typeFilter(roles) {
+      const map = {}
+      requestTypeoption.map((item) => {
+        map[item.id] = item.name
+      })
+
+      return roles.map((item) => map[item]).join(',')
     }
   },
   data() {
@@ -215,6 +232,7 @@ export default {
       tableKey: 0,
       list: null,
       total: 0,
+      content: [],
       listLoading: true,
       listQuery: {
         page: 1,
@@ -268,7 +286,7 @@ export default {
   },
   created() {
     this.getList()
-    this.getMenu()
+    this.getContent()
   },
   methods: {
     getList() {
@@ -282,6 +300,15 @@ export default {
         this.list = response.data
         this.total = response.total
 
+        // Just to simulate the time of the request
+        setTimeout(() => {
+          this.listLoading = false
+        }, 1.5 * 1000)
+      })
+    },
+    getContent() {
+      getContentType().then(response => {
+        this.content = response.data
         // Just to simulate the time of the request
         setTimeout(() => {
           this.listLoading = false
@@ -405,7 +432,7 @@ export default {
         this.dialogPvVisible = true
       })
     },
-    getSortClass: function (key) {
+    getSortClass: function(key) {
       const sort = this.listQuery.sort
       return sort === `+${key}` ? 'ascending' : 'descending'
     }

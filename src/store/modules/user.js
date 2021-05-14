@@ -1,7 +1,7 @@
-import {login, logout, getUserInfo} from '@/api/user'
-import {getToken, setToken, removeToken} from '@/utils/auth'
-import {resetRouter} from '@/router'
-import da from "element-ui/src/locale/lang/da";
+import { login, logout, getUserInfo } from '@/api/user'
+import { getToken, setToken, removeToken } from '@/utils/auth'
+import { resetRouter } from '@/router'
+// import da from "element-ui/src/locale/lang/da";
 
 const getDefaultState = () => {
   return {
@@ -38,11 +38,11 @@ const mutations = {
 
 const actions = {
   // user login
-  login({commit}, userInfo) {
-    const {username, password} = userInfo
+  login({ commit }, userInfo) {
+    const { username, password } = userInfo
     return new Promise((resolve, reject) => {
-      login({username: username.trim(), password: password}).then(response => {
-        const {token} = response
+      login({ username: username.trim(), password: password }).then(response => {
+        const { token } = response
         commit('SET_TOKEN', token)
         setToken(token)
         resolve()
@@ -53,18 +53,17 @@ const actions = {
   },
 
   // get user info
-  getInfo({commit, state}) {
+  getInfo({ commit, state }) {
     return new Promise((resolve, reject) => {
       getUserInfo().then(response => {
-        const {data} = response
+        const { data } = response
         if (!data) {
           reject('Verification failed, please Login again.')
         }
 
-        const {roles, username, user_permissions} = data
+        const { roles, username, user_permissions } = data
         // roles must be a non-empty array
         if (!user_permissions || user_permissions.length <= 0) {
-          //reject('getInfo: user_permissions must be a non-null array!')
           reject('严重报错: 用户权限列表为空!')
         }
         if (!roles || roles.length <= 0) {
@@ -83,7 +82,7 @@ const actions = {
   },
 
   // user logout
-  logout({commit, state}) {
+  logout({ commit, state }) {
     return new Promise((resolve, reject) => {
       logout(state.token).then(() => {
         removeToken() // must remove  token  first
@@ -97,7 +96,7 @@ const actions = {
   },
 
   // remove token
-  resetToken({commit}) {
+  resetToken({ commit }) {
     return new Promise(resolve => {
       removeToken() // must remove  token  first
       commit('RESET_STATE')

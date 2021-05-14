@@ -67,7 +67,9 @@
       </el-table-column>
       <el-table-column label="父菜单" align="center">
         <template slot-scope="{row}">
-          <span v-if="row.parent">{{ row.parent.name }}</span>
+          <template v-for="(item,key) in list">
+            <span v-if="row.parent === item.id" :key="key">{{ item.name }}</span>
+          </template>
         </template>
       </el-table-column>
       <el-table-column label="URL" align="center">
@@ -89,7 +91,6 @@
               :icon-class="row.icon"
             />
           </span>
-          <!--          <svg-icon :icon-class="row.icon"/>-->
         </template>
       </el-table-column>
       <el-table-column label="菜单等级" align="center">
@@ -148,7 +149,7 @@
         </el-form-item>
         <el-form-item label="图标" prop="icon">
           <el-select ref="select" v-model="temp.icon" placeholder="请选择">
-            <el-option v-for="(item,index) in iconOptions" :key="index" :value="item">
+            <el-option v-for="(item,index) in iconOptions" :key="index" :value="item" :label="item">
               <template>
                 <span v-if="item">
                   <svg-icon
@@ -171,7 +172,7 @@
               <el-option
                 :key="option.id"
                 :value="option.id"
-                :label="option.id"
+                :label="option.name"
                 :disabled="temp.id === option.id || temp.level===0"
               >
                 <span>
