@@ -109,5 +109,6 @@ export const componentsMap = {
   roles: () => import('@/views/roles/index'),
   users: () => import('@/views/users/user'),
   menus: () => import('@/views/system/menus'),
-  data_permission: () => import('@/views/system/data_permission')
+  data_permission: () => import('@/views/system/data_permission'),
+  data_permissionlist: () => import('@/views/system/data_permissionlist')
 }

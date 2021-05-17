@@ -52,24 +52,24 @@
           <span>{{ row.id }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="权限" align="center">
+      <el-table-column label="关联模型" align="center">
         <template slot-scope="{row}">
-          <span class="link-type">{{ row.name }}</span>
+          <span class="link-type">{{ row.permission_rule | contentFilter(data_permission) }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="资源model" align="center">
+      <el-table-column label="操作方式" align="center">
         <template slot-scope="{row}">
-          <span v-if="row.content_type">{{ row.content_type|contentFilter(content) }}</span>
+          <span v-if="row.operate_type">{{ row.operate_type }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="请求类型" align="center">
+      <el-table-column label="关联列" align="center">
         <template slot-scope="{row}">
-          <span>{{ row.request_type | typeFilter }}</span>
+          <span>{{ row.check_field }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="是否是全部资源" align="center">
+      <el-table-column label="关联列值" align="center">
         <template slot-scope="{row}">
-          <el-tag> {{ row.is_all }}</el-tag>
+          <el-tag> {{ row.value }}</el-tag>
         </template>
       </el-table-column>
 
@@ -98,35 +98,69 @@
         :rules="rules"
         :model="temp"
         label-position="left"
-        label-width="70px"
+        label-width="140px"
         style="width: 400px; margin-left:50px;"
       >
-        <el-form-item label="权限" prop="name">
-          <el-input
-            v-model="temp.name"
-          />
-        </el-form-item>
-        <el-form-item label="数据模型" prop="content_type">
+        <el-form-item label="数据模型规则" prop="permission_rule">
           <el-select
-            v-model="temp.content_type"
+            v-model="temp.permission_rule"
+            filterable
+            allow-create
+            multiple
+            default-first-option
+            placeholder="请选择数据模型"
+            @change="getFields"
+          >
+            <el-option
+              v-for="(value, key) in data_permission"
+              :key="key"
+              :label="value.name"
+              :value="value.id"
+            >
+              <a>数据规则名称：{{ value.name }}</a>
+            </el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="运算方式" prop="operate_type">
+          <el-select
+            v-model="temp.operate_type"
+            filterable
+            allow-create
+            default-first-option
+            placeholder="请输入操作类型"
+          >
+            <el-option
+              v-for="(value, key) in operOption"
+              :key="key"
+              :label="value"
+              :value="key"
+            >
+              <a>{{ value }}</a>
+            </el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="关联列" prop="check_field">
+          <el-select
+            v-model="temp.check_field"
             filterable
             allow-create
             default-first-option
             placeholder="请选择数据模型"
+            @change="getModelFieldValue(temp.id,temp.check_field)"
           >
             <el-option
-              v-for="(value, key) in content"
+              v-for="(value, key) in check_fields"
               :key="key"
-              :label="value.model"
-              :value="value.id"
+              :label="value"
+              :value="key"
             >
-              <a>应用程序标签：{{ value.app_label }},数据模型：{{ value.model }}</a>
+              <a>{{ key }}：{{ value }}</a>
             </el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="请求方式" prop="request_type">
+        <el-form-item label="关联列值" prop="value">
           <el-select
-            v-model="temp.request_type"
+            v-model="temp.value"
             multiple
             filterable
             allow-create
@@ -134,19 +168,12 @@
             placeholder="请选择请求方式"
           >
             <el-option
-              v-for="(value, key, index) in requestTypeoption"
+              v-for="(item, key) in field_value"
               :key="key"
-              :label="value.name"
-              :value="value.id"
+              :label="item"
+              :value="item.toString()"
             />
           </el-select>
-        </el-form-item>
-        <el-form-item label="全部资源" prop="is_all">
-          <el-switch
-            v-model="temp.is_all"
-            active-color="#13ce66"
-            inactive-color="#ff4949"
-          />
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -163,38 +190,19 @@
 
 <script>
 import {
-  getDataPermissions, addDataPermission, updateDataPermission, deleteDataPermission, getContentType
-} from '@/api/data_permission'
+  getDataPermissionLists,
+  updateDataPermissionList,
+  deleteDataPermissionList,
+  addDataPermissionList,
+  getModelFields,
+  // getDataPermissionList,
+  getModelFieldValues
+} from '@/api/data_permission_list'
+import { getDataPermissions } from '@/api/data_permission'
 import waves from '@/directive/waves' // waves directive
 // import { parseTime } from '@/utils'
 import Pagination from '@/components/Pagination'
 // import { constantRoutes } from "@/router"; // secondary package based on el-pagination
-
-const calendarHiddenOptions = [
-  {
-    hidden: 'true', display_name: '隐藏', index: 1
-  }, {
-    hidden: 'false', display_name: '不隐藏', index: 0
-  }
-]
-
-const requestTypeoption = [
-  { 'id': 1, 'name': '添加', 'method': 'POST' },
-  { 'id': 2, 'name': '查看', 'method': 'GET' },
-  { 'id': 3, 'name': '删除', 'method': 'DELETE' },
-  { 'id': 4, 'name': '修改', 'method': 'PUT' }
-]
-
-// arr to obj, such as { CN : "China", US : "USA" }
-// const calendarTypeKeyValue = calendarTypeOptions.reduce((acc, cur) => {
-//   acc[cur.level] = cur.display_name
-//   return acc
-// }, {})
-// const calendarHiddenKeyValue = calendarHiddenOptions.reduce((acc, cur) => {
-//   acc[cur.hidden] = cur.display_name
-//   return acc
-// }, {})
-
 export default {
   name: 'ComplexTable',
   components: { Pagination },
@@ -211,17 +219,9 @@ export default {
     contentFilter(content, contents) {
       const map = {}
       contents.map((item) => {
-        map[item.id] = '应用程序标签:' + item['app_label'] + ';' + '数据模型:' + item['model']
+        map[item.id] = item['name']
       })
-      return map[content]
-    },
-    typeFilter(roles) {
-      const map = {}
-      requestTypeoption.map((item) => {
-        map[item.id] = item.name
-      })
-
-      return roles.map((item) => map[item]).join(',')
+      return content.map((item) => map[item]).join(',')
     }
   },
   data() {
@@ -229,7 +229,9 @@ export default {
       tableKey: 0,
       list: null,
       total: 0,
-      content: [],
+      data_permission: [],
+      check_fields: [],
+      field_value: [],
       listLoading: true,
       listQuery: {
         page: 1,
@@ -238,23 +240,24 @@ export default {
         level: undefined,
         sort: '+id'
       },
-      requestTypeoption,
-      calendarHiddenOptions,
       sortOptions: [{
         label: 'ID 正序', key: '+id'
       }, {
         label: 'ID 逆序', key: '-id'
       }],
+      operOption: {
+        'eq': '等于',
+        'gt': '大于',
+        'le': '小于'
+      },
       showReviewer: false,
-      iconOptions: [
-        '404', 'bug', 'chart', 'clipboard', 'component', 'dashboard', 'documentation', 'drag', 'edit', 'education', 'email', 'example', 'excel', 'exit-fullscreen', 'eye-open', 'eye', 'form', 'fullscreen', 'guide', 'icon', 'international', 'language', 'link', 'list', 'lock', 'message', 'money', 'nested', 'password', 'pdf', 'people', 'peoples', 'qq', 'search', 'shopping', 'size', 'skill', 'star', 'tab', 'table', 'theme', 'tree-table', 'tree', 'user', 'wechat', 'zip'
-      ],
       temp: {
         id: undefined,
         name: '',
-        content_type: '',
-        request_type: [],
-        is_all: []
+        permission_rule: '',
+        operate_type: [],
+        check_field: [],
+        value: ''
       },
       dialogFormVisible: false,
       dialogStatus: '',
@@ -265,27 +268,56 @@ export default {
       dialogPvVisible: false,
       pvData: [],
       rules: {
-        name: [{
+        permission_rule: [{
           required: true, message: '数据权限名称必须填写!', trigger: 'blur'
         }],
-        content_type: [{
+        operate_type: [{
           required: true, message: '关联数据模型必须填写！', trigger: 'blur'
         }],
-        request_type: [{
+        check_field: [{
           required: true, message: '请求方式必须填写！', trigger: 'blur'
         }],
-        is_all: [{
+        value: [{
           required: true, message: '权限范围必须填写！', trigger: 'blur'
         }]
       },
       downloadLoading: false
     }
   },
+  watch: {
+    'temp.permission_rule': {
+      handler(newValue, oldValue) {
+        this.temp.check_field = ''
+        this.temp.value = ''
+        this.field_value = []
+        this.check_fields = []
+      }
+    },
+    'temp.check_field': {
+      handler(newValue, oldValue) {
+        this.temp.value = ''
+        this.field_value = []
+      }
+    }
+  },
   created() {
     this.getList()
-    this.getContent()
   },
   methods: {
+    getModelFieldValue(id, value) {
+      if (value !== '' && value !== 'undefined' && id !== '' && id !== 'undefined') {
+        getModelFieldValues(id, value).then(response => {
+          this.field_value = response.data
+        })
+      }
+    },
+    getFields(value) {
+      if (value !== '' && value !== 'undefined') {
+        getModelFields(value[0]).then(response => {
+          this.check_fields = response.data
+        })
+      }
+    },
     getList() {
       this.listLoading = true
       this.listQuery.size = this.listQuery.limit
@@ -293,19 +325,13 @@ export default {
       if (this.listQuery.level === '') {
         this.listQuery.level = undefined
       }
-      getDataPermissions(this.listQuery).then(response => {
+      getDataPermissions().then(response => {
+        this.data_permission = response.data
+      })
+      getDataPermissionLists(this.listQuery).then(response => {
         this.list = response.data
         this.total = response.total
 
-        // Just to simulate the time of the request
-        setTimeout(() => {
-          this.listLoading = false
-        }, 1.5 * 1000)
-      })
-    },
-    getContent() {
-      getContentType().then(response => {
-        this.content = response.data
         // Just to simulate the time of the request
         setTimeout(() => {
           this.listLoading = false
@@ -342,13 +368,10 @@ export default {
     resetTemp() {
       this.temp = {
         id: undefined,
-        path: '',
-        model: '',
-        name: '',
-        icon: '',
-        level: '',
-        parent: '',
-        component: ''
+        permission_rule: '',
+        operate_type: '',
+        value: '',
+        check_field: ''
       }
     },
     handleCreate() {
@@ -363,7 +386,8 @@ export default {
       this.$refs['dataForm'].validate((valid) => {
         if (valid) {
           this.temp.id = parseInt(Math.random() * 100) + 1024 // mock a id
-          addDataPermission(this.temp).then(() => {
+          this.temp.value = this.temp.value.join(',')
+          addDataPermissionList(this.temp).then(() => {
             this.list.unshift(this.temp)
             this.dialogFormVisible = false
             this.$notify({
@@ -388,8 +412,9 @@ export default {
     updateData() {
       this.$refs['dataForm'].validate((valid) => {
         if (valid) {
+          this.temp.value = this.temp.value.join(',')
           const tempData = Object.assign({}, this.temp)
-          updateDataPermission(tempData.id, tempData).then(() => {
+          updateDataPermissionList(tempData.id, tempData).then(() => {
             const index = this.list.findIndex(v => v.id === this.temp.id)
             this.list.splice(index, 1, this.temp)
             this.dialogFormVisible = false
@@ -404,7 +429,7 @@ export default {
       })
     },
     handleDelete(row, index) {
-      deleteDataPermission(row.id).then(response => {
+      deleteDataPermissionList(row.id).then(response => {
         const {
           meta
         } = response.data
