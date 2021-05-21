@@ -24,6 +24,7 @@
         style="margin-left: 10px;"
         type="primary"
         icon="el-icon-edit"
+        :disabled="post === false"
         @click="handleCreate"
       >
         新增
@@ -72,13 +73,12 @@
           <el-tag> {{ row.value }}</el-tag>
         </template>
       </el-table-column>
-
       <el-table-column label="操作" align="center" width="230" class-name="small-padding fixed-width">
         <template slot-scope="{row,$index}">
-          <el-button type="primary" size="mini" @click="handleUpdate(row)">
+          <el-button type="primary" size="mini" :disabled=" ! 'PUT' in row.button" @click="handleUpdate(row)">
             修改
           </el-button>
-          <el-button size="mini" type="danger" @click="handleDelete(row,$index)">
+          <el-button size="mini" type="danger" :disabled=" ! 'DELETE' in row.button" @click="handleDelete(row,$index)">
             删除
           </el-button>
         </template>
@@ -106,10 +106,9 @@
             v-model="temp.permission_rule"
             filterable
             allow-create
-            multiple
             default-first-option
             placeholder="请选择数据模型"
-            @change="getFields"
+            @change="getFields(temp.permission_rule)"
           >
             <el-option
               v-for="(value, key) in data_permission"
@@ -130,8 +129,8 @@
             placeholder="请输入操作类型"
           >
             <el-option
-              v-for="(value, key) in operOption"
-              :key="key"
+              v-for="(value, key, index) in operOption"
+              :key="index"
               :label="value"
               :value="key"
             >
@@ -146,16 +145,16 @@
             allow-create
             default-first-option
             placeholder="请选择数据模型"
-            @change="getModelFieldValue(temp.id,temp.check_field)"
+            @change="getModelFieldValue(temp.permission_rule,temp.check_field)"
           >
-            <el-option
-              v-for="(value, key) in check_fields"
-              :key="key"
-              :label="value"
-              :value="key"
-            >
-              <a>{{ key }}：{{ value }}</a>
-            </el-option>
+            <template v-for="(value, key, index) in check_fields">
+              <el-option
+                :key="index"
+                :label="value"
+                :value="key"
+                :aria-selected="key === temp.check_field"
+              />
+            </template>
           </el-select>
         </el-form-item>
         <el-form-item label="关联列值" prop="value">
@@ -171,7 +170,7 @@
               v-for="(item, key) in field_value"
               :key="key"
               :label="item"
-              :value="item.toString()"
+              :value="item"
             />
           </el-select>
         </el-form-item>
@@ -221,7 +220,7 @@ export default {
       contents.map((item) => {
         map[item.id] = item['name']
       })
-      return content.map((item) => map[item]).join(',')
+      return map[content]
     }
   },
   data() {
@@ -229,14 +228,14 @@ export default {
       tableKey: 0,
       list: null,
       total: 0,
+      post: null,
       data_permission: [],
       check_fields: [],
       field_value: [],
       listLoading: true,
       listQuery: {
         page: 1,
-        size: 10,
-        limit: this.size,
+        limit: 10,
         level: undefined,
         sort: '+id'
       },
@@ -287,15 +286,15 @@ export default {
   watch: {
     'temp.permission_rule': {
       handler(newValue, oldValue) {
-        this.temp.check_field = ''
-        this.temp.value = ''
+        // this.temp.check_field = ''
+        // this.temp.value = ''
         this.field_value = []
         this.check_fields = []
       }
     },
     'temp.check_field': {
       handler(newValue, oldValue) {
-        this.temp.value = ''
+        // this.temp.value = ''
         this.field_value = []
       }
     }
@@ -304,23 +303,34 @@ export default {
     this.getList()
   },
   methods: {
-    getModelFieldValue(id, value) {
-      if (value !== '' && value !== 'undefined' && id !== '' && id !== 'undefined') {
-        getModelFieldValues(id, value).then(response => {
+    async getModelFieldValue(id, value) {
+      if (value !== '' && value !== 'undefined' && id !== '' && id !== 'undefined' && id.length !== 0) {
+        await getModelFieldValues(id, value).then(response => {
           this.field_value = response.data
         })
       }
     },
-    getFields(value) {
-      if (value !== '' && value !== 'undefined') {
-        getModelFields(value[0]).then(response => {
+    async getFields(value) {
+      if (value !== '' && value !== 'undefined' && value.length !== 0) {
+        await getModelFields(value).then(response => {
           this.check_fields = response.data
+        })
+      }
+    },
+    async getModelFieldsOption(id, value) {
+      if (value !== '' && value !== 'undefined' && id !== '' && id !== 'undefined' && id.length !== 0) {
+        await getModelFields(id).then(response => {
+          this.check_fields = response.data
+        })
+      }
+      if (value !== '' && value !== 'undefined' && id !== '' && id !== 'undefined' && id.length !== 0) {
+        await getModelFieldValues(id, value).then(response => {
+          this.field_value = response.data
         })
       }
     },
     getList() {
       this.listLoading = true
-      this.listQuery.size = this.listQuery.limit
       // 重置选择上的空
       if (this.listQuery.level === '') {
         this.listQuery.level = undefined
@@ -331,6 +341,7 @@ export default {
       getDataPermissionLists(this.listQuery).then(response => {
         this.list = response.data
         this.total = response.total
+        this.post = response.meta.post_tag
 
         // Just to simulate the time of the request
         setTimeout(() => {
@@ -386,7 +397,9 @@ export default {
       this.$refs['dataForm'].validate((valid) => {
         if (valid) {
           this.temp.id = parseInt(Math.random() * 100) + 1024 // mock a id
-          this.temp.value = this.temp.value.join(',')
+          if (typeof this.temp.value === typeof []) {
+            this.temp.value = this.temp.value.join(',')
+          }
           addDataPermissionList(this.temp).then(() => {
             this.list.unshift(this.temp)
             this.dialogFormVisible = false
@@ -402,9 +415,9 @@ export default {
     },
     handleUpdate(row) {
       this.temp = Object.assign({}, row) // copy obj
-      // this.temp.timestamp = new Date(this.temp.timestamp)
       this.dialogStatus = 'update'
       this.dialogFormVisible = true
+      this.getModelFieldsOption(this.temp.permission_rule, this.temp.check_field)
       this.$nextTick(() => {
         this.$refs['dataForm'].clearValidate()
       })
@@ -412,7 +425,9 @@ export default {
     updateData() {
       this.$refs['dataForm'].validate((valid) => {
         if (valid) {
-          this.temp.value = this.temp.value.join(',')
+          if (typeof this.temp.value === typeof []) {
+            this.temp.value = this.temp.value.join(',')
+          }
           const tempData = Object.assign({}, this.temp)
           updateDataPermissionList(tempData.id, tempData).then(() => {
             const index = this.list.findIndex(v => v.id === this.temp.id)

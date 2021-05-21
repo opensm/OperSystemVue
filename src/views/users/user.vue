@@ -92,12 +92,16 @@
 
       <el-table-column label="操作" align="center" width="230" class-name="small-padding fixed-width">
         <template slot-scope="{row,$index}">
-          <el-button type="primary" size="mini" :disabled=" 'PUT' in temp.button" @click="handleUpdate(row)">
-            修改
-          </el-button>
-          <el-button size="mini" type="danger" :disabled="'DELETE' in temp.button" @click="handleDelete(row,$index)">
-            删除
-          </el-button>
+          <span v-show="row.button.includes('PUT')">
+            <el-button type="primary" size="mini" @click="handleUpdate(row)">
+              修改
+            </el-button>
+          </span>
+          <span v-show="row.button.includes('DELETE')">
+            <el-button size="mini" type="danger" @click="handleDelete(row,$index)">
+              删除
+            </el-button>
+          </span>
         </template>
       </el-table-column>
     </el-table>
@@ -215,7 +219,7 @@ export default {
         map[item.id] = item.name
       })
 
-      return roles.map((item) => map[item]).join(',')
+      return map[roles]
     }
   },
   data() {
@@ -261,8 +265,7 @@ export default {
       listLoading: true,
       listQuery: {
         page: 1,
-        size: 10,
-        limit: this.size,
+        limit: 10,
         level: undefined,
         sort: '+id'
       },
@@ -334,15 +337,14 @@ export default {
     },
     getList() {
       this.listLoading = true
-      this.listQuery.size = this.listQuery.limit
       // 重置选择上的空
       if (this.listQuery.level === '') {
         this.listQuery.level = undefined
       }
-      getUsersInfo().then(response => {
+      getUsersInfo(this.listQuery).then(response => {
         this.list = response.data
         this.total = response.total
-        this.post = response.meta.post
+        this.post = response.meta.post_tag
 
         // Just to simulate the time of the request
         setTimeout(() => {

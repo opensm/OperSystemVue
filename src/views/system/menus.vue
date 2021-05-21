@@ -32,6 +32,7 @@
         style="margin-left: 10px;"
         type="primary"
         icon="el-icon-edit"
+        :disabled="post === false"
         @click="handleCreate"
       >
         新增
@@ -101,10 +102,10 @@
 
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template slot-scope="{row,$index}">
-          <el-button type="primary" size="mini" @click="handleUpdate(row)">
+          <el-button type="primary" size="mini" :disabled="! row.button.includes('PUT')" @click="handleUpdate(row)">
             修改
           </el-button>
-          <el-button size="mini" type="danger" @click="handleDelete(row,$index)">
+          <el-button size="mini" type="danger" :disabled="! row.button.includes('DELETE')" @click="handleDelete(row,$index)">
             删除
           </el-button>
         </template>
@@ -269,11 +270,11 @@ export default {
       tableKey: 0,
       list: null,
       total: 0,
+      post: null,
       listLoading: true,
       listQuery: {
         page: 1,
-        size: 10,
-        limit: this.size,
+        limit: 10,
         level: undefined,
         sort: '+id'
       },
@@ -327,12 +328,10 @@ export default {
   },
   created() {
     this.getList()
-    this.getMenu()
   },
   methods: {
     getList() {
       this.listLoading = true
-      this.listQuery.size = this.listQuery.limit
       // 重置选择上的空
       if (this.listQuery.level === '') {
         this.listQuery.level = undefined
@@ -340,16 +339,12 @@ export default {
       getMenus(this.listQuery).then(response => {
         this.list = response.data
         this.total = response.total
+        this.post = response.meta.post_tag
 
         // Just to simulate the time of the request
         setTimeout(() => {
           this.listLoading = false
         }, 1.5 * 1000)
-      })
-    },
-    getMenu() {
-      getMenus().then(response => {
-        console.log(response)
       })
     },
     handleFilter() {

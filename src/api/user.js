@@ -33,10 +33,11 @@ export function getUserInfo() {
     method: 'get'
   })
 }
-export function getUsersInfo() {
+export function getUsersInfo(params) {
   return request({
     url: '/auth/users',
-    method: 'get'
+    method: 'get',
+    params
   })
 }
 export function updateUser(id, data) {

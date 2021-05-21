@@ -20,8 +20,8 @@
       </el-table-column>
       <el-table-column align="center" label="操作">
         <template slot-scope="scope">
-          <el-button type="primary" size="small" @click="handleEdit(scope)">修改</el-button>
-          <el-button type="danger" size="small" @click="handleDelete(scope)">删除</el-button>
+          <el-button type="primary" size="small" :disabled=" ! scope.row.button.includes('PUT')" @click="handleEdit(scope)">修改</el-button>
+          <el-button type="danger" size="small" :disabled=" ! scope.row.button.includes('DELETE')" @click="handleDelete(scope)">删除</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -198,25 +198,7 @@ export default {
 `,
         type: 'success'
       })
-    },
-    // reference: src/view/layout/components/Sidebar/SidebarItem.vue
-    // onlyOneShowingChild(children = [], parent) {
-    //   let onlyOneChild = null
-    //   // const showingChildren = children.filter(item => !item.hidden)
-    //   const showingChildren = children
-    //   // When there is only one child route, the child route is displayed by default
-    //   if (showingChildren.length === 1) {
-    //     onlyOneChild = showingChildren[0]
-    //     onlyOneChild.path = path.resolve(parent.path, onlyOneChild.path)
-    //     return onlyOneChild
-    //   }
-    //   // Show parent if there are no child route to display
-    //   if (showingChildren.length === 0) {
-    //     onlyOneChild = { ... parent, path: '', noShowingChildren: true }
-    //     return onlyOneChild
-    //   }
-    //   return false
-    // }
+    }
   }
 }
 </script>
