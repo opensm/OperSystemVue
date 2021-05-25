@@ -175,9 +175,9 @@ export default {
       this.role.menu = this.$refs.tree.getCheckedKeys()
       if (isEdit) {
         await updateRole(this.role.id, this.role)
-        for (let index = 0; index < this.rolesList.length; index++) {
-          if (this.rolesList[index].id === this.role.id) {
-            this.rolesList.splice(index, 1, Object.assign({}, this.role))
+        for (let index = 0; role < this.rolesList.length; role++) {
+          if (this.rolesList[role].id === this.role.id) {
+            this.rolesList.splice(role, 1, Object.assign({}, this.role))
             break
           }
         }

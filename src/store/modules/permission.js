@@ -106,8 +106,8 @@ export default {
 }
 export const componentsMap = {
   reset_passoword: () => import('@/views/reset_passoword/index'),
-  roles: () => import('@/views/roles/index'),
-  users: () => import('@/views/users/user'),
+  roles: () => import('@/views/auth/roles'),
+  users: () => import('@/views/auth/user'),
   menus: () => import('@/views/system/menus'),
   data_permission: () => import('@/views/system/data_permission'),
   data_permissionlist: () => import('@/views/system/data_permissionlist')
