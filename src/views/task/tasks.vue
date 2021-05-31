@@ -2,8 +2,8 @@
   <div class="app-container">
     <div class="filter-container">
       <el-input
-        v-model="listQuery.username"
-        placeholder="用户名"
+        v-model="listQuery.name"
+        placeholder="发版名称"
         style="width: 200px;"
         class="filter-item"
         @keyup.enter.native="handleFilter"
@@ -40,6 +40,47 @@
       @sort-change="sortChange"
     >
       <el-table-column
+        type="expand"
+      >
+        <template slot-scope="{row}">
+          <el-form label-position="left" inline class="demo-table-expand">
+            <el-form-item label="任务ID">
+              <span>{{ row.id }}</span>
+            </el-form-item>
+            <el-form-item label="任务名称">
+              <span>{{ row.name }}</span>
+            </el-form-item>
+            <el-form-item label="审批流程">
+              <span>{{ row.approve_flow }}</span>
+            </el-form-item>
+            <el-form-item label="所属项目">
+              <span>{{ row.project | dataList(project) }}</span>
+            </el-form-item>
+            <el-form-item label="创建用户">
+              <span>{{ row.create_user|dataList(userList) }}</span>
+            </el-form-item>
+            <el-form-item label="状态">
+              <span>{{ row.status|statusFilter }}</span>
+            </el-form-item>
+            <el-form-item label="任务时间">
+              <span>{{ row.task_time }}</span>
+            </el-form-item>
+            <el-form-item label="创建时间">
+              <span>{{ row.create_time }}</span>
+            </el-form-item>
+            <el-form-item label="完成时间">
+              <span>{{ row.finish_time }}</span>
+            </el-form-item>
+            <el-form-item label="备注">
+              <span>{{ row.note }}</span>
+            </el-form-item>
+            <el-form-item label="关联子任务">
+              <span>{{ row.sub_task | subTaskFilter(subTaskList) }}</span>
+            </el-form-item>
+          </el-form>
+        </template>
+      </el-table-column>
+      <el-table-column
         label="ID"
         prop="id"
         sortable="custom"
@@ -51,57 +92,48 @@
           <span>{{ row.id }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="用户" align="center">
-        <template slot-scope="{row}">
-          <span class="link-type">{{ row.username }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="姓名" align="center">
+      <el-table-column label="任务名称" align="center">
         <template slot-scope="{row}">
           <span class="link-type">{{ row.name }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="邮箱" align="center">
+      <el-table-column label="审批流程" align="center">
         <template slot-scope="{row}">
-          <span>{{ row.email }}</span>
+          <span>{{ row.approve_flow }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="角色" align="center">
+      <el-table-column label="所属项目" align="center">
         <template slot-scope="{row}">
-          {{ row.roles | roleList(role) }}
+          <span>{{ row.project | dataList(project) }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="超级用户" align="center">
+      <el-table-column label="创建用户" align="center">
         <template slot-scope="{row}">
-          {{ row.is_superuser|statusChoice }}
+          {{ row.create_user|dataList(userList) }}
         </template>
       </el-table-column>
       <el-table-column label="状态" align="center">
         <template slot-scope="{row}">
-          <el-tag :type="row.is_active | statusFilter">{{ row.is_active|statusChoice }}</el-tag>
+          <el-tag>{{ row.status|statusFilter }}</el-tag>
         </template>
       </el-table-column>
-      <el-table-column label="创建日期" align="center">
+      <el-table-column label="任务时间" align="center">
         <template slot-scope="{row}">
           <i
             class="el-icon-time"
           />
-          <span>{{ row.create_date }}</span>
+          <span>{{ row.task_time }}</span>
         </template>
       </el-table-column>
 
       <el-table-column label="操作" align="center" width="230" class-name="small-padding fixed-width">
         <template slot-scope="{row,$index}">
-          <span v-show="row.button.includes('PUT')">
-            <el-button type="primary" size="mini" @click="handleUpdate(row)">
-              修改
-            </el-button>
-          </span>
-          <span v-show="row.button.includes('DELETE')">
-            <el-button size="mini" type="danger" @click="handleDelete(row,$index)">
-              删除
-            </el-button>
-          </span>
+          <el-button type="primary" size="mini" :disabled="! row.button.includes('PUT')" @click="handleUpdate(row)">
+            修改
+          </el-button>
+          <el-button size="mini" type="danger" :disabled="! row.button.includes('DELETE')" @click="handleDelete(row,$index)">
+            删除
+          </el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -119,50 +151,61 @@
         :rules="rules"
         :model="temp"
         label-position="left"
-        label-width="70px"
+        label-width="100px"
         style="width: 400px; margin-left:50px;"
       >
-        <el-form-item label="用户" prop="username">
-          <el-input
-            v-model="temp.username"
-          />
-        </el-form-item>
-        <el-form-item label="姓名" prop="name">
+        <el-form-item label="任务名称" prop="name">
           <el-input
             v-model="temp.name"
           />
         </el-form-item>
-        <el-form-item label="角色" prop="roles">
+        <el-form-item label="项目" prop="project">
           <el-select
-            v-model="temp.roles"
+            v-model="temp.project"
             filterable
+            allow-create
             default-first-option
-            placeholder="请选择角色"
+            placeholder="请选择项目"
           >
             <el-option
-              v-for="item in role"
+              v-for="item in project"
               :key="item.id"
-              :label="item.name"
+              :label="item.id + ':' + item.name"
               :value="item.id"
             />
           </el-select>
         </el-form-item>
-        <el-form-item label="电话" prop="mobile">
+        <el-form-item label="审批流程" prop="approve_flow">
           <el-input
-            v-model="temp.mobile"
+            v-model="temp.approve_flow"
           />
         </el-form-item>
-        <el-form-item label="email" prop="email">
+        <el-form-item label="任务时间" prop="task_time">
+          <el-date-picker
+            v-model="temp.task_time"
+            type="datetime"
+            placeholder="选择日期时间"
+            default-time="00:00:00"
+          >
+          </el-date-picker>
+        </el-form-item>
+        <el-form-item label="备注" prop="note">
           <el-input
-            v-model="temp.email"
+            v-model="temp.note"
+            :autosize="{ minRows: 2, maxRows: 10}"
+            type="textarea"
           />
         </el-form-item>
-        <el-form-item label="状态" prop="is_active">
-          <el-switch
-            v-model="temp.is_active"
-            active-color="#13ce66"
-            inactive-color="#ff4949"
-          />
+        <el-form-item label="关联子任务" prop="sub_task">
+          <el-checkbox-group v-model="temp.sub_task">
+            <el-card v-for="(item,key) in subTaskList" :key="key" class="box-card" shadow="hover" style="margin-bottom: 10px">
+              <el-checkbox :label="item.id" :value="item.id">
+                <div v-for="o in 4" :key="o">
+                  {{ '列表内容 ' + o }}
+                </div>
+              </el-checkbox>
+            </el-card>
+          </el-checkbox-group>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -179,12 +222,15 @@
 
 <script>
 import {
-  getUsersInfo, deleteUser, updateUser, addUser
-} from '@/api/user'
+  getTasks, deleteTask, updateTask, addTask
+} from '@/api/task'
 import waves from '@/directive/waves' // waves directive
 import {
-  getRoles
-} from '@/api/role'
+  getSubtasks
+} from '@/api/subtask'
+import { getProjects } from '@/api/project'
+import { getUsersInfo } from '@/api/user'
+import { current_user } from '@/api/user'
 import Pagination from '@/components/Pagination'
 
 export default {
@@ -198,9 +244,16 @@ export default {
   filters: {
     statusFilter(status) {
       const statusMap = {
-        'true': 'success',
-        // draft: 'gray',
-        'false': 'danger'
+        'approveing': '审批中',
+        'not_start_approve': '还未审批',
+        'ok_approved': '审批通过',
+        'fail_approve': '审批不通过',
+        'not_start_exec': '任务还未开始',
+        'progressing': '任务执行中',
+        'success': '任务执行中',
+        'fail': '任务执行中',
+        'timeout': '任务执行中',
+        'unsubmit': '未提交',
       }
       return statusMap[status]
     },
@@ -211,60 +264,37 @@ export default {
       }
       return valueMap[status]
     },
-    roleList(roles, role) {
+    subTaskFilter(subs, subTaskList) {
       const map = {}
-      role.map((item) => {
+      subTaskList.map((item) => {
+        map[item.id] = item.container
+      })
+      return subs.map((item) => map[item]).join(',')
+    },
+    dataList(user, users) {
+      const map = {}
+      users.map((item) => {
         map[item.id] = item.name
       })
 
-      return map[roles]
+      return map[user]
     }
   },
   data() {
-    const checkPhone = (rule, value, callback) => {
-      const phoneReg = /^1[3|4|5|7|8][0-9]{9}$/
-      if (!value) {
-        return callback(new Error('电话号码不能为空'))
-      }
-      setTimeout(() => {
-        // Number.isInteger是es6验证数字是否为整数的方法,但是我实际用的时候输入的数字总是识别成字符串
-        // 所以我就在前面加了一个+实现隐式转换
-
-        if (!Number.isInteger(+value)) {
-          callback(new Error('请输入数字值'))
-        } else {
-          if (phoneReg.test(value)) {
-            callback()
-          } else {
-            callback(new Error('电话号码格式不正确'))
-          }
-        }
-      }, 100)
-    }
-    const checkEmail = (rule, value, callback) => {
-      const mailReg = /^([a-zA-Z0-9_-])+@([a-zA-Z0-9_-])+(.[a-zA-Z0-9_-])+/
-      if (!value) {
-        return callback(new Error('邮箱不能为空'))
-      }
-      setTimeout(() => {
-        if (mailReg.test(value)) {
-          callback()
-        } else {
-          callback(new Error('请输入正确的邮箱格式'))
-        }
-      }, 100)
-    }
     return {
       tableKey: 0,
-      role: [],
       total: 0,
-      post: null,
+      post: true,
+      project: [],
       list: [],
+      subTaskList: [],
+      userList: [],
+      create_user: '',
       listLoading: true,
       listQuery: {
         page: 1,
         limit: 10,
-        level: undefined,
+        name: undefined,
         sort: '+id'
       },
       sortOptions: [{
@@ -273,51 +303,43 @@ export default {
         label: 'ID 逆序', key: '-id'
       }],
       showReviewer: false,
-      iconOptions: [
-        '404', 'bug', 'chart', 'clipboard', 'component', 'dashboard', 'documentation', 'drag', 'edit', 'education', 'email', 'example', 'excel', 'exit-fullscreen', 'eye-open', 'eye', 'form', 'fullscreen', 'guide', 'icon', 'international', 'language', 'link', 'list', 'lock', 'message', 'money', 'nested', 'password', 'pdf', 'people', 'peoples', 'qq', 'search', 'shopping', 'size', 'skill', 'star', 'tab', 'table', 'theme', 'tree-table', 'tree', 'user', 'wechat', 'zip'
-      ],
       temp: {
         id: undefined,
-        username: '',
         name: '',
-        mobile: '',
-        roles: [],
-        email: '',
-        is_active: true,
-        is_staff: 0,
-        button: []
+        approve_flow: '',
+        sub_task: [],
+        note: '',
+        project: '',
+        create_user: '',
+        developer: '',
+        task_time: ''
       },
       dialogFormVisible: false,
       dialogStatus: '',
       textMap: {
-        update: '修改信息',
-        create: '添加用户'
+        update: '修改任务',
+        create: '添加任务'
       },
       dialogPvVisible: false,
       pvData: [],
       rules: {
-        username: [{
-          required: true, message: '用户名称(账号)必须填写!', trigger: 'blur'
-        }],
         name: [{
-          required: true, message: '姓名名称必须填写！', trigger: 'blur'
+          required: true, message: '任务名称必须填写！', trigger: 'blur'
         }],
-        model: [{
-          required: true, message: '资源必须填写！', trigger: 'blur'
+        approve_flow: [{
+          required: true, message: '审批流程必须填写！', trigger: 'blur'
         }],
-        roles: [{
-          required: true, message: '角色必须填写！', trigger: 'blur'
+        note: [{
+          required: true, message: '上线备注必须填写！', trigger: 'blur'
         }],
-        mobile: [{
-          required: true, message: '电话必须填写！', trigger: 'blur'
-        }, { validator: checkPhone, trigger: 'blur' }],
-        is_active: [{
-          required: true, message: '状态必须选择！', trigger: 'blur'
+        project: [{
+          required: true, message: '所属项目必须填写！', trigger: 'blur'
         }],
-        email: [{
-          required: true, message: '邮件地址必填！', trigger: 'blur'
-        }, {
-          validator: checkEmail, trigger: 'blur'
+        task_time: [{
+          required: true, message: '任务时间必须填写！', trigger: 'blur'
+        }],
+        sub_task: [{
+          required: true, message: '子任务信息必须填写！', trigger: 'blur'
         }]
       },
       downloadLoading: false
@@ -325,21 +347,21 @@ export default {
   },
   created() {
     this.getList()
-    this.getRoles()
+    this.getProjects()
   },
   methods: {
-    getRoles() {
-      getRoles().then(response => {
-        this.role = response.data
+    getProjects() {
+      getProjects().then(response => {
+        this.project = response.data
       })
     },
     getList() {
       this.listLoading = true
       // 重置选择上的空
-      if (this.listQuery.level === '') {
-        this.listQuery.level = undefined
+      if (this.listQuery.name === '') {
+        this.listQuery.name = undefined
       }
-      getUsersInfo(this.listQuery).then(response => {
+      getTasks(this.listQuery).then(response => {
         this.list = response.data
         this.total = response.total
         this.post = response.meta.post_tag
@@ -349,6 +371,16 @@ export default {
           this.listLoading = false
         }, 1.5 * 1000)
       })
+      getSubtasks({ 'status': 'unbond' }).then(response => {
+        this.subTaskList = response.data
+      })
+      current_user().then(response => {
+        const { data } = response
+        this.create_user = data.id
+      })
+      getUsersInfo().then(response => {
+        this.userList = response.data
+      })
     },
     handleFilter() {
       this.listQuery.page = 1
@@ -356,7 +388,7 @@ export default {
     },
     handleModifyStatus(row, status) {
       this.$message({
-        message: '操作Success',
+        message: '操作成功！',
         type: 'success'
       })
       row.status = status
@@ -380,16 +412,11 @@ export default {
     resetTemp() {
       this.temp = {
         id: undefined,
-        username: '',
         name: '',
-        mobile: '',
-        roles: '',
-        email: '',
-        is_active: true,
-        is_staff: true,
-        create_date: '',
-        update_date: '',
-        last_login: ''
+        approve_flow: '',
+        sub_task: [],
+        note: '',
+        project: ''
       }
     },
     handleCreate() {
@@ -404,7 +431,8 @@ export default {
       this.$refs['dataForm'].validate((valid) => {
         if (valid) {
           this.temp.id = parseInt(Math.random() * 100) + 1024 // mock a id
-          addUser(this.temp).then(() => {
+          this.temp.create_user = this.create_user
+          addTask(this.temp).then(() => {
             this.list.unshift(this.temp)
             this.dialogFormVisible = false
             this.$notify({
@@ -430,7 +458,7 @@ export default {
       this.$refs['dataForm'].validate((valid) => {
         if (valid) {
           const tempData = Object.assign({}, this.temp)
-          updateUser(tempData.id, tempData).then(() => {
+          updateTask(tempData.id, tempData).then(() => {
             const index = this.list.findIndex(v => v.id === this.temp.id)
             this.list.splice(index, 1, this.temp)
             this.dialogFormVisible = false
@@ -445,7 +473,7 @@ export default {
       })
     },
     handleDelete(row, index) {
-      deleteUser(row.id).then(response => {
+      deleteTask(row.id).then(response => {
         const {
           meta
         } = response.data
@@ -477,3 +505,18 @@ export default {
   }
 }
 </script>
+
+<style>
+.demo-table-expand {
+  font-size: 0;
+}
+.demo-table-expand label {
+  width: 90px;
+  color: #99a9bf;
+}
+.demo-table-expand .el-form-item {
+  margin-right: 0;
+  margin-bottom: 0;
+  width: 50%;
+}
+</style>

@@ -105,10 +105,20 @@ export default {
   actions
 }
 export const componentsMap = {
+  // 权限验证
   reset_passoword: () => import('@/views/reset_passoword/index'),
   roles: () => import('@/views/auth/roles'),
   users: () => import('@/views/auth/user'),
   menus: () => import('@/views/system/menus'),
   data_permission: () => import('@/views/system/data_permission'),
-  data_permissionlist: () => import('@/views/system/data_permissionlist')
+  data_permissionlist: () => import('@/views/system/data_permissionlist'),
+  // 任务处理
+  subtasks: () => import('@/views/task/subtasks'),
+  tasks: () => import('@/views/task/tasks'),
+  project: () => import('@/views/task/project'),
+  templatedb: () => import('@/views/task/templatedb'),
+  templatekubernetes: () => import('@/views/task/templatekubernetes'),
+  templateNacos: () => import('@/views/task/templatenacos'),
+  tencentService: () => import('@/views/task/templatetencentservice'),
+  authkey: () => import('@/views/task/authkey')
 }

@@ -36,9 +36,10 @@ export function getDataPermission(id) {
     method: 'get'
   })
 }
-export function getContentType() {
+export function getContentType(params) {
   return request({
     url: `/auth/contenttypes`,
-    method: 'get'
+    method: 'get',
+    params
   })
 }

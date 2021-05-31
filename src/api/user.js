@@ -65,3 +65,9 @@ export function logout() {
     method: 'post'
   })
 }
+export function current_user() {
+  return request({
+    url: '/auth/current_user',
+    method: 'get'
+  })
+}

@@ -39,7 +39,7 @@ export function updateRole(id, data) {
 export function deleteRole(id) {
   console.log(id)
   return request({
-    url: `/auth/role/${id}`,
+    url: `/auth/role?id=${id}`,
     method: 'delete'
   })
 }
