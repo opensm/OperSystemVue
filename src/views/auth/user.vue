@@ -92,16 +92,12 @@
 
       <el-table-column label="操作" align="center" width="230" class-name="small-padding fixed-width">
         <template slot-scope="{row,$index}">
-          <span v-show="row.button.includes('PUT')">
-            <el-button type="primary" size="mini" @click="handleUpdate(row)">
-              修改
-            </el-button>
-          </span>
-          <span v-show="row.button.includes('DELETE')">
-            <el-button size="mini" type="danger" @click="handleDelete(row,$index)">
-              删除
-            </el-button>
-          </span>
+          <el-button type="primary" size="mini" :disabled="! row.button.includes('PUT')" @click="handleUpdate(row)">
+            修改
+          </el-button>
+          <el-button size="mini" type="danger" :disabled="! row.button.includes('DELETE')" @click="handleDelete(row,$index)">
+            删除
+          </el-button>
         </template>
       </el-table-column>
     </el-table>
