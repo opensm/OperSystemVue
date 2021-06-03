@@ -114,7 +114,7 @@
       </el-table-column>
       <el-table-column label="状态" align="center">
         <template slot-scope="{row}">
-          <el-tag>{{ row.status|statusFilter }}</el-tag>
+          <el-tag :type="row.status|tagFilter">{{ row.status|statusFilter }}</el-tag>
         </template>
       </el-table-column>
       <el-table-column label="任务时间" align="center">
@@ -250,10 +250,10 @@ export default {
         'fail_approve': '审批不通过',
         'not_start_exec': '任务还未开始',
         'progressing': '任务执行中',
-        'success': '任务执行中',
-        'fail': '任务执行中',
-        'timeout': '任务执行中',
-        'unsubmit': '未提交',
+        'success': '任务成功',
+        'fail': '任务失败',
+        'timeout': '任务已超时',
+        'unsubmit': '未提交'
       }
       return statusMap[status]
     },
@@ -270,6 +270,16 @@ export default {
         map[item.id] = item.container
       })
       return subs.map((item) => map[item]).join(',')
+    },
+    tagFilter(status) {
+      const statusMap = {
+        'not_start_exec': '',
+        'progressing': 'warning',
+        'success': 'success',
+        'fail': 'danger',
+        'unbond': 'info'
+      }
+      return statusMap[status]
     },
     dataList(user, users) {
       const map = {}
@@ -432,6 +442,7 @@ export default {
         if (valid) {
           this.temp.id = parseInt(Math.random() * 100) + 1024 // mock a id
           this.temp.create_user = this.create_user
+          this.temp.task_time = this.moment(this.temp.task_time).format('YYYY-MM-DD HH:mm:ss')
           addTask(this.temp).then(() => {
             this.list.unshift(this.temp)
             this.dialogFormVisible = false
@@ -458,6 +469,7 @@ export default {
       this.$refs['dataForm'].validate((valid) => {
         if (valid) {
           const tempData = Object.assign({}, this.temp)
+          tempData.task_time = this.moment(tempData.task_time).format('YYYY-MM-DD HH:mm:ss')
           updateTask(tempData.id, tempData).then(() => {
             const index = this.list.findIndex(v => v.id === this.temp.id)
             this.list.splice(index, 1, this.temp)

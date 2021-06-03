@@ -48,6 +48,11 @@
           {{ scope.row.yaml }}
         </template>
       </el-table-column>
+      <el-table-column align="header-center" label="标签">
+        <template slot-scope="scope">
+          {{ scope.row.label }}
+        </template>
+      </el-table-column>
       <el-table-column align="header-center" label="创建用户">
         <template slot-scope="scope">
           {{ scope.row.create_user }}
@@ -110,6 +115,9 @@
         <el-form-item label="调用方法">
           <el-input v-model="kubernetesTemplate.exec_function" placeholder="请填入调用方法"/>
         </el-form-item>
+        <el-form-item label="标签">
+          <el-input v-model="kubernetesTemplate.label" placeholder="请填入标签"/>
+        </el-form-item>
         <el-form-item label="操作方式">
           <el-select
             v-model="kubernetesTemplate.control_type"
@@ -152,6 +160,7 @@ const defaultTemplate = {
   control_type: '',
   yaml: '',
   exec_class: '',
+  label: '',
   exec_function: '',
   create_user: ''
 }

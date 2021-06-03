@@ -14,6 +14,7 @@ import router from './router'
 
 import '@/icons' // icon
 import '@/permission' // permission control
+import Moment from 'moment-timezone'
 
 /**
  * If you don't want to use mock-server
@@ -27,6 +28,13 @@ if (process.env.NODE_ENV === 'production') {
   const { mockXHR } = require('../mock')
   mockXHR()
 }
+
+Vue.filter('formatDate', function(value) {
+  Moment.tz.setDefault('Asia/Shanghai')
+  return Moment(value).format('YYYY-MM-DD HH:mm:ss')
+})
+
+Vue.prototype.moment = Moment
 
 // set ElementUI lang to EN
 // Vue.use(ElementUI, { locale })

@@ -33,7 +33,7 @@ export function updateSubtask(id, data) {
 
 export function deleteSubtask(id) {
   return request({
-    url: `/task/subtask/${id}`,
+    url: `/task/subtask?id=${id}`,
     method: 'delete'
   })
 }

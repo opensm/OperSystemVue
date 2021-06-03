@@ -44,36 +44,29 @@
       >
         <template slot-scope="{row}">
           <el-form label-position="left" inline class="demo-table-expand">
-            <el-form-item label="任务ID">
-              <span>{{ row.id }}</span>
-            </el-form-item>
-            <el-form-item label="服务民初">
-              <span>{{ row.container }}</span>
-            </el-form-item>
-            <el-form-item label="所属项目">
-              <span>{{ row.project | dataList(project) }}</span>
-            </el-form-item>
-            <el-form-item label="开发用户">
-              <span>{{ row.developer|dataList(userList) }}</span>
-            </el-form-item>
-            <el-form-item label="创建用户">
-              <span>{{ row.create_user|dataList(userList) }}</span>
-            </el-form-item>
-            <el-form-item label="状态">
-              <span>{{ row.status|statusFilter }}</span>
-            </el-form-item>
-            <el-form-item label="创建时间">
-              <span>{{ row.create_time }}</span>
-            </el-form-item>
-            <el-form-item label="完成时间">
-              <span>{{ row.finish_time }}</span>
-            </el-form-item>
-            <el-form-item label="备注">
-              <span>{{ row.note }}</span>
-            </el-form-item>
-            <el-form-item label="操作列表">
-              <span>{{ row.exec_list | execListFilter(execList) }}</span>
-            </el-form-item>
+            <template v-for="(item,key) in row.exec_list">
+              <el-form-item :key="key" label="操作ID">
+                <span>{{ item.id }}</span>
+              </el-form-item>
+              <el-form-item :key="key" label="操作类型">
+                <span>{{ item.exec_type }}</span>
+              </el-form-item>
+              <el-form-item :key="key" label="更新参数">
+                <span>{{ item.params }}</span>
+              </el-form-item>
+              <el-form-item :key="key" label="更新状态">
+                <span>{{ item.status }}</span>
+              </el-form-item>
+              <el-form-item :key="key" label="输出信息">
+                <span>{{ item.output }}</span>
+              </el-form-item>
+              <el-form-item :key="key" label="创建时间">
+                <span>{{ item.create_time }}</span>
+              </el-form-item>
+              <el-form-item :key="key" label="完成时间">
+                <span>{{ item.finish_time }}</span>
+              </el-form-item>
+            </template>
           </el-form>
         </template>
       </el-table-column>
@@ -96,7 +89,7 @@
       </el-table-column>
       <el-table-column label="所属项目" align="center">
         <template slot-scope="{row}">
-          <span>{{ row.project | dataList(project) }}</span>
+          <span>{{ row.project | dataList(projectList) }}</span>
         </template>
       </el-table-column>
       <el-table-column label="创建用户" align="center">
@@ -111,7 +104,7 @@
       </el-table-column>
       <el-table-column label="状态" align="center">
         <template slot-scope="{row}">
-          <el-tag>{{ row.status|statusFilter }}</el-tag>
+          <el-tag :type="row.status| tagFilter">{{ row.status|statusFilter }}</el-tag>
         </template>
       </el-table-column>
       <el-table-column label="创建时间" align="center">
@@ -122,14 +115,16 @@
           <span>{{ row.create_time }}</span>
         </template>
       </el-table-column>
-
       <el-table-column label="操作" align="center" width="230" class-name="small-padding fixed-width">
         <template slot-scope="{row,$index}">
           <el-button type="primary" size="mini" :disabled="! row.button.includes('PUT')" @click="handleUpdate(row)">
             修改
           </el-button>
-          <el-button size="mini" type="danger" :disabled="! row.button.includes('DELETE')"
-                     @click="handleDelete(row,$index)">
+          <el-button
+            size="mini"
+            type="danger"
+            :disabled="! row.button.includes('DELETE')"
+            @click="handleDelete(row,$index)">
             删除
           </el-button>
         </template>
@@ -171,11 +166,11 @@
 
 <script>
 import {
-  getSubtasks, deleteSubtask, updateSubtask, addSubtask, getExecLists, getObjectid
+  getSubtasks, deleteSubtask, updateSubtask, addSubtask, getObjectid
 } from '@/api/subtask'
 import waves from '@/directive/waves' // waves directive
-import {getProjects} from '@/api/project'
-import {getUsersInfo, current_user} from '@/api/user'
+import { getProjects } from '@/api/project'
+import { getUsersInfo, current_user } from '@/api/user'
 import Pagination from '@/components/Pagination'
 import DynamicForm from 'vue-dynamic-form-component'
 
@@ -194,19 +189,21 @@ export default {
       const statusMap = {
         'not_start_exec': '任务还未开始',
         'progressing': '任务执行中',
-        'success': '任务执行中',
-        'fail': '任务执行中',
-        'unbond': '任务还未绑定',
-        'bonded': '任务已绑定'
+        'success': '任务已完成',
+        'fail': '任务失败',
+        'unbond': '任务还未绑定'
       }
       return statusMap[status]
     },
-    statusChoice(status) {
-      const valueMap = {
-        'true': '是',
-        'false': '否'
+    tagFilter(status) {
+      const statusMap = {
+        'not_start_exec': '',
+        'progressing': 'warning',
+        'success': 'success',
+        'fail': 'danger',
+        'unbond': 'info'
       }
-      return valueMap[status]
+      return statusMap[status]
     },
     execListFilter(subs, subTaskList) {
       const map = {}
@@ -218,9 +215,8 @@ export default {
     dataList(user, users) {
       const map = {}
       users.map((item) => {
-        map[item.id] = item.name
+        map[item.value] = item.label
       })
-
       return map[user]
     }
   },
@@ -251,26 +247,15 @@ export default {
         label: 'ID 逆序', key: '-id'
       }],
       showReviewer: false,
-      temp: {
-        id: undefined,
-        container: '',
-        exec_list: [],
-        note: '',
-        project: '',
-        create_user: '',
-        developer: '',
-        create_time: '',
-        finish_time: ''
-      },
+      temp: {},
       dialogFormVisible: false,
       dialogStatus: '',
       textMap: {
-        update: '修改任务',
-        create: '添加任务'
+        update: '修改子任务',
+        create: '添加子任务'
       },
       dialogPvVisible: false,
       pvData: [],
-      // descriptors:
       downloadLoading: false
     }
   },
@@ -278,7 +263,7 @@ export default {
     descriptors() {
       const that = this
       return {
-        container: {type: 'string', required: true, label: '更新服务', message: '服务名称必须填', placeholder: '填入服务名称'},
+        container: { type: 'string', required: true, label: '更新服务', message: '服务名称必须填', placeholder: '填入服务名称' },
         project: {
           type: 'enum',
           label: '相关项目',
@@ -295,7 +280,7 @@ export default {
           options: this.userList,
           message: '开发人员必须选择！', placeholder: '填入开发人员'
         },
-        note: {type: 'string', required: true, label: '备注', message: '备注必填！', placeholder: '填入备注'},
+        note: { type: 'string', required: true, label: '备注', message: '备注必填！', placeholder: '填入备注' },
         exec_list: {
           type: 'array',
           label: '操作列表',
@@ -303,7 +288,7 @@ export default {
           defaultField: {
             type: 'object',
             fields: {
-              params: {type: 'string', required: true, label: '更新参数', message: '更新参数必填', placeholder: '更新参数'},
+              params: { type: 'string', required: true, label: '更新参数', message: '更新参数必填', placeholder: '更新参数' },
               exec_type: {
                 type: 'enum',
                 label: '操作方式',
@@ -312,8 +297,8 @@ export default {
                 message: '模板必须选择！',
                 placeholder: '选择模板',
                 options: [
-                  {label: '回档', value: 'recover'},
-                  {label: '更新', value: 'update'}
+                  { label: '回档', value: 'recover' },
+                  { label: '更新', value: 'update' }
                 ]
               },
               content_type: {
@@ -334,6 +319,7 @@ export default {
                     getObjectid(urls[event]).then(response => {
                       const { data } = response
                       that.objects = []
+                      that.objectsList = []
                       data.map(item => {
                         that.objects.push(item.id)
                         that.objectsList.push({ 'label': item.name, 'value': item.id })
@@ -368,24 +354,44 @@ export default {
   created() {
     this.getList()
     this.getProjects()
+    this.getCurrentUser()
+    this.getUserList()
   },
   methods: {
+    getUserList() {
+      getUsersInfo().then(response => {
+        const { data } = response
+        data.map(item => {
+          this.users.unshift(item.id)
+        })
+        data.map(item => {
+          this.userList.unshift({ 'label': item.username + ':' + item.name, 'value': item.id })
+        })
+        this.users = JSON.parse(JSON.stringify(this.users))
+      })
+    },
     getProjects() {
       getProjects().then(response => {
-        const {data} = response
+        const { data } = response
         data.map(item => {
           this.project.push(item.id)
-          this.projectList.push({'label': item.id + ':' + item.name, 'value': item.id})
+          this.projectList.push({ 'label': item.id + ':' + item.name, 'value': item.id })
         })
         this.project = JSON.parse(JSON.stringify(this.project))
+      })
+    },
+    getCurrentUser() {
+      current_user().then(response => {
+        const { data } = response
+        this.create_user = data.id
       })
     },
     getList() {
       this.listLoading = true
       // 重置选择上的空
-      // if (this.listQuery.level === '') {
-      //   this.listQuery.level = undefined
-      // }
+      if (this.listQuery.container === '') {
+        this.listQuery.container = undefined
+      }
       getSubtasks(this.listQuery).then(response => {
         this.list = response.data
         this.total = response.total
@@ -395,23 +401,6 @@ export default {
         setTimeout(() => {
           this.listLoading = false
         }, 1.5 * 1000)
-      })
-      current_user().then(response => {
-        const {data} = response
-        this.create_user = data.id
-      })
-      getUsersInfo().then(response => {
-        const {data} = response
-        data.map(item => {
-          this.users.unshift(item.id)
-        })
-        data.map(item => {
-          this.userList.unshift({'label': item.username + ':' + item.name, 'value': item.id})
-        })
-        this.users = JSON.parse(JSON.stringify(this.users))
-      })
-      getExecLists().then(response => {
-        this.execList = response.data
       })
     },
     handleFilter() {
@@ -482,7 +471,6 @@ export default {
     },
     handleUpdate(row) {
       this.temp = Object.assign({}, row) // copy obj
-      // this.temp.timestamp = new Date(this.temp.timestamp)
       this.dialogStatus = 'update'
       this.dialogFormVisible = true
       this.$nextTick(() => {
@@ -527,7 +515,7 @@ export default {
         }, 1.5 * 1000)
       })
     },
-    getSortClass: function (key) {
+    getSortClass: function(key) {
       const sort = this.listQuery.sort
       return sort === `+${key}` ? 'ascending' : 'descending'
     }
