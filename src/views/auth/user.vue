@@ -400,6 +400,7 @@ export default {
       this.$refs['dataForm'].validate((valid) => {
         if (valid) {
           this.temp.id = parseInt(Math.random() * 100) + 1024 // mock a id
+          this.getList()
           addUser(this.temp).then(() => {
             this.list.unshift(this.temp)
             this.dialogFormVisible = false
@@ -420,6 +421,7 @@ export default {
       this.dialogFormVisible = true
       this.$nextTick(() => {
         this.$refs['dataForm'].clearValidate()
+        this.getList()
       })
     },
     updateData() {
@@ -429,6 +431,7 @@ export default {
           updateUser(tempData.id, tempData).then(() => {
             const index = this.list.findIndex(v => v.id === this.temp.id)
             this.list.splice(index, 1, this.temp)
+            this.getList()
             this.dialogFormVisible = false
             this.$notify({
               title: '成功' + tempData.name,
@@ -446,6 +449,7 @@ export default {
           meta
         } = response.data
         this.list.splice(index, 1)
+        this.getList()
         // this.total = response.data.total
         this.$notify({
           title: '成功',

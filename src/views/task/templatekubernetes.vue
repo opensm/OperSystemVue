@@ -215,6 +215,9 @@ export default {
       this.kubernetesTemplate = Object.assign({}, this.kubernetesTemplate)
       this.dialogType = 'new'
       this.dialogVisible = true
+      this.$nextTick(() => {
+        this.$refs['dataForm'].clearValidate()
+      })
     },
     handleEdit(scope) {
       this.dialogType = 'edit'
@@ -253,6 +256,7 @@ export default {
         this.kubernetesTemplate.id = data.id
         this.kubernetesTemplateList.push(this.role)
       }
+      this.getTemplates()
       const { id, name } = this.kubernetesTemplate
       this.dialogVisible = false
       this.$notify({
