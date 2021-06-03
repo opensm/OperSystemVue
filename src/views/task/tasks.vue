@@ -200,8 +200,8 @@
           <el-checkbox-group v-model="temp.sub_task">
             <el-card v-for="(item,key) in subTaskList" :key="key" class="box-card" shadow="hover" style="margin-bottom: 10px">
               <el-checkbox :label="item.id" :value="item.id">
-                <div v-for="o in 4" :key="o">
-                  {{ '列表内容 ' + o }}
+                <div>
+                  {{ 'ID：' + item.id + '， 名称：' + item.container }}
                 </div>
               </el-checkbox>
             </el-card>
