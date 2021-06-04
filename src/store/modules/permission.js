@@ -106,7 +106,7 @@ export default {
 }
 export const componentsMap = {
   // 权限验证
-  reset_passoword: () => import('@/views/reset_passoword/index'),
+  reset_passwd: () => import('@/views/auth/reset_passwd'),
   roles: () => import('@/views/auth/roles'),
   users: () => import('@/views/auth/user'),
   menus: () => import('@/views/system/menus'),
