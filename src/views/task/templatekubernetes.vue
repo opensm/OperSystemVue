@@ -69,14 +69,16 @@
             type="primary"
             size="small"
             :disabled=" ! scope.row.button.includes('PUT')"
-            @click="handleEdit(scope)">
+            @click="handleEdit(scope)"
+          >
             修改
           </el-button>
           <el-button
             type="danger"
             size="small"
             :disabled=" ! scope.row.button.includes('DELETE')"
-            @click="handleDelete(scope)">
+            @click="handleDelete(scope)"
+          >
             删除
           </el-button>
         </template>
@@ -86,7 +88,10 @@
     <el-dialog :visible.sync="dialogVisible" :title="dialogType==='edit'?'编辑模板':'新增模板'">
       <el-form :model="kubernetesTemplate" label-width="100px" label-position="left">
         <el-form-item label="模板名称">
-          <el-input v-model="kubernetesTemplate.name" placeholder="模板名称"/>
+          <el-input
+            v-model="kubernetesTemplate.name"
+            placeholder="模板名称"
+          />
         </el-form-item>
         <el-form-item label="Kubernetes模板">
           <el-select
@@ -104,19 +109,34 @@
           </el-select>
         </el-form-item>
         <el-form-item label="命名空间">
-          <el-input v-model="kubernetesTemplate.namespace" placeholder="请填入命名空间"/>
+          <el-input
+            v-model="kubernetesTemplate.namespace"
+            placeholder="请填入命名空间"
+          />
         </el-form-item>
         <el-form-item label="应用名称">
-          <el-input v-model="kubernetesTemplate.app_name" placeholder="请填入应用名称"/>
+          <el-input
+            v-model="kubernetesTemplate.app_name"
+            placeholder="请填入应用名称"
+          />
         </el-form-item>
         <el-form-item label="调用类">
-          <el-input v-model="kubernetesTemplate.exec_class" placeholder="请填入调用类"/>
+          <el-input
+            v-model="kubernetesTemplate.exec_class"
+            placeholder="请填入调用类"
+          />
         </el-form-item>
         <el-form-item label="调用方法">
-          <el-input v-model="kubernetesTemplate.exec_function" placeholder="请填入调用方法"/>
+          <el-input
+            v-model="kubernetesTemplate.exec_function"
+            placeholder="请填入调用方法"
+          />
         </el-form-item>
         <el-form-item label="标签">
-          <el-input v-model="kubernetesTemplate.label" placeholder="请填入标签"/>
+          <el-input
+            v-model="kubernetesTemplate.label"
+            placeholder="请填入标签"
+          />
         </el-form-item>
         <el-form-item label="操作方式">
           <el-select
@@ -134,7 +154,10 @@
           </el-select>
         </el-form-item>
         <el-form-item label="yaml模板">
-          <el-input v-model="kubernetesTemplate.yaml" placeholder="请填入yaml模板"/>
+          <el-input
+            v-model="kubernetesTemplate.yaml"
+            placeholder="请填入yaml模板"
+          />
         </el-form-item>
       </el-form>
       <div style="text-align:right;">

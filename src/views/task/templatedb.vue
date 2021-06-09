@@ -86,7 +86,6 @@ import { deepClone } from '@/utils'
 import { getTemplateDBs, updateTemplateDB, addTemplateDB, deleteTemplateDB } from '@/api/templatedb'
 import { getAuthKEYs } from '@/api/auth_key'
 import { current_user } from '@/api/user'
-import DynamicForm from 'vue-dynamic-form-component'
 
 const defaultTemplate = {
   id: '',

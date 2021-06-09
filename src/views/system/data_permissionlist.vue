@@ -396,7 +396,7 @@ export default {
     createData() {
       this.$refs['dataForm'].validate((valid) => {
         if (valid) {
-          this.temp.id = parseInt(Math.random() * 100) + 1024 // mock a id
+          this.temp.id = parseInt(Math.random() * 100) + 1024 + parseInt(Math.random() * 100) * 1000000 // mock a id
           if (typeof this.temp.value === typeof []) {
             this.temp.value = this.temp.value.join(',')
           }

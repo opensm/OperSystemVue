@@ -176,9 +176,19 @@
           </el-select>
         </el-form-item>
         <el-form-item label="审批流程" prop="approve_flow">
-          <el-input
-            v-model="temp.approve_flow"
-          />
+          <el-select
+            v-model="temp.approval_flow"
+            filterable
+            default-first-option
+            placeholder="请选择审批流程"
+          >
+            <el-option
+              v-for="item in flowEngineList"
+              :key="item.id"
+              :label="item.id + ':' + item.name"
+              :value="item.id"
+            />
+          </el-select>
         </el-form-item>
         <el-form-item label="任务时间" prop="task_time">
           <el-date-picker
@@ -229,8 +239,8 @@ import {
   getSubtasks
 } from '@/api/subtask'
 import { getProjects } from '@/api/project'
-import { getUsersInfo } from '@/api/user'
-import { current_user } from '@/api/user'
+import { getUsersInfo, current_user } from '@/api/user'
+import { getFlowEngines } from '@/api/flow_engine'
 import Pagination from '@/components/Pagination'
 
 export default {
@@ -298,6 +308,7 @@ export default {
       project: [],
       list: [],
       subTaskList: [],
+      flowEngineList: [],
       userList: [],
       create_user: '',
       listLoading: true,
@@ -316,7 +327,7 @@ export default {
       temp: {
         id: undefined,
         name: '',
-        approve_flow: '',
+        approval_flow: '',
         sub_task: [],
         note: '',
         project: '',
@@ -336,7 +347,7 @@ export default {
         name: [{
           required: true, message: '任务名称必须填写！', trigger: 'blur'
         }],
-        approve_flow: [{
+        approval_flow: [{
           required: true, message: '审批流程必须填写！', trigger: 'blur'
         }],
         note: [{
@@ -358,11 +369,18 @@ export default {
   created() {
     this.getList()
     this.getProjects()
+    this.getFlowEngine()
   },
   methods: {
     getProjects() {
       getProjects().then(response => {
         this.project = response.data
+      })
+    },
+    getFlowEngine() {
+      getFlowEngines().then(response => {
+        const { data } = response
+        this.flowEngineList = data
       })
     },
     getList() {
@@ -423,7 +441,7 @@ export default {
       this.temp = {
         id: undefined,
         name: '',
-        approve_flow: '',
+        approval_flow: '',
         sub_task: [],
         note: '',
         project: ''
@@ -504,12 +522,6 @@ export default {
         setTimeout(() => {
           this.listLoading = false
         }, 1.5 * 1000)
-      })
-    },
-    handleFetchPv(pv) {
-      fetchPv(pv).then(response => {
-        this.pvData = response.data.pvData
-        this.dialogPvVisible = true
       })
     },
     getSortClass: function(key) {

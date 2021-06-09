@@ -120,5 +120,8 @@ export const componentsMap = {
   templatekubernetes: () => import('@/views/task/templatekubernetes'),
   templateNacos: () => import('@/views/task/templatenacos'),
   tencentService: () => import('@/views/task/templatetencentservice'),
-  authkey: () => import('@/views/task/authkey')
+  authkey: () => import('@/views/task/authkey'),
+  flowengine: () => import('@/views/flow/FlowEngine'),
+  flownode: () => import('@/views/flow/flowNode'),
+  flowtask: () => import('@/views/flow/flowTask')
 }

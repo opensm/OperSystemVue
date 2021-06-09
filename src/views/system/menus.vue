@@ -169,7 +169,7 @@
         </el-form-item>
         <el-form-item label="父级菜单" prop="parent">
           <el-select v-model="temp.parent" filterable clearable placeholder="请选择">
-            <template v-for="option in list">
+            <template v-for="option in parent">
               <el-option
                 :key="option.id"
                 :value="option.id"
@@ -223,15 +223,6 @@ const calendarTypeOptions = [
   },
   {
     level: 1, display_name: '二级菜单'
-  },
-  {
-    level: 2, display_name: '三级菜单'
-  },
-  {
-    level: 3, display_name: '四级菜单'
-  },
-  {
-    level: 999, display_name: '按钮权限'
   }
 ]
 
@@ -271,6 +262,7 @@ export default {
       list: null,
       total: 0,
       post: null,
+      parent: [],
       listLoading: true,
       listQuery: {
         page: 1,
@@ -345,6 +337,10 @@ export default {
         setTimeout(() => {
           this.listLoading = false
         }, 1.5 * 1000)
+      })
+      getMenus({ 'level': 0 }).then(response => {
+        const { data } = response
+        this.parent = data
       })
     },
     handleFilter() {
@@ -456,12 +452,6 @@ export default {
         setTimeout(() => {
           this.listLoading = false
         }, 1.5 * 1000)
-      })
-    },
-    handleFetchPv(pv) {
-      fetchPv(pv).then(response => {
-        this.pvData = response.data.pvData
-        this.dialogPvVisible = true
       })
     },
     getSortClass: function(key) {
