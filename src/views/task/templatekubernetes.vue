@@ -85,7 +85,7 @@
       </el-table-column>
     </el-table>
 
-    <el-dialog :visible.sync="dialogVisible" :title="dialogType==='edit'?'编辑模板':'新增模板'">
+    <el-dialog :visible.sync="dialogVisible" :title="dialogType==='edit'?'编辑模板':'新增模板'" :close-on-click-modal="false">
       <el-form :model="kubernetesTemplate" label-width="100px" label-position="left">
         <el-form-item label="模板名称">
           <el-input

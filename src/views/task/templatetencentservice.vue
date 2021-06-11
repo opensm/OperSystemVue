@@ -46,7 +46,7 @@
       </el-table-column>
     </el-table>
 
-    <el-dialog :visible.sync="dialogVisible" :title="dialogType==='edit'?'编辑模板':'新增模板'">
+    <el-dialog :visible.sync="dialogVisible" :title="dialogType==='edit'?'编辑模板':'新增模板'" :close-on-click-modal="false">
       <el-form :model="template" label-width="80px" label-position="left">
         <el-form-item label="相关服务">
           <el-input v-model="template.name" placeholder="相关服务" />

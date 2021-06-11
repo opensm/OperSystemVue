@@ -138,7 +138,7 @@
       :limit.sync="listQuery.limit"
       @pagination="getList"
     />
-    <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible">
+    <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible" :close-on-click-modal="false">
       <el-form
         ref="dataForm"
         :model="temp"
@@ -267,10 +267,11 @@ export default {
         project: {
           type: 'enum',
           label: '相关项目',
+          message: '所属项目必须选择！',
           enum: this.project,
           required: true,
           options: this.projectList,
-          message: '所属项目必须选择！', placeholder: '选择项目'
+          placeholder: '选择项目'
         },
         developer: {
           type: 'enum',
@@ -294,8 +295,8 @@ export default {
                 label: '操作方式',
                 enum: ['update', 'recover'],
                 required: true,
-                message: '模板必须选择！',
-                placeholder: '选择模板',
+                message: '操作方式必须选择！',
+                placeholder: '请选择操作方式',
                 options: [
                   { label: '回档', value: 'recover' },
                   { label: '更新', value: 'update' }
@@ -306,8 +307,8 @@ export default {
                 label: '模板选择',
                 enum: ['TemplateKubernetes', 'TemplateNacos', 'TemplateTencentService', 'TemplateDB'],
                 required: true,
-                message: '模板必须选择！',
-                placeholder: '选择模板',
+                message: '模板类型必须选择！',
+                placeholder: '请选择模板类型',
                 events: {
                   change(event) {
                     const urls = {

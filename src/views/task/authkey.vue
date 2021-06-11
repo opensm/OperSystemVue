@@ -56,7 +56,7 @@
       </el-table-column>
     </el-table>
 
-    <el-dialog :visible.sync="dialogVisible" :title="dialogType==='edit'?'编辑密钥':'新增密钥'">
+    <el-dialog :visible.sync="dialogVisible" :title="dialogType==='edit'?'编辑密钥':'新增密钥'" :close-on-click-modal="false">
       <el-form :model="authKey" label-width="80px" label-position="left">
         <el-form-item label="验证名称">
           <el-input v-model="authKey.name" placeholder="验证名称" />

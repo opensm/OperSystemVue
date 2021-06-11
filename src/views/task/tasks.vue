@@ -145,7 +145,7 @@
       :limit.sync="listQuery.limit"
       @pagination="getList"
     />
-    <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible">
+    <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible" :close-on-click-modal="false">
       <el-form
         ref="dataForm"
         :rules="rules"
@@ -510,7 +510,6 @@ export default {
           meta
         } = response.data
         this.list.splice(index, 1)
-        // this.total = response.data.total
         this.$notify({
           title: '成功',
           message: meta.message,

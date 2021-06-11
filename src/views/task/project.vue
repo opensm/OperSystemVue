@@ -30,7 +30,7 @@
       </el-table-column>
     </el-table>
 
-    <el-dialog :visible.sync="dialogVisible" :title="dialogType==='edit'?'编辑项目':'新增项目'">
+    <el-dialog :visible.sync="dialogVisible" :title="dialogType==='edit'?'编辑项目':'新增项目'" :close-on-click-modal="false">
       <el-form :model="project" label-width="80px" label-position="left">
         <el-form-item label="项目ID">
           <el-input v-model="project.id" placeholder="项目ID" :disabled="dialogType ==='edit'" />
