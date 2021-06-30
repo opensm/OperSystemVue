@@ -37,12 +37,12 @@
       </el-table-column>
       <el-table-column label="审批流程组" align="center">
         <template slot-scope="{row}">
-          <span class="link-type">{{ row.flow | dataList(flowEngine) }}</span>
+          <span class="link-type">{{ row.flow_st }}</span>
         </template>
       </el-table-column>
       <el-table-column label="审批角色" align="center">
         <template slot-scope="{row}">
-          <span class="link-type">{{ row.approval_role | dataList(roleList) }}</span>
+          <span class="link-type">{{ row.role_st }}</span>
         </template>
       </el-table-column>
       <el-table-column label="优先级" align="center">

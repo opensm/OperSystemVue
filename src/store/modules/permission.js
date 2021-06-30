@@ -26,11 +26,11 @@ function convertRouter(asyncRouterMap) {
   if (asyncRouterMap) {
     // console.log(asyncRouterMap)
     asyncRouterMap.forEach(item => {
-      const parent = generateRouter(item, true)
+      const parent = generateRouter(item, true, '/')
       const children = []
       if (item.children) {
         item.children.forEach(child => {
-          children.push(generateRouter(child, false))
+          children.push(generateRouter(child, false, item.path))
         })
       }
       parent.children = children
@@ -43,9 +43,9 @@ function convertRouter(asyncRouterMap) {
   return accessedRouters
 }
 
-function generateRouter(item, isParent) {
+function generateRouter(item, isParent, parentPath) {
   return {
-    path: item.path === '/' ? '/' : '/' + item.path,
+    path: item.path === '/' ? '/' : parentPath + item.path,
     name: item.name,
     meta: {
       title: item.name, icon: item.icon
@@ -90,7 +90,6 @@ const mutations = {
 const actions = {
   generateRoutes: function({ commit }, data) {
     return new Promise(resolve => {
-      // console.log(data)
       const accessedRouters = convertRouter(data)
       commit('SET_ROUTES', accessedRouters)
       resolve(accessedRouters)
@@ -110,18 +109,18 @@ export const componentsMap = {
   roles: () => import('@/views/auth/roles'),
   users: () => import('@/views/auth/user'),
   menus: () => import('@/views/system/menus'),
-  data_permission: () => import('@/views/system/data_permission'),
-  data_permissionlist: () => import('@/views/system/data_permissionlist'),
+  data_permission_rule: () => import('@/views/system/data_permission_rule'),
+  data_permission_list: () => import('@/views/system/data_permission_list'),
   // 任务处理
   subtasks: () => import('@/views/task/subtasks'),
   tasks: () => import('@/views/task/tasks'),
   project: () => import('@/views/task/project'),
-  templatedb: () => import('@/views/task/templatedb'),
-  templatekubernetes: () => import('@/views/task/templatekubernetes'),
-  templateNacos: () => import('@/views/task/templatenacos'),
-  tencentService: () => import('@/views/task/templatetencentservice'),
-  authkey: () => import('@/views/task/authkey'),
-  flowengine: () => import('@/views/flow/FlowEngine'),
-  flownode: () => import('@/views/flow/flowNode'),
-  flowtask: () => import('@/views/flow/flowTask')
+  template_db: () => import('@/views/task/template_db'),
+  template_kubernetes: () => import('@/views/task/template_kubernetes'),
+  template_nacos: () => import('@/views/task/template_nacos'),
+  template_tencent_service: () => import('@/views/task/template_tencent_service'),
+  auth_key: () => import('@/views/task/auth_key'),
+  flow_engine: () => import('@/views/flow/flow_engine'),
+  flow_node: () => import('@/views/flow/flow_node'),
+  flow_task: () => import('@/views/flow/flow_task')
 }

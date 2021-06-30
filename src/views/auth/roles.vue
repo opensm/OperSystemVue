@@ -1,6 +1,6 @@
 <template>
   <div class="app-container">
-    <el-button type="primary" @click="handleAddRole">添加</el-button>
+    <el-button :disabled=" post === 'false' " type="primary" @click="handleAddRole">添加</el-button>
 
     <el-table :data="rolesList" style="width: 100%;margin-top:30px;" border>
       <el-table-column align="center" label="角色ID" width="220">
@@ -36,7 +36,6 @@
             v-model="role.data_permission"
             multiple
             filterable
-            allow-create
             default-first-option
             placeholder="请数据权限"
           >
@@ -81,7 +80,6 @@
 </template>
 
 <script>
-import path from 'path'
 import { deepClone } from '@/utils'
 import { getUserInfo, getRoles, addRole, deleteRole, updateRole } from '@/api/role'
 import { getDataPermissions } from '@/api/data_permission'
@@ -97,6 +95,7 @@ export default {
     return {
       role: Object.assign({}, defaultRole),
       routes: [],
+      post: false,
       dataPermission: [],
       rolesList: [],
       serviceRoutes: [],
@@ -124,13 +123,13 @@ export default {
     async getRoutes() {
       const { data } = await getUserInfo()
       this.serviceRoutes = data.user_permissions
-      // this.routes = this.generateRoutes(data.user_permissions)
     },
     async getRoles() {
       const res = await getRoles()
       this.rolesList = res.data
+      this.post = res.post_tag
     },
-    async getDatapermission(){
+    async getDatapermission() {
       const res = await getDataPermissions()
       this.dataPermission = res.data
     },

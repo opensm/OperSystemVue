@@ -32,7 +32,7 @@
         style="margin-left: 10px;"
         type="primary"
         icon="el-icon-edit"
-        :disabled="post === false"
+        :disabled=" post === 'false'"
         @click="handleCreate"
       >
         新增
@@ -209,14 +209,6 @@ import waves from '@/directive/waves' // waves directive
 import Pagination from '@/components/Pagination'
 // import { constantRoutes } from "@/router"; // secondary package based on el-pagination
 
-const calendarHiddenOptions = [
-  {
-    hidden: 'true', display_name: '隐藏', index: 1
-  }, {
-    hidden: 'false', display_name: '不隐藏', index: 0
-  }
-]
-
 const calendarTypeOptions = [
   {
     level: 0, display_name: '一级菜单'
@@ -229,10 +221,6 @@ const calendarTypeOptions = [
 // arr to obj, such as { CN : "China", US : "USA" }
 const calendarTypeKeyValue = calendarTypeOptions.reduce((acc, cur) => {
   acc[cur.level] = cur.display_name
-  return acc
-}, {})
-const calendarHiddenKeyValue = calendarHiddenOptions.reduce((acc, cur) => {
-  acc[cur.hidden] = cur.display_name
   return acc
 }, {})
 
@@ -251,9 +239,6 @@ export default {
     },
     typeFilter(type) {
       return calendarTypeKeyValue[type]
-    },
-    hiddenFilter(hidden) {
-      return calendarHiddenKeyValue[hidden]
     }
   },
   data() {
@@ -271,7 +256,6 @@ export default {
         sort: '+id'
       },
       calendarTypeOptions,
-      calendarHiddenOptions,
       sortOptions: [{
         label: 'ID 正序', key: '+id'
       }, {
@@ -393,17 +377,28 @@ export default {
     createData() {
       this.$refs['dataForm'].validate((valid) => {
         if (valid) {
-          this.temp.id = parseInt(Math.random() * 100) + 1024 // mock a id
-          addMenu(this.temp).then(() => {
-            this.list.unshift(this.temp)
-            this.dialogFormVisible = false
-            this.$notify({
-              title: '成功',
-              message: '创建成功',
-              type: 'success',
-              duration: 2000
-            })
+          // this.temp.id = parseInt(Math.random() * 100) + 1024 // mock a id
+          addMenu(this.temp).then(response => {
+            const { meta } = response
+            if (meta.code === '00000') {
+              this.list.unshift(this.temp)
+              this.$notify({
+                title: '成功',
+                message: meta.msg,
+                type: 'success',
+                duration: 2000
+              })
+            } else {
+              this.$notify({
+                title: '失败',
+                message: meta.msg,
+                type: 'danger',
+                duration: 2000
+              })
+            }
           })
+          this.dialogFormVisible = false
+          this.handleFilter()
         }
       })
     },
@@ -420,34 +415,51 @@ export default {
       this.$refs['dataForm'].validate((valid) => {
         if (valid) {
           const tempData = Object.assign({}, this.temp)
-          updateMenu(tempData.id, tempData).then(() => {
-            const index = this.list.findIndex(v => v.id === this.temp.id)
-            this.list.splice(index, 1, this.temp)
+          updateMenu(tempData.id, tempData).then(response => {
+            const { meta } = response
+            if (meta.code === '00000') {
+              const index = this.list.findIndex(v => v.id === this.temp.id)
+              this.list.splice(index, 1, this.temp)
+              this.$notify({
+                title: '成功',
+                message: meta.msg,
+                type: 'success',
+                duration: 2000
+              })
+            } else {
+              this.$notify({
+                title: '失败',
+                message: meta.msg,
+                type: 'danger',
+                duration: 2000
+              })
+            }
             this.dialogFormVisible = false
-            this.$notify({
-              title: '修改权限成功：' + tempData.name,
-              message: '修改权限成功',
-              type: 'success',
-              duration: 2000
-            })
+            this.handleFilter()
           })
         }
       })
     },
     handleDelete(row, index) {
       deleteMenu(row.id).then(response => {
-        const {
-          meta
-        } = response.data
-        this.list.splice(meta, 1)
-        // this.total = response.data.total
-        this.$notify({
-          title: '成功',
-          message: meta.message,
-          type: 'success',
-          duration: 2000
-        })
-
+        const { meta } = response
+        if (meta.code === '00000') {
+          const index = this.list.findIndex(v => v.id === this.temp.id)
+          this.list.splice(index, 1)
+          this.$notify({
+            title: '成功',
+            message: meta.msg,
+            type: 'success',
+            duration: 2000
+          })
+        } else {
+          this.$notify({
+            title: '失败',
+            message: meta.msg,
+            type: 'danger',
+            duration: 2000
+          })
+        }
         // Just to simulate the time of the request
         setTimeout(() => {
           this.listLoading = false

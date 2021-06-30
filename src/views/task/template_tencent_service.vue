@@ -2,7 +2,7 @@
   <div class="app-container">
     <el-button type="primary" @click="handleAddRole">添加</el-button>
 
-    <el-table :data="templateNacosList" style="width: 100%;margin-top:30px;" border>
+    <el-table :data="templateList" style="width: 100%;margin-top:30px;" border>
       <el-table-column align="center" label="ID">
         <template slot-scope="scope">
           {{ scope.row.id }}
@@ -15,9 +15,9 @@
       </el-table-column>
       <el-table-column align="center" label="相关实例">
         <template slot-scope="scope">
-          {{ scope.row.auth_key }}
+          {{ scope.row.instance_st }}
         </template>
-      </el-table-column>s
+      </el-table-column>
       <el-table-column align="header-center" label="调用类">
         <template slot-scope="scope">
           {{ scope.row.exec_class }}
@@ -28,9 +28,14 @@
           {{ scope.row.exec_function }}
         </template>
       </el-table-column>
+      <el-table-column align="header-center" label="所属项目">
+        <template slot-scope="scope">
+          {{ scope.row.project_st }}
+        </template>
+      </el-table-column>
       <el-table-column align="header-center" label="操作用户">
         <template slot-scope="scope">
-          {{ scope.row.create_user }}
+          {{ scope.row.create_user_st }}
         </template>
       </el-table-column>
       <el-table-column align="header-center" label="操作时间">
@@ -47,25 +52,40 @@
     </el-table>
 
     <el-dialog :visible.sync="dialogVisible" :title="dialogType==='edit'?'编辑模板':'新增模板'" :close-on-click-modal="false">
-      <el-form :model="templateNacos" label-width="100px" label-position="left">
-        <el-form-item label="模板名称">
-          <el-input v-model="templateNacos.name" placeholder="填入模板名称" />
+      <el-form :model="template" label-width="80px" label-position="left">
+        <el-form-item label="相关服务">
+          <el-input v-model="template.name" placeholder="相关服务" />
         </el-form-item>
         <el-form-item label="操作类">
-          <el-input v-model="templateNacos.exec_class" placeholder="填入操作类" />
+          <el-input v-model="template.exec_class" placeholder="填入操作类" />
         </el-form-item>
         <el-form-item label="操作方法">
-          <el-input v-model="templateNacos.exec_function" placeholder="填入操作方法" />
+          <el-input v-model="template.exec_function" placeholder="填入操作方法" />
         </el-form-item>
-        <el-form-item label="验证密钥">
+        <el-form-item label="所属项目">
           <el-select
-            v-model="templateNacos.auth_key"
+            v-model="template.project"
             filterable
             default-first-option
-            placeholder="请选择验证密钥"
+            placeholder="请选择所属项目"
           >
             <el-option
-              v-for="item in authKeyList"
+              v-for="item in project"
+              :key="item.id"
+              :label="item.name"
+              :value="item.id"
+            />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="关联密钥">
+          <el-select
+            v-model="template.tencent_key"
+            filterable
+            default-first-option
+            placeholder="请选择关联密钥"
+          >
+            <el-option
+              v-for="item in keyList"
               :key="item.id"
               :label="item.name"
               :value="item.id"
@@ -83,26 +103,26 @@
 
 <script>
 import { deepClone } from '@/utils'
-import { getTemplateNacoses, updateTemplateNacos, addTemplateNacos, deleteTemplateNacos } from '@/api/templatenacos'
+import { getTemplateTencentServices, updateTemplateTencentService, addTemplateTencentService, deleteTemplateTencentService } from '@/api/tencentservice'
 import { getAuthKEYs } from '@/api/auth_key'
-import { current_user } from '@/api/user'
+import { getProjects } from '@/api/project'
 
 const defaultTemplate = {
   id: '',
   name: '',
-  auth_key: '',
+  tencent_key: '',
   exec_class: '',
   exec_function: '',
-  create_user: ''
+  create_user: '',
+  project: ''
 }
 export default {
   data() {
     return {
-      templateNacos: Object.assign({}, defaultTemplate),
-      templateNacosList: [],
-      authKeyList: [],
+      template: Object.assign({}, defaultTemplate),
+      templateList: [],
+      keyList: [],
       project: [],
-      user: {},
       dialogVisible: false,
       dialogType: 'new',
       checkStrictly: false
@@ -110,32 +130,32 @@ export default {
   },
   created() {
     // Mock: get all routes and roles list from server
-    this.gettemplateNacos()
-    this.getAuthKey()
-    this.getUsers()
+    this.getTemplate()
+    this.getKey()
+    this.getProjects()
   },
   methods: {
-    gettemplateNacos() {
-      getTemplateNacoses().then(response => {
+    getProjects() {
+      getProjects().then(response => {
         const { data } = response
-        this.templateNacosList = data
+        this.project = data
       })
     },
-    getAuthKey() {
+    getTemplate() {
+      getTemplateTencentServices().then(response => {
+        const { data } = response
+        this.templateList = data
+      })
+    },
+    getKey() {
       getAuthKEYs().then(response => {
         const { data } = response
-        this.authKeyList = data
-      })
-    },
-    getUsers() {
-      current_user().then(response => {
-        const { data } = response
-        this.user = data.id
+        this.keyList = data
       })
     },
     // Reshape the routes structure so that it looks the same as the sidebar
     handleAddRole() {
-      this.templateNacos = Object.assign({}, defaultTemplate)
+      this.template = Object.assign({}, defaultTemplate)
       this.dialogType = 'new'
       this.dialogVisible = true
     },
@@ -143,20 +163,20 @@ export default {
       this.dialogType = 'edit'
       this.dialogVisible = true
       this.checkStrictly = true
-      this.templateNacos = deepClone(scope.row)
+      this.template = deepClone(scope.row)
       this.$nextTick(() => {
         this.$refs['dataForm'].clearValidate()
       })
     },
     handleDelete({ $index, row }) {
-      this.$confirm('Confirm to remove the role?', 'Warning', {
-        confirmButtonText: 'Confirm',
-        cancelButtonText: 'Cancel',
+      this.$confirm('确认删除?', '提示', {
+        confirmButtonText: '确认',
+        cancelButtonText: '取消',
         type: 'warning'
       })
         .then(async() => {
-          await deleteTemplateNacos(row.id)
-          this.templateNacosList.splice($index, 1)
+          await deleteTemplateTencentService(row.id).then()
+          this.templateList.splice($index, 1)
           this.$message({
             type: 'success',
             message: '删除成功'
@@ -166,24 +186,23 @@ export default {
     },
     async confirmRole() {
       const isEdit = this.dialogType === 'edit'
-      this.templateNacos.create_user = this.user
+      this.template.create_user = this.user
       if (isEdit) {
-        await updateTemplateNacos(this.templateNacos.id, this.templateNacos)
+        await updateTemplateTencentService(this.template.id, this.template)
       } else {
-        const { data } = await addTemplateNacos(this.templateNacos)
-        this.templateNacos.id = data.id
-        this.templateNacosList.push(this.templateNacos)
+        const { data } = await addTemplateTencentService(this.template)
+        this.template.id = data.id
+        this.templateList.push(this.template)
       }
-      const { desc, id, name } = this.templateNacos
+      this.getTemplate()
+      const { id, name } = this.template
       this.dialogVisible = false
       this.$notify({
         title: '成功',
         dangerouslyUseHTMLString: true,
         message: `
-            <div>角色ID: ${id}</div>
-            <div>角色名称: ${name}</div>
-            <div>描述: ${desc}</div>
-`,
+            <div>模板ID: ${id}</div>
+            <div>模板名称: ${name}</div>`,
         type: 'success'
       })
     }

@@ -7,9 +7,9 @@ export function login(data) {
     data
   })
 }
-export function resetPassword(id, data) {
+export function resetPassword(data) {
   return request({
-    url: '/auth/user/$id/reset_passoword',
+    url: '/auth/user/reset_passwd',
     method: 'post',
     data
   })

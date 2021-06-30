@@ -1,4 +1,4 @@
-<template>
+<template xmlns="http://www.w3.org/1999/html">
   <div class="app-container">
     <div class="filter-container">
       <el-input
@@ -13,6 +13,7 @@
         class="filter-item"
         type="primary"
         icon="el-icon-search"
+        style="margin-left: 10px;"
         @click="handleFilter"
       >
         搜索
@@ -43,40 +44,22 @@
         type="expand"
       >
         <template slot-scope="{row}">
-          <el-form label-position="left" inline class="demo-table-expand">
-            <el-form-item label="任务ID">
-              <span>{{ row.id }}</span>
-            </el-form-item>
-            <el-form-item label="任务名称">
-              <span>{{ row.name }}</span>
-            </el-form-item>
-            <el-form-item label="审批流程">
-              <span>{{ row.approve_flow }}</span>
-            </el-form-item>
-            <el-form-item label="所属项目">
-              <span>{{ row.project | dataList(project) }}</span>
-            </el-form-item>
-            <el-form-item label="创建用户">
-              <span>{{ row.create_user|dataList(userList) }}</span>
-            </el-form-item>
-            <el-form-item label="状态">
-              <span>{{ row.status|statusFilter }}</span>
-            </el-form-item>
-            <el-form-item label="任务时间">
-              <span>{{ row.task_time }}</span>
-            </el-form-item>
-            <el-form-item label="创建时间">
-              <span>{{ row.create_time }}</span>
-            </el-form-item>
-            <el-form-item label="完成时间">
-              <span>{{ row.finish_time }}</span>
-            </el-form-item>
-            <el-form-item label="备注">
-              <span>{{ row.note }}</span>
-            </el-form-item>
-            <el-form-item label="关联子任务">
-              <span>{{ row.sub_task | subTaskFilter(subTaskList) }}</span>
-            </el-form-item>
+          <el-form label-position="left" inline class="demo-table-expand" label-width="200px">
+            <template v-for="(item,key) in row.sub_task_st">
+              <el-divider :key="key">子任务ID:{{ item.id }}</el-divider>
+              <el-form-item :key="key" label="子任务名称：">
+                <span>{{ item.container }}</span>
+              </el-form-item>
+              <el-form-item :key="key" label="状态：">
+                <el-tag :type="item.status| tagFilter">{{ item.status|statusFilter }}</el-tag>
+              </el-form-item>
+              <el-form-item :key="key" label="创建时间：">
+                <span>{{ item.create_time }}</span>
+              </el-form-item>
+              <el-form-item :key="key" label="完成时间：">
+                <span>{{ item.finish_time }}</span>
+              </el-form-item>
+            </template>
           </el-form>
         </template>
       </el-table-column>
@@ -99,17 +82,17 @@
       </el-table-column>
       <el-table-column label="审批流程" align="center">
         <template slot-scope="{row}">
-          <span>{{ row.approve_flow }}</span>
+          <span>{{ row.approval_flow_st }}</span>
         </template>
       </el-table-column>
       <el-table-column label="所属项目" align="center">
         <template slot-scope="{row}">
-          <span>{{ row.project | dataList(project) }}</span>
+          <span>{{ row.project_st }}</span>
         </template>
       </el-table-column>
       <el-table-column label="创建用户" align="center">
         <template slot-scope="{row}">
-          {{ row.create_user|dataList(userList) }}
+          {{ row.create_user_st }}
         </template>
       </el-table-column>
       <el-table-column label="状态" align="center">
@@ -239,7 +222,7 @@ import {
   getSubtasks
 } from '@/api/subtask'
 import { getProjects } from '@/api/project'
-import { getUsersInfo, current_user } from '@/api/user'
+import { getUsersInfo } from '@/api/user'
 import { getFlowEngines } from '@/api/flow_engine'
 import Pagination from '@/components/Pagination'
 
@@ -316,7 +299,7 @@ export default {
         page: 1,
         limit: 10,
         name: undefined,
-        sort: '+id'
+        sort: '-id'
       },
       sortOptions: [{
         label: 'ID 正序', key: '+id'
@@ -399,12 +382,8 @@ export default {
           this.listLoading = false
         }, 1.5 * 1000)
       })
-      getSubtasks({ 'status': 'unbond' }).then(response => {
+      getSubtasks().then(response => {
         this.subTaskList = response.data
-      })
-      current_user().then(response => {
-        const { data } = response
-        this.create_user = data.id
       })
       getUsersInfo().then(response => {
         this.userList = response.data
@@ -458,19 +437,28 @@ export default {
     createData() {
       this.$refs['dataForm'].validate((valid) => {
         if (valid) {
-          this.temp.id = parseInt(Math.random() * 100) + 1024 // mock a id
-          this.temp.create_user = this.create_user
           this.temp.task_time = this.moment(this.temp.task_time).format('YYYY-MM-DD HH:mm:ss')
           this.getList()
-          addTask(this.temp).then(() => {
-            this.list.unshift(this.temp)
+          addTask(this.temp).then(response => {
+            const { meta } = response
+            if (meta.code === '00000') {
+              this.list.unshift(this.temp)
+              this.$notify({
+                title: '成功',
+                message: meta.msg,
+                type: 'success',
+                duration: 2000
+              })
+            } else {
+              this.$notify({
+                title: '失败',
+                message: meta.msg,
+                type: 'danger',
+                duration: 2000
+              })
+            }
             this.dialogFormVisible = false
-            this.$notify({
-              title: '成功',
-              message: '创建用户成功',
-              type: 'success',
-              duration: 2000
-            })
+            this.handleFilter()
           })
         }
       })
@@ -489,34 +477,52 @@ export default {
         if (valid) {
           const tempData = Object.assign({}, this.temp)
           tempData.task_time = this.moment(tempData.task_time).format('YYYY-MM-DD HH:mm:ss')
-          updateTask(tempData.id, tempData).then(() => {
-            const index = this.list.findIndex(v => v.id === this.temp.id)
-            this.list.splice(index, 1, this.temp)
+          updateTask(tempData.id, tempData).then(response => {
+            const { meta } = response
+            if (meta.code === '00000') {
+              const index = this.list.findIndex(v => v.id === this.temp.id)
+              this.list.splice(index, 1, this.temp)
+              this.$notify({
+                title: '成功',
+                message: meta.msg,
+                type: 'success',
+                duration: 2000
+              })
+            } else {
+              this.$notify({
+                title: '失败',
+                message: meta.msg,
+                type: 'danger',
+                duration: 2000
+              })
+            }
             this.dialogFormVisible = false
-            this.getList()
-            this.$notify({
-              title: '成功' + tempData.name,
-              message: '修改成功:' + tempData.name,
-              type: 'success',
-              duration: 2000
-            })
+            this.handleFilter()
           })
         }
       })
     },
     handleDelete(row, index) {
       deleteTask(row.id).then(response => {
-        const {
-          meta
-        } = response.data
-        this.list.splice(index, 1)
-        this.$notify({
-          title: '成功',
-          message: meta.message,
-          type: 'success',
-          duration: 2000
-        })
-
+        const { meta } = response
+        if (meta.code === '00000') {
+          this.list.splice(index, 1)
+          this.$notify({
+            title: '成功',
+            message: meta.msg,
+            type: 'success',
+            duration: 2000
+          })
+        } else {
+          this.$notify({
+            title: '失败',
+            message: meta.msg,
+            type: 'danger',
+            duration: 2000
+          })
+        }
+        this.dialogFormVisible = false
+        this.handleFilter()
         // Just to simulate the time of the request
         setTimeout(() => {
           this.listLoading = false

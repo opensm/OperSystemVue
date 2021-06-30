@@ -107,11 +107,29 @@ export default {
         type: 'warning'
       })
         .then(async() => {
-          deleteProject(row.id)
-          this.projectList.splice($index, 1)
-          this.$message({
-            type: 'success',
-            message: '删除成功'
+          deleteProject(row.id).then(response => {
+            const { data, meta } = response
+            if (meta.code === '00000') {
+              this.$notify({
+                title: '成功',
+                dangerouslyUseHTMLString: true,
+                message: `
+            <div>项目ID: ${data.id}</div>
+            <div>项目名称: ${data.name}</div>
+`,
+                type: 'success'
+              })
+            } else {
+              this.$notify({
+                title: '失败',
+                dangerouslyUseHTMLString: true,
+                message: `
+            <div>项目ID: ${data.id}</div>
+            <div>项目名称: ${data.name}</div>
+`,
+                type: 'danger'
+              })
+            }
           })
         })
         .catch(err => { console.error(err) })
@@ -125,6 +143,7 @@ export default {
         this.project.id = data.id
         this.projectList.push(this.project)
       }
+      this.getProjects()
       const { id, name } = this.project
       this.dialogVisible = false
       this.$notify({

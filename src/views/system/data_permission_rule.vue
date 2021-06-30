@@ -53,32 +53,33 @@
           <span>{{ row.id }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="关联模型" align="center">
+      <el-table-column label="权限" align="center">
         <template slot-scope="{row}">
-          <span class="link-type">{{ row.permission_rule | contentFilter(data_permission) }}</span>
+          <span class="link-type">{{ row.name }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="操作方式" align="center">
+      <el-table-column label="资源model" align="center">
         <template slot-scope="{row}">
-          <span v-if="row.operate_type">{{ row.operate_type }}</span>
+          <span v-if="row.content_type">应用程序标签：{{ row.app_label_set }},数据模型：{{ row.model_set }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="关联列" align="center">
+      <el-table-column label="请求类型" align="center">
         <template slot-scope="{row}">
-          <span>{{ row.check_field }}</span>
+          <span>{{ row.request_type | typeFilter }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="关联列值" align="center">
+      <el-table-column label="是否是全部资源" align="center">
         <template slot-scope="{row}">
-          <el-tag> {{ row.value }}</el-tag>
+          <el-tag> {{ row.is_all }}</el-tag>
         </template>
       </el-table-column>
+
       <el-table-column label="操作" align="center" width="230" class-name="small-padding fixed-width">
         <template slot-scope="{row,$index}">
-          <el-button type="primary" size="mini" :disabled=" ! 'PUT' in row.button" @click="handleUpdate(row)">
+          <el-button type="primary" size="mini" :disabled=" ! row.button.includes('PUT')" @click="handleUpdate(row)">
             修改
           </el-button>
-          <el-button size="mini" type="danger" :disabled=" ! 'DELETE' in row.button" @click="handleDelete(row,$index)">
+          <el-button size="mini" type="danger" :disabled="! row.button.includes('DELETE')" @click="handleDelete(row,$index)">
             删除
           </el-button>
         </template>
@@ -98,68 +99,35 @@
         :rules="rules"
         :model="temp"
         label-position="left"
-        label-width="140px"
+        label-width="100px"
         style="width: 400px; margin-left:50px;"
       >
-        <el-form-item label="数据模型规则" prop="permission_rule">
+        <el-form-item label="权限" prop="name">
+          <el-input
+            v-model="temp.name"
+          />
+        </el-form-item>
+        <el-form-item label="数据模型" prop="content_type">
           <el-select
-            v-model="temp.permission_rule"
+            v-model="temp.content_type"
             filterable
             allow-create
             default-first-option
             placeholder="请选择数据模型"
-            @change="getFields(temp.permission_rule)"
           >
             <el-option
-              v-for="(value, key) in data_permission"
+              v-for="(value, key) in content"
               :key="key"
-              :label="value.name"
+              :label="value.model"
               :value="value.id"
             >
-              <a>数据规则名称：{{ value.name }}</a>
+              <a>应用程序标签：{{ value.app_label }},数据模型：{{ value.model }}</a>
             </el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="运算方式" prop="operate_type">
+        <el-form-item label="请求方式" prop="request_type">
           <el-select
-            v-model="temp.operate_type"
-            filterable
-            allow-create
-            default-first-option
-            placeholder="请输入操作类型"
-          >
-            <el-option
-              v-for="(value, key, index) in operOption"
-              :key="index"
-              :label="value"
-              :value="key"
-            >
-              <a>{{ value }}</a>
-            </el-option>
-          </el-select>
-        </el-form-item>
-        <el-form-item label="关联列" prop="check_field">
-          <el-select
-            v-model="temp.check_field"
-            filterable
-            allow-create
-            default-first-option
-            placeholder="请选择数据模型"
-            @change="getModelFieldValue(temp.permission_rule,temp.check_field)"
-          >
-            <template v-for="(value, key, index) in check_fields">
-              <el-option
-                :key="index"
-                :label="value"
-                :value="key"
-                :aria-selected="key === temp.check_field"
-              />
-            </template>
-          </el-select>
-        </el-form-item>
-        <el-form-item label="关联列值" prop="value">
-          <el-select
-            v-model="temp.value"
+            v-model="temp.request_type"
             multiple
             filterable
             allow-create
@@ -167,12 +135,21 @@
             placeholder="请选择请求方式"
           >
             <el-option
-              v-for="(item, key) in field_value"
+              v-for="(value, key) in requestTypeoption"
               :key="key"
-              :label="item"
-              :value="item"
+              :label="value.name"
+              :value="value.id"
             />
           </el-select>
+        </el-form-item>
+        <el-form-item label="全部资源" prop="is_all">
+          <el-tooltip :content="'全部权限？: ' + temp.is_all" placement="top">
+            <el-switch
+              v-model="temp.is_all"
+              active-color="#13ce66"
+              inactive-color="#ff4949"
+            />
+          </el-tooltip>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -189,19 +166,28 @@
 
 <script>
 import {
-  getDataPermissionLists,
-  updateDataPermissionList,
-  deleteDataPermissionList,
-  addDataPermissionList,
-  getModelFields,
-  // getDataPermissionList,
-  getModelFieldValues
-} from '@/api/data_permission_list'
-import { getDataPermissions } from '@/api/data_permission'
+  getDataPermissions, addDataPermission, updateDataPermission, deleteDataPermission, getContentType
+} from '@/api/data_permission'
 import waves from '@/directive/waves' // waves directive
 // import { parseTime } from '@/utils'
 import Pagination from '@/components/Pagination'
 // import { constantRoutes } from "@/router"; // secondary package based on el-pagination
+
+const calendarHiddenOptions = [
+  {
+    hidden: 'true', display_name: '隐藏', index: 1
+  }, {
+    hidden: 'false', display_name: '不隐藏', index: 0
+  }
+]
+
+const requestTypeoption = [
+  { 'id': 1, 'name': '添加', 'method': 'POST' },
+  { 'id': 2, 'name': '查看', 'method': 'GET' },
+  { 'id': 3, 'name': '删除', 'method': 'DELETE' },
+  { 'id': 4, 'name': '修改', 'method': 'PUT' }
+]
+
 export default {
   name: 'ComplexTable',
   components: { Pagination },
@@ -218,9 +204,17 @@ export default {
     contentFilter(content, contents) {
       const map = {}
       contents.map((item) => {
-        map[item.id] = item['name']
+        map[item.id] = '应用程序标签:' + item['app_label'] + ';' + '数据模型:' + item['model']
       })
       return map[content]
+    },
+    typeFilter(roles) {
+      const map = {}
+      requestTypeoption.map((item) => {
+        map[item.id] = item.name
+      })
+
+      return roles.map((item) => map[item]).join(',')
     }
   },
   data() {
@@ -229,9 +223,7 @@ export default {
       list: null,
       total: 0,
       post: null,
-      data_permission: [],
-      check_fields: [],
-      field_value: [],
+      content: [],
       listLoading: true,
       listQuery: {
         page: 1,
@@ -239,24 +231,20 @@ export default {
         level: undefined,
         sort: '+id'
       },
+      requestTypeoption,
+      calendarHiddenOptions,
       sortOptions: [{
         label: 'ID 正序', key: '+id'
       }, {
         label: 'ID 逆序', key: '-id'
       }],
-      operOption: {
-        'eq': '等于',
-        'gt': '大于',
-        'le': '小于'
-      },
       showReviewer: false,
       temp: {
         id: undefined,
         name: '',
-        permission_rule: '',
-        operate_type: [],
-        check_field: [],
-        value: ''
+        content_type: '',
+        request_type: [],
+        is_all: false
       },
       dialogFormVisible: false,
       dialogStatus: '',
@@ -267,82 +255,46 @@ export default {
       dialogPvVisible: false,
       pvData: [],
       rules: {
-        permission_rule: [{
+        name: [{
           required: true, message: '数据权限名称必须填写!', trigger: 'blur'
         }],
-        operate_type: [{
+        content_type: [{
           required: true, message: '关联数据模型必须填写！', trigger: 'blur'
         }],
-        check_field: [{
+        request_type: [{
           required: true, message: '请求方式必须填写！', trigger: 'blur'
         }],
-        value: [{
+        is_all: [{
           required: true, message: '权限范围必须填写！', trigger: 'blur'
         }]
       },
       downloadLoading: false
     }
   },
-  watch: {
-    'temp.permission_rule': {
-      handler(newValue, oldValue) {
-        // this.temp.check_field = ''
-        // this.temp.value = ''
-        this.field_value = []
-        this.check_fields = []
-      }
-    },
-    'temp.check_field': {
-      handler(newValue, oldValue) {
-        // this.temp.value = ''
-        this.field_value = []
-      }
-    }
-  },
   created() {
     this.getList()
+    this.getContent()
   },
   methods: {
-    async getModelFieldValue(id, value) {
-      if (value !== '' && value !== 'undefined' && id !== '' && id !== 'undefined' && id.length !== 0) {
-        await getModelFieldValues(id, value).then(response => {
-          this.field_value = response.data
-        })
-      }
-    },
-    async getFields(value) {
-      if (value !== '' && value !== 'undefined' && value.length !== 0) {
-        await getModelFields(value).then(response => {
-          this.check_fields = response.data
-        })
-      }
-    },
-    async getModelFieldsOption(id, value) {
-      if (value !== '' && value !== 'undefined' && id !== '' && id !== 'undefined' && id.length !== 0) {
-        await getModelFields(id).then(response => {
-          this.check_fields = response.data
-        })
-      }
-      if (value !== '' && value !== 'undefined' && id !== '' && id !== 'undefined' && id.length !== 0) {
-        await getModelFieldValues(id, value).then(response => {
-          this.field_value = response.data
-        })
-      }
-    },
     getList() {
       this.listLoading = true
       // 重置选择上的空
       if (this.listQuery.level === '') {
         this.listQuery.level = undefined
       }
-      getDataPermissions().then(response => {
-        this.data_permission = response.data
-      })
-      getDataPermissionLists(this.listQuery).then(response => {
+      getDataPermissions(this.listQuery).then(response => {
         this.list = response.data
         this.total = response.total
         this.post = response.meta.post_tag
-
+        // Just to simulate the time of the request
+        setTimeout(() => {
+          this.listLoading = false
+        }, 1.5 * 1000)
+      })
+    },
+    getContent() {
+      getContentType().then(response => {
+        this.content = response.data
         // Just to simulate the time of the request
         setTimeout(() => {
           this.listLoading = false
@@ -379,10 +331,13 @@ export default {
     resetTemp() {
       this.temp = {
         id: undefined,
-        permission_rule: '',
-        operate_type: '',
-        value: '',
-        check_field: ''
+        path: '',
+        model: '',
+        name: '',
+        icon: '',
+        level: '',
+        parent: '',
+        component: ''
       }
     },
     handleCreate() {
@@ -396,28 +351,36 @@ export default {
     createData() {
       this.$refs['dataForm'].validate((valid) => {
         if (valid) {
-          this.temp.id = parseInt(Math.random() * 100) + 1024 + parseInt(Math.random() * 100) * 1000000 // mock a id
-          if (typeof this.temp.value === typeof []) {
-            this.temp.value = this.temp.value.join(',')
-          }
-          addDataPermissionList(this.temp).then(() => {
-            this.list.unshift(this.temp)
-            this.dialogFormVisible = false
-            this.$notify({
-              title: '成功',
-              message: '创建成功',
-              type: 'success',
-              duration: 2000
-            })
+          // this.temp.id = parseInt(Math.random() * 100) + 1024 // mock a id
+          addDataPermission(this.temp).then(response => {
+            const { meta } = response
+            if (meta.code === '00000') {
+              this.list.unshift(this.temp)
+              this.$notify({
+                title: '成功',
+                message: meta.msg,
+                type: 'success',
+                duration: 2000
+              })
+            } else {
+              this.$notify({
+                title: '失败',
+                message: meta.msg,
+                type: 'danger',
+                duration: 2000
+              })
+            }
           })
+          this.dialogFormVisible = false
+          this.handleFilter()
         }
       })
     },
     handleUpdate(row) {
       this.temp = Object.assign({}, row) // copy obj
+      // this.temp.timestamp = new Date(this.temp.timestamp)
       this.dialogStatus = 'update'
       this.dialogFormVisible = true
-      this.getModelFieldsOption(this.temp.permission_rule, this.temp.check_field)
       this.$nextTick(() => {
         this.$refs['dataForm'].clearValidate()
       })
@@ -425,26 +388,34 @@ export default {
     updateData() {
       this.$refs['dataForm'].validate((valid) => {
         if (valid) {
-          if (typeof this.temp.value === typeof []) {
-            this.temp.value = this.temp.value.join(',')
-          }
           const tempData = Object.assign({}, this.temp)
-          updateDataPermissionList(tempData.id, tempData).then(() => {
-            const index = this.list.findIndex(v => v.id === this.temp.id)
-            this.list.splice(index, 1, this.temp)
+          updateDataPermission(tempData.id, tempData).then(response => {
+            const { meta } = response
+            if (meta.code === '00000') {
+              const index = this.list.findIndex(v => v.id === this.temp.id)
+              this.list.splice(index, 1, this.temp)
+              this.$notify({
+                title: '修改权限成功',
+                message: meta.msg,
+                type: 'success',
+                duration: 2000
+              })
+            } else {
+              this.$notify({
+                title: '修改权限失败',
+                message: meta.msg,
+                type: 'danger',
+                duration: 2000
+              })
+            }
             this.dialogFormVisible = false
-            this.$notify({
-              title: '修改权限成功：' + tempData.name,
-              message: '修改权限成功',
-              type: 'success',
-              duration: 2000
-            })
+            this.handleFilter()
           })
         }
       })
     },
     handleDelete(row, index) {
-      deleteDataPermissionList(row.id).then(response => {
+      deleteDataPermission(row.id).then(response => {
         const {
           meta
         } = response.data
@@ -461,12 +432,6 @@ export default {
         setTimeout(() => {
           this.listLoading = false
         }, 1.5 * 1000)
-      })
-    },
-    handleFetchPv(pv) {
-      fetchPv(pv).then(response => {
-        this.pvData = response.data.pvData
-        this.dialogPvVisible = true
       })
     },
     getSortClass: function(key) {

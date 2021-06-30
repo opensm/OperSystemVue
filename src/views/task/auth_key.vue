@@ -1,6 +1,6 @@
 <template>
   <div class="app-container">
-    <el-button type="primary" @click="handleAddKey">添加</el-button>
+    <el-button type="primary" :disabled=" post === false " @click="handleAddKey">添加</el-button>
 
     <el-table :data="authKeyList" style="width: 100%;margin-top:30px;" border>
       <el-table-column align="center" label="ID">
@@ -38,14 +38,19 @@
           {{ scope.row.auth_params }}
         </template>
       </el-table-column>
+      <el-table-column align="header-center" label="创建用户">
+        <template slot-scope="scope">
+          {{ scope.row.create_user_st }}
+        </template>
+      </el-table-column>
       <el-table-column align="header-center" label="所属项目">
         <template slot-scope="scope">
-          {{ scope.row.project }}
+          {{ scope.row.project_st }}
         </template>
       </el-table-column>
       <el-table-column align="header-center" label="创建日期">
         <template slot-scope="scope">
-          {{ scope.row.create_user }}
+          {{ scope.row.create_time }}
         </template>
       </el-table-column>
       <el-table-column align="center" label="操作">
@@ -57,26 +62,32 @@
     </el-table>
 
     <el-dialog :visible.sync="dialogVisible" :title="dialogType==='edit'?'编辑密钥':'新增密钥'" :close-on-click-modal="false">
-      <el-form :model="authKey" label-width="80px" label-position="left">
-        <el-form-item label="验证名称">
+      <el-form
+        ref="dataForm"
+        :model="authKey"
+        :rules="rules"
+        label-width="80px"
+        label-position="left"
+      >
+        <el-form-item label="验证名称" prop="name">
           <el-input v-model="authKey.name" placeholder="验证名称" />
         </el-form-item>
-        <el-form-item label="验证地址">
+        <el-form-item label="验证地址" prop="auth_host">
           <el-input v-model="authKey.auth_host" placeholder="输入验证地址" />
         </el-form-item>
-        <el-form-item label="认证端口">
+        <el-form-item label="认证端口" prop="auth_port">
           <el-input v-model="authKey.auth_port" placeholder="输入认证端口" />
         </el-form-item>
-        <el-form-item label="认证用户">
+        <el-form-item label="认证用户" prop="auth_user">
           <el-input v-model="authKey.auth_user" placeholder="输入认证用户" />
         </el-form-item>
-        <el-form-item label="验证密钥">
+        <el-form-item label="验证密钥" prop="auth_passwd">
           <el-input v-model="authKey.auth_passwd" type="password" placeholder="输入验证密钥" />
         </el-form-item>
-        <el-form-item label="验证参数">
+        <el-form-item label="验证参数" prop="auth_params">
           <el-input v-model="authKey.auth_params" placeholder="输入验证参数" />
         </el-form-item>
-        <el-form-item label="认证类型">
+        <el-form-item label="认证类型" prop="auth_type">
           <el-select
             v-model="authKey.auth_type"
             filterable
@@ -92,11 +103,10 @@
             />
           </el-select>
         </el-form-item>
-        <el-form-item label="项目">
+        <el-form-item label="项目" prop="project">
           <el-select
             v-model="authKey.project"
             filterable
-            allow-create
             default-first-option
             placeholder="请选择项目"
           >
@@ -121,7 +131,6 @@
 import { deepClone } from '@/utils'
 import { getAuthKEYs, updateAuthKey, addAuthKey, deleteAuthKey } from '@/api/auth_key'
 import { getProjects } from '@/api/project'
-import { current_user } from '@/api/user'
 
 const defaultKey = {
   id: '',
@@ -136,35 +145,59 @@ const defaultKey = {
   create_user: ''
 }
 export default {
+  filters: {
+    dataList(data, dataLists) {
+      const map = {}
+      dataLists.map((item) => {
+        map[item.id] = item.name
+      })
+      return map[data]
+    }
+  },
   data() {
     return {
       authKey: Object.assign({}, defaultKey),
       authKeyList: [],
+      post: false,
       authType: ['MySQL', 'Mongo', 'Kubernetes', 'Nacos', 'Qcloud'],
       user: {},
       project: [],
       dialogVisible: false,
       dialogType: 'new',
-      checkStrictly: false
+      checkStrictly: false,
+      rules: {
+        name: [{
+          required: true, message: '名称必须填写!', trigger: 'blur'
+        }],
+        auth_host: [{
+          required: true, message: '验证地址必须填写！', trigger: 'blur'
+        }],
+        auth_port: [{
+          required: true, message: '端口必须填写！', trigger: 'blur'
+        }],
+        auth_passwd: [{
+          required: true, message: '密钥必须填写必须填写！', trigger: 'blur'
+        }],
+        auth_type: [{
+          required: true, message: '验证类型必须选择！', trigger: 'blur'
+        }],
+        project: [{
+          required: true, message: '所属项目必须选择！', trigger: 'blur'
+        }]
+      }
     }
   },
   created() {
     // Mock: get all routes and Keys list from server
     this.getKeys()
     this.getProjects()
-    this.getCurrentUser()
   },
   methods: {
     getKeys() {
       getAuthKEYs().then(response => {
-        const { data } = response
+        const { data, meta } = response
         this.authKeyList = data
-      })
-    },
-    getCurrentUser() {
-      current_user().then(response => {
-        const { data } = response
-        this.user = data.id
+        this.post = meta.post_tag
       })
     },
     getProjects() {
@@ -189,40 +222,97 @@ export default {
     },
     handleDelete({ $index, row }) {
       this.$confirm('确认都删除该密钥?', 'Warning', {
-        confirmButtonText: 'Confirm',
-        cancelButtonText: 'Cancel',
+        confirmButtonText: '确认',
+        cancelButtonText: '取消',
         type: 'warning'
       })
-        .then(async() => {
-          await deleteAuthKey(row.id)
-          this.authKey.splice($index, 1)
-          this.$message({
-            type: 'success',
-            message: '删除成功'
+        .then(() => {
+          deleteAuthKey(row.id).then(response => {
+            const { meta } = response
+            if (meta.code === '00000') {
+              this.authKeyList.splice($index, 1)
+              this.dialogVisible = false
+              this.getKeys()
+              const { id, name } = this.authKey
+              this.$notify({
+                title: '成功',
+                dangerouslyUseHTMLString: true,
+                message: `
+            <div>ID: ${id}</div>
+            <div>校验名称: ${name}</div>
+            <div>返回信息: ${meta.msg}</div>`,
+                type: 'success'
+              })
+            } else {
+              this.authKeyList.splice($index, 1)
+              this.$message({
+                type: 'danger',
+                message: meta.msg
+              })
+            }
           })
         })
         .catch(err => { console.error(err) })
     },
-    async confirmKey() {
+    confirmKey() {
       const isEdit = this.dialogType === 'edit'
-      this.authKey.create_user = this.user
-      console.log(this.authKey)
-      if (isEdit) {
-        await updateAuthKey(this.authKey.id, this.authKey)
-      } else {
-        const { data } = await addAuthKey(this.authKey)
-        this.authKey.id = data.id
-        this.authKeyList.push(this.authKey)
-      }
-      const { id, name } = this.authKey
-      this.dialogVisible = false
-      this.$notify({
-        title: '成功',
-        dangerouslyUseHTMLString: true,
-        message: `
+      this.$refs['dataForm'].validate((valid) => {
+        if (valid) {
+          if (isEdit) {
+            updateAuthKey(this.authKey.id, this.authKey).then(response => {
+              const { data, meta } = response
+              if (meta.code === '00000') {
+                this.authKey.id = data.id
+                // this.authKeyList.update(this.authKey)
+                const { id, name } = this.authKey
+                this.$notify({
+                  title: '成功',
+                  dangerouslyUseHTMLString: true,
+                  message: `
             <div>ID: ${id}</div>
-            <div>校验名称: ${name}</div>`,
-        type: 'success'
+            <div>校验名称: ${name}</div>
+            <div>返回信息: ${meta.msg}</div>`,
+                  type: 'success'
+                })
+              } else {
+                this.$notify({
+                  title: '失败',
+                  dangerouslyUseHTMLString: true,
+                  message: `<div>返回信息: ${meta.msg}</div>`,
+                  type: 'success'
+                })
+              }
+            })
+          } else {
+            addAuthKey(this.authKey).then(response => {
+              const { data, meta } = response
+              if (meta.code === '00000') {
+                this.authKey.id = data.id
+                this.authKey.create_time = data.create_time
+                this.authKeyList.push(this.authKey)
+                const { id, name } = this.authKey
+                this.$notify({
+                  title: '成功',
+                  dangerouslyUseHTMLString: true,
+                  message: `
+            <div>ID: ${id}</div>
+            <div>校验名称: ${name}</div>
+            <div>返回信息: ${meta.msg}</div>`,
+                  type: 'success'
+                })
+              } else {
+                this.$notify({
+                  title: '失败',
+                  dangerouslyUseHTMLString: true,
+                  message: `<div>返回信息: ${meta.msg}</div>`,
+                  type: 'success'
+                })
+              }
+            })
+          }
+          this.dialogVisible = false
+          this.getKeys()
+        }
       })
     }
   }

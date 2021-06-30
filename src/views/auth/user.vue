@@ -68,7 +68,7 @@
       </el-table-column>
       <el-table-column label="角色" align="center">
         <template slot-scope="{row}">
-          {{ row.roles | roleList(role) }}
+          {{ row.role_set }}
         </template>
       </el-table-column>
       <el-table-column label="超级用户" align="center">
@@ -206,14 +206,6 @@ export default {
         'false': '否'
       }
       return valueMap[status]
-    },
-    roleList(roles, role) {
-      const map = {}
-      role.map((item) => {
-        map[item.id] = item.name
-      })
-
-      return map[roles]
     }
   },
   data() {
@@ -250,6 +242,18 @@ export default {
         }
       }, 100)
     }
+    // 检查用户名 是否使用
+    const check_username = (rule, value, callback) => {
+      const reg = new RegExp(/^[a-zA-Z0-9_-]{3,17}$/) // 字符串正则表达式 4到14位（字母，数字，下划线，减号）
+      if (this.temp.username === '') {
+        callback(new Error('用户名不能为空！'))
+      }
+      if (!reg.test(this.temp.username)) {
+        callback(new Error('用户名格式不正确，请设置4-15位长度，且以大小写和数字组成的用户名称！'))
+      } else {
+        callback()
+      }
+    }
     return {
       tableKey: 0,
       role: [],
@@ -269,9 +273,6 @@ export default {
         label: 'ID 逆序', key: '-id'
       }],
       showReviewer: false,
-      iconOptions: [
-        '404', 'bug', 'chart', 'clipboard', 'component', 'dashboard', 'documentation', 'drag', 'edit', 'education', 'email', 'example', 'excel', 'exit-fullscreen', 'eye-open', 'eye', 'form', 'fullscreen', 'guide', 'icon', 'international', 'language', 'link', 'list', 'lock', 'message', 'money', 'nested', 'password', 'pdf', 'people', 'peoples', 'qq', 'search', 'shopping', 'size', 'skill', 'star', 'tab', 'table', 'theme', 'tree-table', 'tree', 'user', 'wechat', 'zip'
-      ],
       temp: {
         id: undefined,
         username: '',
@@ -294,7 +295,7 @@ export default {
       rules: {
         username: [{
           required: true, message: '用户名称(账号)必须填写!', trigger: 'blur'
-        }],
+        }, { validator: check_username, trigger: 'blur' }],
         name: [{
           required: true, message: '姓名名称必须填写！', trigger: 'blur'
         }],
@@ -399,17 +400,27 @@ export default {
     createData() {
       this.$refs['dataForm'].validate((valid) => {
         if (valid) {
-          this.temp.id = parseInt(Math.random() * 100) + 1024 // mock a id
-          this.getList()
-          addUser(this.temp).then(() => {
-            this.list.unshift(this.temp)
+          // this.temp.id = parseInt(Math.random() * 100) + 1024 // mock a id
+          addUser(this.temp).then(response => {
+            const { data, meta } = response
+            if (meta.code === '00000') {
+              this.list.unshift(this.temp)
+              this.$notify({
+                title: '成功',
+                message: '创建用户成功,用户名:' + data.username,
+                type: 'success',
+                duration: 2000
+              })
+            } else {
+              this.$notify({
+                title: '失败',
+                message: meta.msg,
+                type: 'danger',
+                duration: 2000
+              })
+            }
             this.dialogFormVisible = false
-            this.$notify({
-              title: '成功',
-              message: '创建用户成功',
-              type: 'success',
-              duration: 2000
-            })
+            this.handleFilter()
           })
         }
       })
@@ -421,53 +432,65 @@ export default {
       this.dialogFormVisible = true
       this.$nextTick(() => {
         this.$refs['dataForm'].clearValidate()
-        this.getList()
       })
     },
     updateData() {
+      console.log('111111111111111')
       this.$refs['dataForm'].validate((valid) => {
+        console.log(valid)
         if (valid) {
           const tempData = Object.assign({}, this.temp)
-          updateUser(tempData.id, tempData).then(() => {
-            const index = this.list.findIndex(v => v.id === this.temp.id)
-            this.list.splice(index, 1, this.temp)
-            this.getList()
+          updateUser(tempData.id, tempData).then(response => {
+            const { data, meta } = response
+            if (meta.code === '00000') {
+              const index = this.list.findIndex(v => v.id === this.temp.id)
+              this.list.splice(index, 1, this.temp)
+              this.$notify({
+                title: '成功',
+                message: meta.msg + ',用户名:' + data.username,
+                type: 'success',
+                duration: 2000
+              })
+            } else {
+              this.$notify({
+                title: '失败',
+                message: meta.msg,
+                type: 'danger',
+                duration: 2000
+              })
+            }
+            this.handleFilter()
             this.dialogFormVisible = false
-            this.$notify({
-              title: '成功' + tempData.name,
-              message: '修改成功:' + tempData.name,
-              type: 'success',
-              duration: 2000
-            })
           })
         }
       })
     },
     handleDelete(row, index) {
       deleteUser(row.id).then(response => {
-        const {
-          meta
-        } = response.data
+        const { meta, data } = response.data
         this.list.splice(index, 1)
-        this.getList()
-        // this.total = response.data.total
-        this.$notify({
-          title: '成功',
-          message: meta.message,
-          type: 'success',
-          duration: 2000
-        })
+        if (meta.code === '00000') {
+          this.getList()
+          this.list.splice(index, 1, this.temp)
+          this.$notify({
+            title: '成功',
+            message: meta.msg + ',用户名:' + data.username,
+            type: 'success',
+            duration: 2000
+          })
+        } else {
+          this.$notify({
+            title: '失败',
+            message: meta.msg,
+            type: 'danger',
+            duration: 2000
+          })
+        }
 
         // Just to simulate the time of the request
         setTimeout(() => {
           this.listLoading = false
         }, 1.5 * 1000)
-      })
-    },
-    handleFetchPv(pv) {
-      fetchPv(pv).then(response => {
-        this.pvData = response.data.pvData
-        this.dialogPvVisible = true
       })
     },
     getSortClass: function(key) {

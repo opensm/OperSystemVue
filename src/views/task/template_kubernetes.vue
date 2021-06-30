@@ -15,7 +15,7 @@
       </el-table-column>
       <el-table-column align="header-center" label="关联密钥">
         <template slot-scope="scope">
-          {{ scope.row.cluster }}
+          {{ scope.row.instance_st }}
         </template>
       </el-table-column>
       <el-table-column align="header-center" label="命名空间">
@@ -53,9 +53,14 @@
           {{ scope.row.label }}
         </template>
       </el-table-column>
+      <el-table-column align="header-center" label="所属项目">
+        <template slot-scope="scope">
+          {{ scope.row.project_st }}
+        </template>
+      </el-table-column>
       <el-table-column align="header-center" label="创建用户">
         <template slot-scope="scope">
-          {{ scope.row.create_user }}
+          {{ scope.row.create_user_st }}
         </template>
       </el-table-column>
       <el-table-column align="header-center" label="创建时间">
@@ -92,6 +97,21 @@
             v-model="kubernetesTemplate.name"
             placeholder="模板名称"
           />
+        </el-form-item>
+        <el-form-item label="所属项目">
+          <el-select
+            v-model="kubernetesTemplate.project"
+            filterable
+            default-first-option
+            placeholder="请选择所属项目"
+          >
+            <el-option
+              v-for="item in project"
+              :key="item.id"
+              :label="item.name"
+              :value="item.id"
+            />
+          </el-select>
         </el-form-item>
         <el-form-item label="Kubernetes模板">
           <el-select
@@ -172,7 +192,7 @@
 import { deepClone } from '@/utils'
 import { getTemplateKubernetes, updateTemplateKubernete, addTemplateKubernete, deleteTemplateKubernete } from '@/api/templatekubernetes'
 import { getAuthKEYs } from '@/api/auth_key'
-import { getUsersInfo, current_user } from '@/api/user'
+import { getProjects } from '@/api/project'
 
 const defaultTemplate = {
   id: '',
@@ -185,7 +205,8 @@ const defaultTemplate = {
   exec_class: '',
   label: '',
   exec_function: '',
-  create_user: ''
+  create_user: '',
+  project: ''
 }
 export default {
   data() {
@@ -194,7 +215,7 @@ export default {
       kubernetesTemplateList: [],
       control_type: { 'create': '创建', 'update': '更新', 'delete': '删除' },
       clusters: [],
-      users: [],
+      project: [],
       user: [],
       dialogVisible: false,
       dialogType: 'new',
@@ -205,10 +226,15 @@ export default {
     // Mock: get all routes and roles list from server
     this.getTemplates()
     this.getClusters()
-    this.getCurrentUser()
-    this.getUsers()
+    this.getProjects()
   },
   methods: {
+    getProjects() {
+      getProjects().then(response => {
+        const { data } = response
+        this.project = data
+      })
+    },
     getTemplates() {
       getTemplateKubernetes().then(response => {
         const { data } = response
@@ -221,75 +247,67 @@ export default {
         this.clusters = data
       })
     },
-    getUsers() {
-      getUsersInfo().then(response => {
-        const { data } = response
-        this.users = data
-      })
-    },
-    getCurrentUser() {
-      current_user().then(response => {
-        const { data } = response
-        this.user = data.id
-      })
-    },
     // Reshape the routes structure so that it looks the same as the sidebar
     handleAddData() {
       this.kubernetesTemplate = Object.assign({}, this.kubernetesTemplate)
       this.dialogType = 'new'
       this.dialogVisible = true
-      this.$nextTick(() => {
-        this.$refs['dataForm'].clearValidate()
-      })
     },
     handleEdit(scope) {
       this.dialogType = 'edit'
       this.dialogVisible = true
       this.checkStrictly = true
       this.kubernetesTemplate = deepClone(scope.row)
-      this.$nextTick(() => {
-        this.$refs['dataForm'].clearValidate()
-      })
     },
     handleDelete({ $index, row }) {
       this.$confirm('确定删除吗?', 'Warning', {
-        confirmButtonText: 'Confirm',
-        cancelButtonText: 'Cancel',
+        confirmButtonText: '确认',
+        cancelButtonText: '取消',
         type: 'warning'
       })
-        .then(async() => {
-          await deleteTemplateKubernete(row.id)
-          this.kubernetesTemplateList.splice($index, 1)
-          this.$message({
-            type: 'success',
-            message: '删除成功'
+        .then(() => {
+          deleteTemplateKubernete(row.id).then(response => {
+            const { data } = response
+            this.kubernetesTemplateList.splice($index, 1)
+            this.$notify({
+              title: '成功',
+              dangerouslyUseHTMLString: true,
+              message: `<div>ID: ${data.id}</div><div>名称: ${data.name}</div>`,
+              type: 'success'
+            })
+            this.dialogVisible = false
+            this.getTemplates()
           })
         })
         .catch(err => {
           console.error(err)
         })
     },
-    async confirmRole() {
+    confirmRole() {
       const isEdit = this.dialogType === 'edit'
-      this.kubernetesTemplate.create_user = this.user
       if (isEdit) {
-        await updateTemplateKubernete(this.kubernetesTemplate.id, this.kubernetesTemplate)
+        updateTemplateKubernete(this.kubernetesTemplate.id, this.kubernetesTemplate).then(response => {
+          const { data } = response
+          this.$notify({
+            title: '成功',
+            dangerouslyUseHTMLString: true,
+            message: `<div>ID: ${data.id}</div><div>名称: ${data.name}</div>`,
+            type: 'success'
+          })
+        })
       } else {
-        const { data } = await addTemplateKubernete(this.kubernetesTemplate)
-        this.kubernetesTemplate.id = data.id
-        this.kubernetesTemplateList.push(this.role)
+        addTemplateKubernete(this.kubernetesTemplate).then(response => {
+          const { data } = response
+          this.$notify({
+            title: '成功',
+            dangerouslyUseHTMLString: true,
+            message: `<div>项目ID: ${data.id}</div><div>项目名称: ${data.name}</div>`,
+            type: 'success'
+          })
+        })
       }
-      this.getTemplates()
-      const { id, name } = this.kubernetesTemplate
       this.dialogVisible = false
-      this.$notify({
-        title: '成功',
-        dangerouslyUseHTMLString: true,
-        message: `
-            <div>模板ID: ${id}</div>
-            <div>模板名称: ${name}</div>`,
-        type: 'success'
-      })
+      this.getTemplates()
     }
   }
 }

@@ -9,13 +9,13 @@
 
       <el-table-column width="180px" align="center" label="相关任务">
         <template slot-scope="{row}">
-          <span>{{ row.task }}</span>
+          <span>{{ row.task_st }}</span>
         </template>
       </el-table-column>
 
       <el-table-column width="120px" align="center" label="相关流程">
         <template slot-scope="{row}">
-          <span>{{ row.flow.name }}</span>
+          <span>{{ row.engine_st }}</span>
         </template>
       </el-table-column>
 
@@ -92,6 +92,7 @@
 import waves from '@/directive/waves' // waves directive
 import { getFlowTasks, updateFlowTask } from '@/api/flow_task'
 import Pagination from '@/components/Pagination'
+import { getProjects } from '@/api/project'
 export default {
   name: 'InlineEditTable',
   components: {
@@ -134,18 +135,19 @@ export default {
     this.getList()
   },
   methods: {
-    async getList() {
+    getList() {
       this.listLoading = true
-      const { data, meta } = await getFlowTasks(this.listQuery)
-      console.log(meta)
-      const items = data
-      this.total = data.total
-      this.list = items.map(v => {
-        this.$set(v, 'edit', false) // https://vuejs.org/v2/guide/reactivity.html
-        v.originalTitle = v.title //  will be used when user click the cancel botton
-        return v
+      getFlowTasks(this.listQuery).then(response => {
+        const { data } = response
+        const items = data
+        this.total = data.total
+        this.list = items.map(v => {
+          this.$set(v, 'edit', false) // https://vuejs.org/v2/guide/reactivity.html
+          v.originalTitle = v.title //  will be used when user click the cancel botton
+          return v
+        })
+        this.listLoading = false
       })
-      this.listLoading = false
     },
     cancelEdit(row) {
       row.title = row.originalTitle
@@ -171,6 +173,7 @@ export default {
             type: 'danger'
           })
         }
+        this.getList()
       })
     }
   }

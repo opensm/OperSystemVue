@@ -15,7 +15,7 @@
       </el-table-column>
       <el-table-column align="center" label="相关实例">
         <template slot-scope="scope">
-          {{ scope.row.instance }}
+          {{ scope.row.instance_st }}
         </template>
       </el-table-column>
       <el-table-column align="header-center" label="调用类">
@@ -28,9 +28,14 @@
           {{ scope.row.exec_function }}
         </template>
       </el-table-column>
+      <el-table-column align="header-center" label="所属项目">
+        <template slot-scope="scope">
+          {{ scope.row.project_st }}
+        </template>
+      </el-table-column>
       <el-table-column align="header-center" label="操作用户">
         <template slot-scope="scope">
-          {{ scope.row.create_user }}
+          {{ scope.row.create_user_st }}
         </template>
       </el-table-column>
       <el-table-column align="header-center" label="操作时间">
@@ -57,12 +62,27 @@
         <el-form-item label="操作方法">
           <el-input v-model="templateDb.exec_function" placeholder="填入操作方法" />
         </el-form-item>
-        <el-form-item label="项目">
+        <el-form-item label="所属项目">
+          <el-select
+            v-model="templateDb.project"
+            filterable
+            default-first-option
+            placeholder="请选择所属项目"
+          >
+            <el-option
+              v-for="item in project"
+              :key="item.id"
+              :label="item.name"
+              :value="item.id"
+            />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="数据库实例">
           <el-select
             v-model="templateDb.instance"
             filterable
             default-first-option
-            placeholder="请选择项目"
+            placeholder="请选择数据库实例"
           >
             <el-option
               v-for="item in instanceList"
@@ -85,7 +105,7 @@
 import { deepClone } from '@/utils'
 import { getTemplateDBs, updateTemplateDB, addTemplateDB, deleteTemplateDB } from '@/api/templatedb'
 import { getAuthKEYs } from '@/api/auth_key'
-import { current_user } from '@/api/user'
+import { getProjects } from '@/api/project'
 
 const defaultTemplate = {
   id: '',
@@ -93,7 +113,8 @@ const defaultTemplate = {
   instance: '',
   exec_class: '',
   exec_function: '',
-  create_user: ''
+  create_user: '',
+  project: ''
 }
 export default {
   data() {
@@ -112,9 +133,15 @@ export default {
     // Mock: get all routes and roles list from server
     this.getTemplateDB()
     this.getInstance()
-    this.getUsers()
+    this.getProjects()
   },
   methods: {
+    getProjects() {
+      getProjects().then(response => {
+        const { data } = response
+        this.project = data
+      })
+    },
     getTemplateDB() {
       getTemplateDBs().then(response => {
         const { data } = response
@@ -125,12 +152,6 @@ export default {
       getAuthKEYs().then(response => {
         const { data } = response
         this.instanceList = data
-      })
-    },
-    getUsers() {
-      current_user().then(response => {
-        const { data } = response
-        this.user = data.id
       })
     },
     // Reshape the routes structure so that it looks the same as the sidebar
@@ -144,48 +165,99 @@ export default {
       this.dialogVisible = true
       this.checkStrictly = true
       this.templateDb = deepClone(scope.row)
-      this.$nextTick(() => {
-        this.$refs['dataForm'].clearValidate()
-      })
+      // this.$nextTick(() => {
+      //   this.$refs['dataForm'].clearValidate()
+      // })
     },
     handleDelete({ $index, row }) {
-      this.$confirm('Confirm to remove the role?', 'Warning', {
-        confirmButtonText: 'Confirm',
-        cancelButtonText: 'Cancel',
+      this.$confirm('确认删除?', 'Warning', {
+        confirmButtonText: '确认',
+        cancelButtonText: '取消',
         type: 'warning'
       })
         .then(async() => {
-          await deleteTemplateDB(row.id)
-          this.templateDbList.splice($index, 1)
-          this.$message({
-            type: 'success',
-            message: '删除成功'
+          deleteTemplateDB(row.id).then(response => {
+            const { meta } = response
+            if (meta.code === '00000') {
+              this.templateDbList.splice($index, 1)
+              this.dialogVisible = false
+              const { id, name } = this.templateDb
+              this.$notify({
+                title: '成功',
+                dangerouslyUseHTMLString: true,
+                message: `<div>ID: ${id}</div><div>名称: ${name}</div><div>返回信息: ${meta.msg}</div>`,
+                type: 'success'
+              })
+            } else {
+              this.templateDbList.splice($index, 1)
+              this.$message({
+                type: 'error',
+                message: meta.msg
+              })
+            }
+            this.dialogVisible = false
+            this.getTemplateDB()
           })
         })
         .catch(err => { console.error(err) })
     },
     async confirmRole() {
       const isEdit = this.dialogType === 'edit'
-      this.templateDb.create_user = this.user
       if (isEdit) {
-        await updateTemplateDB(this.templateDb.id, this.templateDb)
+        updateTemplateDB(this.templateDb.id, this.templateDb).then(response => {
+          const { data, meta } = response
+          if (meta.code === '00000') {
+            this.templateDb.id = data.id
+            // this.authKeyList.update(this.authKey)
+            const { id, name } = this.templateDb
+            this.$notify({
+              title: '成功',
+              dangerouslyUseHTMLString: true,
+              message: `
+            <div>ID: ${id}</div>
+            <div>校验名称: ${name}</div>
+            <div>返回信息: ${meta.msg}</div>`,
+              type: 'success'
+            })
+          } else {
+            this.$notify({
+              title: '失败',
+              dangerouslyUseHTMLString: true,
+              message: `<div>返回信息: ${meta.msg}</div>`,
+              type: 'success'
+            })
+          }
+          this.dialogVisible = false
+          this.getTemplateDB()
+        })
       } else {
-        const { data } = await addTemplateDB(this.templateDb)
-        this.templateDb.id = data.id
-        this.templateDbList.push(this.templateDb)
+        addTemplateDB(this.templateDb).then(response => {
+          const { data, meta } = response
+          if (meta.code === '00000') {
+            this.templateDb.id = data.id
+            this.templateDbList.push(this.templateDb)
+            const { id, name } = this.templateDb
+            this.$notify({
+              title: '成功',
+              dangerouslyUseHTMLString: true,
+              message: `
+            <div>ID: ${id}</div>
+            <div>校验名称: ${name}</div>
+            <div>返回信息: ${meta.msg}</div>`,
+              type: 'success'
+            })
+          } else {
+            this.$notify({
+              title: '失败',
+              dangerouslyUseHTMLString: true,
+              message: `<div>返回信息: ${meta.msg}</div>`,
+              type: 'success'
+            })
+          }
+          this.dialogVisible = false
+          this.getTemplateDB()
+        })
       }
-      const { desc, id, name } = this.templateDb
-      this.dialogVisible = false
-      this.$notify({
-        title: '成功',
-        dangerouslyUseHTMLString: true,
-        message: `
-            <div>角色ID: ${id}</div>
-            <div>角色名称: ${name}</div>
-            <div>描述: ${desc}</div>
-`,
-        type: 'success'
-      })
     }
   }
 }

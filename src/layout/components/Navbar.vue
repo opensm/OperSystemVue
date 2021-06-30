@@ -16,8 +16,10 @@
               首页
             </el-dropdown-item>
           </router-link>
-          <a target="_blank" href="https://github.com/PanJiaChen/vue-admin-template/">
-            <el-dropdown-item>修改密码</el-dropdown-item>
+          <a target="_blank">
+            <el-dropdown-item>
+              <router-link :to="{ 'path': 'reset_passwd' }">修改密码</router-link>
+            </el-dropdown-item>
           </a>
           <a target="_blank" href="https://panjiachen.github.io/vue-element-admin-site/#/">
             <el-dropdown-item>Docs</el-dropdown-item>

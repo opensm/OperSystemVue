@@ -1,10 +1,10 @@
 <template>
   <div class="app-container">
-    <div class="filter-container">
+    <div class="filter-container" style="margin-bottom: 10px;">
       <el-input
         v-model="listQuery.container"
         placeholder="发版名称"
-        style="width: 500px;"
+        style="width: 300px;"
         class="filter-item"
         @keyup.enter.native="handleFilter"
       />
@@ -12,6 +12,7 @@
         v-waves
         class="filter-item"
         type="primary"
+        style="margin-left: 10px;"
         icon="el-icon-search"
         @click="handleFilter"
       >
@@ -45,9 +46,7 @@
         <template slot-scope="{row}">
           <el-form label-position="left" inline class="demo-table-expand">
             <template v-for="(item,key) in row.exec_list">
-              <el-form-item :key="key" label="操作ID">
-                <span>{{ item.id }}</span>
-              </el-form-item>
+              <el-divider :key="key">流程ID:{{ item.id }}</el-divider>
               <el-form-item :key="key" label="操作类型">
                 <span>{{ item.exec_type }}</span>
               </el-form-item>
@@ -55,7 +54,7 @@
                 <span>{{ item.params }}</span>
               </el-form-item>
               <el-form-item :key="key" label="更新状态">
-                <span>{{ item.status }}</span>
+                <el-tag :type="item.status| tagFilter">{{ item.status|statusFilter }}</el-tag>
               </el-form-item>
               <el-form-item :key="key" label="输出信息">
                 <span>{{ item.output }}</span>
@@ -89,17 +88,12 @@
       </el-table-column>
       <el-table-column label="所属项目" align="center">
         <template slot-scope="{row}">
-          <span>{{ row.project | dataList(projectList) }}</span>
+          <span>{{ row.project_st }}</span>
         </template>
       </el-table-column>
       <el-table-column label="创建用户" align="center">
         <template slot-scope="{row}">
-          {{ row.create_user|dataList(userList) }}
-        </template>
-      </el-table-column>
-      <el-table-column label="开发用户" align="center">
-        <template slot-scope="{row}">
-          {{ row.developer|dataList(userList) }}
+          {{ row.create_user_st }}
         </template>
       </el-table-column>
       <el-table-column label="状态" align="center">
@@ -170,7 +164,7 @@ import {
 } from '@/api/subtask'
 import waves from '@/directive/waves' // waves directive
 import { getProjects } from '@/api/project'
-import { getUsersInfo, current_user } from '@/api/user'
+import { current_user } from '@/api/user'
 import Pagination from '@/components/Pagination'
 import DynamicForm from 'vue-dynamic-form-component'
 
@@ -211,13 +205,6 @@ export default {
         map[item.id] = item.container
       })
       return subs.map((item) => map[item]).join(',')
-    },
-    dataList(user, users) {
-      const map = {}
-      users.map((item) => {
-        map[item.value] = item.label
-      })
-      return map[user]
     }
   },
   data() {
@@ -239,7 +226,7 @@ export default {
         page: 1,
         limit: 10,
         container: undefined,
-        sort: '+id'
+        sort: '-id'
       },
       sortOptions: [{
         label: 'ID 正序', key: '+id'
@@ -272,14 +259,6 @@ export default {
           required: true,
           options: this.projectList,
           placeholder: '选择项目'
-        },
-        developer: {
-          type: 'enum',
-          label: '开发人员',
-          enum: this.users,
-          required: true,
-          options: this.userList,
-          message: '开发人员必须选择！', placeholder: '填入开发人员'
         },
         note: { type: 'string', required: true, label: '备注', message: '备注必填！', placeholder: '填入备注' },
         exec_list: {
@@ -356,21 +335,8 @@ export default {
     this.getList()
     this.getProjects()
     this.getCurrentUser()
-    this.getUserList()
   },
   methods: {
-    getUserList() {
-      getUsersInfo().then(response => {
-        const { data } = response
-        data.map(item => {
-          this.users.unshift(item.id)
-        })
-        data.map(item => {
-          this.userList.unshift({ 'label': item.username + ':' + item.name, 'value': item.id })
-        })
-        this.users = JSON.parse(JSON.stringify(this.users))
-      })
-    },
     getProjects() {
       getProjects().then(response => {
         const { data } = response
@@ -439,7 +405,6 @@ export default {
         note: '',
         project: '',
         create_user: '',
-        developer: '',
         create_time: '',
         finish_time: ''
       }
@@ -455,17 +420,26 @@ export default {
     createData() {
       this.$refs['dataForm'].validate((valid) => {
         if (valid) {
-          this.temp.id = parseInt(Math.random() * 100) + 1024 // mock a id
-          this.temp.create_user = this.create_user
-          addSubtask(this.temp).then(() => {
-            this.list.unshift(this.temp)
+          addSubtask(this.temp).then(response => {
+            const { meta } = response
+            if (meta.code === '00000') {
+              this.list.unshift(this.temp)
+              this.$notify({
+                title: '成功',
+                message: meta.msg,
+                type: 'success',
+                duration: 2000
+              })
+            } else {
+              this.$notify({
+                title: '失败',
+                message: meta.msg,
+                type: 'danger',
+                duration: 2000
+              })
+            }
             this.dialogFormVisible = false
-            this.$notify({
-              title: '成功',
-              message: '创建用户成功',
-              type: 'success',
-              duration: 2000
-            })
+            this.handleFilter()
           })
         }
       })
@@ -482,34 +456,52 @@ export default {
       this.$refs['dataForm'].validate((valid) => {
         if (valid) {
           const tempData = Object.assign({}, this.temp)
-          updateSubtask(tempData.id, tempData).then(() => {
-            const index = this.list.findIndex(v => v.id === this.temp.id)
-            this.list.splice(index, 1, this.temp)
+          updateSubtask(tempData.id, tempData).then(response => {
+            const { meta } = response
+            if (meta.code === '00000') {
+              const index = this.list.findIndex(v => v.id === this.temp.id)
+              this.list.splice(index, 1, this.temp)
+              this.$notify({
+                title: '成功',
+                message: meta.msg,
+                type: 'success',
+                duration: 2000
+              })
+            } else {
+              this.$notify({
+                title: '失败',
+                message: meta.msg,
+                type: 'danger',
+                duration: 2000
+              })
+            }
             this.dialogFormVisible = false
-            this.$notify({
-              title: '成功' + tempData.name,
-              message: '修改成功:' + tempData.name,
-              type: 'success',
-              duration: 2000
-            })
+            this.handleFilter()
           })
         }
       })
     },
     handleDelete(row, index) {
       deleteSubtask(row.id).then(response => {
-        const {
-          meta
-        } = response.data
-        this.list.splice(index, 1)
-        // this.total = response.data.total
-        this.$notify({
-          title: '成功',
-          message: meta.message,
-          type: 'success',
-          duration: 2000
-        })
-
+        const { meta } = response
+        if (meta.code === '00000') {
+          this.list.splice(index, 1)
+          this.$notify({
+            title: '成功',
+            message: meta.msg,
+            type: 'success',
+            duration: 2000
+          })
+        } else {
+          this.$notify({
+            title: '失败',
+            message: meta.msg,
+            type: 'danger',
+            duration: 2000
+          })
+        }
+        this.dialogFormVisible = false
+        this.handleFilter()
         // Just to simulate the time of the request
         setTimeout(() => {
           this.listLoading = false
