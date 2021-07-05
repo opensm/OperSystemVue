@@ -47,9 +47,6 @@
           <el-form label-position="left" inline class="demo-table-expand">
             <template v-for="(item,key) in row.exec_list">
               <el-divider :key="key">流程ID:{{ item.id }}</el-divider>
-              <el-form-item :key="key" label="操作类型">
-                <span>{{ item.exec_type }}</span>
-              </el-form-item>
               <el-form-item :key="key" label="更新参数">
                 <span>{{ item.params }}</span>
               </el-form-item>
@@ -167,6 +164,7 @@ import { getProjects } from '@/api/project'
 import { current_user } from '@/api/user'
 import Pagination from '@/components/Pagination'
 import DynamicForm from 'vue-dynamic-form-component'
+import { getLabelModelFields } from '@/api/data_permission_list'
 
 export default {
   name: 'ComplexTable',
@@ -219,7 +217,6 @@ export default {
       objects: [],
       objectsList: [],
       userList: [],
-      create_user: '',
       execList: [],
       listLoading: true,
       listQuery: {
@@ -269,18 +266,6 @@ export default {
             type: 'object',
             fields: {
               params: { type: 'string', required: true, label: '更新参数', message: '更新参数必填', placeholder: '更新参数' },
-              exec_type: {
-                type: 'enum',
-                label: '操作方式',
-                enum: ['update', 'recover'],
-                required: true,
-                message: '操作方式必须选择！',
-                placeholder: '请选择操作方式',
-                options: [
-                  { label: '回档', value: 'recover' },
-                  { label: '更新', value: 'update' }
-                ]
-              },
               content_type: {
                 type: 'enum',
                 label: '模板选择',
@@ -334,7 +319,7 @@ export default {
   created() {
     this.getList()
     this.getProjects()
-    this.getCurrentUser()
+    this.getTemplateData()
   },
   methods: {
     getProjects() {
@@ -347,10 +332,9 @@ export default {
         this.project = JSON.parse(JSON.stringify(this.project))
       })
     },
-    getCurrentUser() {
-      current_user().then(response => {
-        const { data } = response
-        this.create_user = data.id
+    getTemplateData() {
+      getLabelModelFields().then(response => {
+        console.log(response.data)
       })
     },
     getList() {

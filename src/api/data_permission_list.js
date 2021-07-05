@@ -42,6 +42,12 @@ export function getModelFields(ids) {
     method: 'get'
   })
 }
+export function getLabelModelFields(label, model) {
+  return request({
+    url: `/auth/field?app_label=Task&model=templatedb&model=templatekubernetes&model=templatenacos&model=templatetencentservice`,
+    method: 'get'
+  })
+}
 export function getModelFieldValues(id,field) {
   return request({
     url: `/auth/field_value?id=${id}&field=${field}`,

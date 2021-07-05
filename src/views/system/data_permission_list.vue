@@ -315,16 +315,13 @@ export default {
       })
     },
     selectField(data) {
-      console.log(data)
       const that = this
       this.check_fields.forEach(function(item, index) {
-        console.log(item)
         const { field, value } = item
         if (field === data) {
           that.field_value = JSON.parse(JSON.stringify(value))
         }
       })
-      console.log(this.field_value)
     },
     handleFilter() {
       this.listQuery.page = 1
@@ -373,13 +370,13 @@ export default {
     createData() {
       this.$refs['dataForm'].validate((valid) => {
         if (valid) {
-          this.temp.id = parseInt(Math.random() * 100) + 1024 + parseInt(Math.random() * 100) * 1000000 // mock a id
           if (typeof this.temp.value === typeof []) {
             this.temp.value = this.temp.value.join(',')
           }
           addDataPermissionList(this.temp).then(() => {
             this.list.unshift(this.temp)
             this.dialogFormVisible = false
+            this.handleFilter()
             this.$notify({
               title: '成功',
               message: '创建成功',
@@ -407,8 +404,7 @@ export default {
           }
           const tempData = Object.assign({}, this.temp)
           updateDataPermissionList(tempData.id, tempData).then(() => {
-            const index = this.list.findIndex(v => v.id === this.temp.id)
-            this.list.splice(index, 1, this.temp)
+            this.handleFilter()
             this.dialogFormVisible = false
             this.$notify({
               title: '修改权限成功：' + tempData.name,
@@ -426,7 +422,7 @@ export default {
           meta
         } = response.data
         this.list.splice(meta, 1)
-        // this.total = response.data.total
+        this.handleFilter()
         this.$notify({
           title: '成功',
           message: meta.message,
@@ -438,12 +434,6 @@ export default {
         setTimeout(() => {
           this.listLoading = false
         }, 1.5 * 1000)
-      })
-    },
-    handleFetchPv(pv) {
-      fetchPv(pv).then(response => {
-        this.pvData = response.data.pvData
-        this.dialogPvVisible = true
       })
     },
     getSortClass: function(key) {

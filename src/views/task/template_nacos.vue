@@ -165,9 +165,6 @@ export default {
       this.dialogVisible = true
       this.checkStrictly = true
       this.templateNacos = deepClone(scope.row)
-      this.$nextTick(() => {
-        this.$refs['dataForm'].clearValidate()
-      })
     },
     handleDelete({ $index, row }) {
       this.$confirm('删除nacos操作类?', 'Warning', {
@@ -177,28 +174,19 @@ export default {
       })
         .then(() => {
           deleteTemplateNacos(row.id).then(response => {
-            // this.templateNacosList.splice($index, 1)
             const { meta } = response
-            if (meta.code === '00000') {
-              this.templateNacos.splice($index, 1)
-              this.dialogVisible = false
-              const { id, name } = this.templateNacos
-              this.$notify({
-                title: '成功',
-                dangerouslyUseHTMLString: true,
-                message: `
+            this.dialogVisible = false
+            this.getTemplateNacos()
+            const { id, name } = this.templateNacos
+            this.$notify({
+              title: '成功',
+              dangerouslyUseHTMLString: true,
+              message: `
             <div>ID: ${id}</div>
             <div>校验名称: ${name}</div>
             <div>返回信息: ${meta.msg}</div>`,
-                type: 'success'
-              })
-            } else {
-              this.templateNacosList.splice($index, 1)
-              this.$message({
-                type: 'danger',
-                message: meta.msg
-              })
-            }
+              type: 'success'
+            })
           })
         })
         .catch(err => { console.error(err) })
@@ -208,52 +196,33 @@ export default {
       if (isEdit) {
         updateTemplateNacos(this.templateNacos.id, this.templateNacos).then(response => {
           const { data, meta } = response
-          if (meta.code === '00000') {
-            this.templateNacos.id = data.id
-            // this.authKeyList.update(this.authKey)
-            const { id, name } = this.templateNacos
-            this.$notify({
-              title: '成功',
-              dangerouslyUseHTMLString: true,
-              message: `
+          this.templateNacos.id = data.id
+          const { id, name } = this.templateNacos
+          this.$notify({
+            title: '成功',
+            dangerouslyUseHTMLString: true,
+            message: `
             <div>ID: ${id}</div>
             <div>校验名称: ${name}</div>
             <div>返回信息: ${meta.msg}</div>`,
-              type: 'success'
-            })
-          } else {
-            this.$notify({
-              title: '失败',
-              dangerouslyUseHTMLString: true,
-              message: `<div>返回信息: ${meta.msg}</div>`,
-              type: 'success'
-            })
-          }
+            type: 'success'
+          })
         })
       } else {
         addTemplateNacos(this.templateNacos).then(response => {
           const { data, meta } = response
-          if (meta.code === '00000') {
-            this.templateNacos.id = data.id
-            this.templateNacosList.push(this.templateNacos)
-            const { id, name } = this.templateNacos
-            this.$notify({
-              title: '成功',
-              dangerouslyUseHTMLString: true,
-              message: `
+          this.templateNacos.id = data.id
+          this.templateNacosList.push(this.templateNacos)
+          const { id, name } = this.templateNacos
+          this.$notify({
+            title: '成功',
+            dangerouslyUseHTMLString: true,
+            message: `
             <div>ID: ${id}</div>
             <div>校验名称: ${name}</div>
             <div>返回信息: ${meta.msg}</div>`,
-              type: 'success'
-            })
-          } else {
-            this.$notify({
-              title: '失败',
-              dangerouslyUseHTMLString: true,
-              message: `<div>返回信息: ${meta.msg}</div>`,
-              type: 'success'
-            })
-          }
+            type: 'success'
+          })
         })
       }
       this.dialogVisible = false

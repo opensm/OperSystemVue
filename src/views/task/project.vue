@@ -101,35 +101,24 @@ export default {
       })
     },
     handleDelete({ $index, row }) {
-      this.$confirm('确认删除该项目吗?!', 'Warning', {
-        confirmButtonText: 'Confirm',
-        cancelButtonText: 'Cancel',
+      this.$confirm('确认删除该项目吗?!', '提示！', {
+        confirmButtonText: '确认',
+        cancelButtonText: '删除',
         type: 'warning'
       })
-        .then(async() => {
+        .then(() => {
           deleteProject(row.id).then(response => {
-            const { data, meta } = response
-            if (meta.code === '00000') {
-              this.$notify({
-                title: '成功',
-                dangerouslyUseHTMLString: true,
-                message: `
+            const { data } = response
+            this.getProjects()
+            this.$notify({
+              title: '成功',
+              dangerouslyUseHTMLString: true,
+              message: `
             <div>项目ID: ${data.id}</div>
             <div>项目名称: ${data.name}</div>
 `,
-                type: 'success'
-              })
-            } else {
-              this.$notify({
-                title: '失败',
-                dangerouslyUseHTMLString: true,
-                message: `
-            <div>项目ID: ${data.id}</div>
-            <div>项目名称: ${data.name}</div>
-`,
-                type: 'danger'
-              })
-            }
+              type: 'success'
+            })
           })
         })
         .catch(err => { console.error(err) })

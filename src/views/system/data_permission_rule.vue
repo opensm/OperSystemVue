@@ -68,7 +68,7 @@
           <span>{{ row.request_type | typeFilter }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="是否是全部资源" align="center">
+      <el-table-column label="是否是全部资源" align="center" width="auto">
         <template slot-scope="{row}">
           <el-tag> {{ row.is_all }}</el-tag>
         </template>
