@@ -48,7 +48,7 @@ export function getLabelModelFields(label, model) {
     method: 'get'
   })
 }
-export function getModelFieldValues(id,field) {
+export function getModelFieldValues(id, field) {
   return request({
     url: `/auth/field_value?id=${id}&field=${field}`,
     method: 'get'

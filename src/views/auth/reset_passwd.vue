@@ -1,13 +1,13 @@
 <template>
   <div class="app-container">
-    <el-form :model="temp" label-width="100px" label-position="right">
-      <el-form-item label="旧密码">
+    <el-form ref="dataForm" :model="temp" :rules="rules" label-width="100px" label-position="right">
+      <el-form-item label="旧密码" prop="oldPassword">
         <el-input v-model="temp.oldPassword" placeholder="输入旧密码" type="password" style="width: 200px;"/>
       </el-form-item>
-      <el-form-item label="新密码">
+      <el-form-item label="新密码" prop="password">
         <el-input v-model="temp.password" placeholder="输入新密码" type="password" style="width: 200px;"/>
       </el-form-item>
-      <el-form-item label="确认新密码">
+      <el-form-item label="确认新密码" prop="confirmPassword">
         <el-input v-model="temp.confirmPassword" placeholder="输入确认新密码" type="password" style="width: 200px;"/>
       </el-form-item>
     </el-form>
@@ -23,6 +23,22 @@ import { current_user, resetPassword } from '@/api/user'
 // import { constantRoutes } from "@/router";
 export default {
   data() {
+    // 此处即表单发送之前验证  验证新密码与原密码
+    const validateNewPassword = (rule, value, callback) => {
+      if (value === this.temp.oldPassword) {
+        return callback(new Error('新密码不能与原密码相同!'))
+      } else {
+        callback()
+      }
+    }
+    // 此处即表单发送之前验证  验证新密码与再次确认
+    const validateNewPassword2 = (rule, value, callback) => {
+      if (value !== this.temp.password) {
+        callback(new Error('与新密码不一致!'))
+      } else {
+        callback()
+      }
+    }
     return {
       user: '',
       checkStrictly: false,
@@ -30,6 +46,30 @@ export default {
         'oldPassword': '',
         'password': '',
         'confirmPassword': ''
+      },
+      rules: {
+        // 验证规则
+        oldPassword: [{
+          required: true,
+          message: '请输入原密码',
+          trigger: 'blur'
+        }],
+        password: [{
+          required: true,
+          message: '请设置新密码',
+          trigger: 'blur'
+        }, {
+          validator: validateNewPassword,
+          trigger: 'blur'
+        }],
+        confirmPassword: [{
+          required: true,
+          message: '请确认新密码',
+          trigger: 'blur'
+        }, {
+          validator: validateNewPassword2,
+          trigger: 'blur'
+        }]
       }
     }
   },
@@ -51,17 +91,20 @@ export default {
     },
     // Reshape the routes structure so that it looks the same as the sidebar
     confirmRole() {
-      console.log(this.temp)
-      resetPassword(this.temp).then(response => {
-        const { data, meta } = response
-        this.$notify({
-          title: '成功',
-          dangerouslyUseHTMLString: true,
-          message: `
+      this.$refs['dataForm'].validate((valid) => {
+        if (valid) {
+          resetPassword(this.temp).then(response => {
+            const { data } = response
+            this.$notify({
+              title: '成功',
+              dangerouslyUseHTMLString: true,
+              message: `
             <div>角色ID: ${this.user}</div>
             <div>角色名称: ${data}</div>`,
-          type: 'success'
-        })
+              type: 'success'
+            })
+          })
+        }
       })
     }
   }

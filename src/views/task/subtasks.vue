@@ -115,7 +115,8 @@
             size="mini"
             type="danger"
             :disabled="! row.button.includes('DELETE')"
-            @click="handleDelete(row,$index)">
+            @click="handleDelete(row,$index)"
+          >
             删除
           </el-button>
         </template>
@@ -157,14 +158,12 @@
 
 <script>
 import {
-  getSubtasks, deleteSubtask, updateSubtask, addSubtask, getObjectid
+  getSubtasks, deleteSubtask, updateSubtask, addSubtask, getObjectid, getTemplateValues
 } from '@/api/subtask'
 import waves from '@/directive/waves' // waves directive
 import { getProjects } from '@/api/project'
-import { current_user } from '@/api/user'
 import Pagination from '@/components/Pagination'
 import DynamicForm from 'vue-dynamic-form-component'
-import { getLabelModelFields } from '@/api/data_permission_list'
 
 export default {
   name: 'ComplexTable',
@@ -196,13 +195,6 @@ export default {
         'unbond': 'info'
       }
       return statusMap[status]
-    },
-    execListFilter(subs, subTaskList) {
-      const map = {}
-      subTaskList.map((item) => {
-        map[item.id] = item.container
-      })
-      return subs.map((item) => map[item]).join(',')
     }
   },
   data() {
@@ -213,11 +205,11 @@ export default {
       project: [],
       projectList: [],
       list: [],
-      users: [],
+      template_obj: [],
+      template_list: [],
+      template_obj_list: [],
       objects: [],
       objectsList: [],
-      userList: [],
-      execList: [],
       listLoading: true,
       listQuery: {
         page: 1,
@@ -269,37 +261,27 @@ export default {
               content_type: {
                 type: 'enum',
                 label: '模板选择',
-                enum: ['TemplateKubernetes', 'TemplateNacos', 'TemplateTencentService', 'TemplateDB'],
+                enum: that.template_obj,
                 required: true,
                 message: '模板类型必须选择！',
                 placeholder: '请选择模板类型',
                 events: {
                   change(event) {
-                    const urls = {
-                      '20': 'templatekubernetes',
-                      '15': 'templatedbs',
-                      '21': 'tencentservices',
-                      '22': 'templatenacoses'
-                    }
-                    getObjectid(urls[event]).then(response => {
-                      const { data } = response
-                      that.objects = []
-                      that.objectsList = []
-                      data.map(item => {
-                        that.objects.push(item.id)
-                        that.objectsList.push({ 'label': item.name, 'value': item.id })
-                      })
-                      that.objects = JSON.parse(JSON.stringify(that.objects))
-                      console.log(that.objects)
+                    that.objects = []
+                    that.objectsList = []
+                    that.template_obj_list.map(item => {
+                      if (item.value === event) {
+                        item.template.map(data => {
+                          that.objects.push(data.id)
+                          that.objectsList.push({ 'label': data.id + ':' + data.name, 'value': data.id })
+                        })
+                      }
                     })
+                    that.objects = JSON.parse(JSON.stringify(that.objects))
+                    that.objectsList = JSON.parse(JSON.stringify(that.objectsList))
                   }
                 },
-                options: [
-                  { label: 'Kubernetes模板', value: 20 },
-                  { label: 'Nacos模板', value: 22 },
-                  { label: '腾讯云服务模板', value: 21 },
-                  { label: '数据库模板', value: 15 }
-                ]
+                options: that.template_list
               },
               object_id: {
                 type: 'enum',
@@ -319,9 +301,21 @@ export default {
   created() {
     this.getList()
     this.getProjects()
-    this.getTemplateData()
+    this.getTemplates()
   },
   methods: {
+    getTemplates() {
+      getTemplateValues().then(response => {
+        const { data } = response
+        this.template_obj_list = data
+        data.map(item => {
+          this.template_obj.push(item.label)
+          this.template_list.push({'label': item.label, 'value': item.value})
+        })
+        this.template_obj = JSON.parse(JSON.stringify(this.template_obj))
+        this.template_list = JSON.parse(JSON.stringify(this.template_list))
+      })
+    },
     getProjects() {
       getProjects().then(response => {
         const { data } = response
@@ -330,11 +324,6 @@ export default {
           this.projectList.push({ 'label': item.id + ':' + item.name, 'value': item.id })
         })
         this.project = JSON.parse(JSON.stringify(this.project))
-      })
-    },
-    getTemplateData() {
-      getLabelModelFields().then(response => {
-        console.log(response.data)
       })
     },
     getList() {

@@ -45,7 +45,7 @@
       </el-table-column>
       <el-table-column label="关联模型" align="center">
         <template slot-scope="{row}">
-          <span class="link-type">{{ row.permission_rule | contentFilter(data_permission) }}</span>
+          <span class="link-type">{{ row.permission_rule_set }} => {{ row.permission_rule_request_set }}</span>
         </template>
       </el-table-column>
       <el-table-column label="操作方式" align="center">
@@ -95,7 +95,6 @@
           <el-select
             v-model="temp.permission_rule"
             filterable
-            allow-create
             default-first-option
             placeholder="请选择数据模型"
             @change="getField(temp.permission_rule)"
@@ -114,7 +113,6 @@
           <el-select
             v-model="temp.operate_type"
             filterable
-            allow-create
             default-first-option
             placeholder="请输入操作类型"
           >
@@ -133,14 +131,14 @@
             v-model="temp.check_field"
             filterable
             default-first-option
-            placeholder="请选择数据模型"
+            placeholder="请选择关联列"
             @change="selectField(temp.check_field)"
           >
             <template v-for="(item, index) in check_fields">
               <el-option
                 :key="index"
-                :label="item.field"
-                :value="item.field"
+                :label="item"
+                :value="item"
               />
             </template>
           </el-select>
@@ -151,12 +149,13 @@
             multiple
             filterable
             default-first-option
-            placeholder="请选择请求方式"
+            placeholder="请选择关联列值"
           >
             <el-option
-              v-for="(item, index) in field_value"
+              v-for="(item, index) in check_value"
               :key="index"
               :label="item"
+              :value="item"
             />
           </el-select>
         </el-form-item>
@@ -214,8 +213,9 @@ export default {
       total: 0,
       post: null,
       data_permission: [],
-      check_fields: [],
       field_value: [],
+      check_fields: [],
+      check_value: [],
       listLoading: true,
       listQuery: {
         page: 1,
@@ -236,11 +236,10 @@ export default {
       showReviewer: false,
       temp: {
         id: undefined,
-        name: '',
         permission_rule: '',
-        operate_type: [],
-        check_field: [],
-        value: ''
+        operate_type: '',
+        check_field: '',
+        value: []
       },
       dialogFormVisible: false,
       dialogStatus: '',
@@ -270,16 +269,14 @@ export default {
   watch: {
     'temp.permission_rule': {
       handler(newValue, oldValue) {
-        // this.temp.check_field = ''
-        // this.temp.value = ''
-        this.field_value = []
-        this.check_fields = []
+        this.temp.check_value = []
+        this.temp.check_fields = ''
       }
     },
     'temp.check_field': {
       handler(newValue, oldValue) {
         // this.temp.value = ''
-        this.field_value = []
+        this.temp.value = []
       }
     }
   },
@@ -287,10 +284,16 @@ export default {
     this.getList()
   },
   methods: {
-    async getField(value) {
+    getField(value) {
       if (value !== '' && value !== 'undefined' && value.length !== 0) {
-        await getModelFields(value).then(response => {
-          this.check_fields = response.data
+        getModelFields(value).then(response => {
+          const { data } = response
+          this.field_value = response.data
+          data.map(item => {
+            this.check_fields.push(item.field)
+          })
+          this.temp.check_field = ''
+          this.temp.value = []
         })
       }
     },
@@ -300,7 +303,7 @@ export default {
       if (this.listQuery.level === '') {
         this.listQuery.level = undefined
       }
-      getDataPermissions().then(response => {
+      getDataPermissions({ 'is_all': 0 }).then(response => {
         this.data_permission = response.data
       })
       getDataPermissionLists(this.listQuery).then(response => {
@@ -316,12 +319,13 @@ export default {
     },
     selectField(data) {
       const that = this
-      this.check_fields.forEach(function(item, index) {
+      this.field_value.map(item => {
         const { field, value } = item
         if (field === data) {
-          that.field_value = JSON.parse(JSON.stringify(value))
+          that.check_value = value
         }
       })
+      that.check_value = JSON.parse(JSON.stringify(that.check_value))
     },
     handleFilter() {
       this.listQuery.page = 1
@@ -355,7 +359,7 @@ export default {
         id: undefined,
         permission_rule: '',
         operate_type: '',
-        value: '',
+        value: [],
         check_field: ''
       }
     },
@@ -389,6 +393,7 @@ export default {
     },
     handleUpdate(row) {
       this.temp = Object.assign({}, row) // copy obj
+      this.temp.value = this.temp.value.split(',')
       this.dialogStatus = 'update'
       this.dialogFormVisible = true
       // this.getModelFieldsOption(this.temp.permission_rule, this.temp.check_field)
@@ -407,7 +412,7 @@ export default {
             this.handleFilter()
             this.dialogFormVisible = false
             this.$notify({
-              title: '修改权限成功：' + tempData.name,
+              title: '修改权限成功：' + tempData.permission_rule_set,
               message: '修改权限成功',
               type: 'success',
               duration: 2000

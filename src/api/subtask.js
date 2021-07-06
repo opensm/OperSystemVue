@@ -43,3 +43,9 @@ export function getObjectid(object) {
     method: 'get'
   })
 }
+export function getTemplateValues() {
+  return request({
+    url: '/task/template_list',
+    method: 'get'
+  })
+}
