@@ -207,6 +207,8 @@ export default {
             <div>返回信息: ${meta.msg}</div>`,
             type: 'success'
           })
+          this.dialogVisible = false
+          this.getTemplateNacos()
         })
       } else {
         addTemplateNacos(this.templateNacos).then(response => {
@@ -223,10 +225,10 @@ export default {
             <div>返回信息: ${meta.msg}</div>`,
             type: 'success'
           })
+          this.dialogVisible = false
+          this.getTemplateNacos()
         })
       }
-      this.dialogVisible = false
-      this.getTemplateNacos()
     }
   }
 }
