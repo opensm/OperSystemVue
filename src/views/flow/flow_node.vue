@@ -323,8 +323,6 @@ export default {
         if (valid) {
           const tempData = Object.assign({}, this.temp)
           updateFlowNode(tempData.id, tempData).then(() => {
-            const index = this.list.findIndex(v => v.id === this.temp.id)
-            this.list.splice(index, 1, this.temp)
             this.$notify({
               title: '成功' + tempData.flow,
               message: '修改成功:' + tempData.desc,
