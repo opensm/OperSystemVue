@@ -343,20 +343,15 @@ export default {
           meta
         } = response.data
         this.list.splice(index, 1)
-        this.getNodeList()
         // this.total = response.data.total
         this.$notify({
           title: '成功',
-          message: meta.message,
+          message: meta.msg,
           type: 'success',
           duration: 2000
         })
-
-        // Just to simulate the time of the request
-        setTimeout(() => {
-          this.listLoading = false
-        }, 1.5 * 1000)
       })
+      this.getNodeList()
     },
     getSortClass: function(key) {
       const sort = this.listQuery.sort
