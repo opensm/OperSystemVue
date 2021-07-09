@@ -294,7 +294,6 @@ export default {
     createData() {
       this.$refs['dataForm'].validate((valid) => {
         if (valid) {
-          console.log(this.temp)
           addFlowNode(this.temp).then(() => {
             this.flowNodeList.unshift(this.temp)
             this.dialogFormVisible = false
@@ -305,6 +304,8 @@ export default {
               duration: 2000
             })
           })
+          this.dialogFormVisible = false
+          this.getNodeList()
         }
       })
     },
@@ -315,7 +316,6 @@ export default {
       this.dialogFormVisible = true
       this.$nextTick(() => {
         this.$refs['dataForm'].clearValidate()
-        this.getNodeList()
       })
     },
     updateData() {
@@ -325,8 +325,6 @@ export default {
           updateFlowNode(tempData.id, tempData).then(() => {
             const index = this.list.findIndex(v => v.id === this.temp.id)
             this.list.splice(index, 1, this.temp)
-            this.getList()
-            this.dialogFormVisible = false
             this.$notify({
               title: '成功' + tempData.flow,
               message: '修改成功:' + tempData.desc,
@@ -334,6 +332,8 @@ export default {
               duration: 2000
             })
           })
+          this.dialogFormVisible = false
+          this.getNodeList()
         }
       })
     },

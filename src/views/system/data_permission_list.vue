@@ -271,12 +271,14 @@ export default {
       handler(newValue, oldValue) {
         this.temp.check_value = []
         this.temp.check_fields = ''
+        this.check_fields = []
       }
     },
     'temp.check_field': {
       handler(newValue, oldValue) {
         // this.temp.value = ''
         this.temp.value = []
+        this.check_value = []
       }
     }
   },
@@ -367,6 +369,7 @@ export default {
       this.resetTemp()
       this.dialogStatus = 'create'
       this.dialogFormVisible = true
+      this.check_value = []
       this.$nextTick(() => {
         this.$refs['dataForm'].clearValidate()
       })
@@ -396,6 +399,7 @@ export default {
       this.temp.value = this.temp.value.split(',')
       this.dialogStatus = 'update'
       this.dialogFormVisible = true
+      this.check_value = []
       // this.getModelFieldsOption(this.temp.permission_rule, this.temp.check_field)
       this.$nextTick(() => {
         this.$refs['dataForm'].clearValidate()

@@ -122,5 +122,5 @@ export const componentsMap = {
   auth_key: () => import('@/views/task/auth_key'),
   flow_engine: () => import('@/views/flow/flow_engine'),
   flow_node: () => import('@/views/flow/flow_node'),
-  flow_task: () => import('@/views/flow/flow_task')
+  flow_task: () => import('@/views/flow/test')
 }

@@ -86,7 +86,7 @@ export default {
     getCurrentUser() {
       current_user().then(response => {
         const { data } = response
-        this.user = data.id
+        this.user = data.name
       })
     },
     // Reshape the routes structure so that it looks the same as the sidebar
@@ -94,15 +94,18 @@ export default {
       this.$refs['dataForm'].validate((valid) => {
         if (valid) {
           resetPassword(this.temp).then(response => {
-            const { data } = response
+            const { meta } = response
             this.$notify({
               title: '成功',
               dangerouslyUseHTMLString: true,
               message: `
-            <div>角色ID: ${this.user}</div>
-            <div>角色名称: ${data}</div>`,
+            <div>姓名: ${this.user}</div>
+            <div>提示: ${meta.msg}</div>`,
               type: 'success'
             })
+            if (meta.code === '00000') {
+              this.$router.push({ path: '/auth/reset_passwd' })
+            }
           })
         }
       })

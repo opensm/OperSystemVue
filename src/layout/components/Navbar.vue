@@ -17,12 +17,9 @@
             </el-dropdown-item>
           </router-link>
           <a target="_blank">
-            <el-dropdown-item>
-              <router-link :to="{ 'path': 'reset_passwd' }">修改密码</router-link>
+            <el-dropdown-item divided @click.native="resetPassword">
+              <span style="display:block;">修改密码</span>
             </el-dropdown-item>
-          </a>
-          <a target="_blank" href="https://panjiachen.github.io/vue-element-admin-site/#/">
-            <el-dropdown-item>Docs</el-dropdown-item>
           </a>
           <el-dropdown-item divided @click.native="logout">
             <span style="display:block;">登出</span>
@@ -46,10 +43,14 @@ export default {
   computed: {
     ...mapGetters([
       'sidebar',
-      'avatar'
+      'avatar',
+      'name'
     ])
   },
   methods: {
+    resetPassword() {
+      this.$router.push({ path: '/auth/authreset_passwd' })
+    },
     toggleSideBar() {
       this.$store.dispatch('app/toggleSideBar')
     },

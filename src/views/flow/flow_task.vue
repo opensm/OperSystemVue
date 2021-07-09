@@ -67,7 +67,7 @@
           </el-button>
           <el-button
             v-else
-            :disabled=" !row.button.includes('PUT')"
+            :disabled=" ! row.button.map(item => item === 'PUT')"
             type="primary"
             size="small"
             icon="el-icon-edit"
@@ -92,7 +92,6 @@
 import waves from '@/directive/waves' // waves directive
 import { getFlowTasks, updateFlowTask } from '@/api/flow_task'
 import Pagination from '@/components/Pagination'
-import { getProjects } from '@/api/project'
 export default {
   name: 'InlineEditTable',
   components: {
