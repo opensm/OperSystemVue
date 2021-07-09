@@ -53,7 +53,8 @@ export default {
   name: 'Login',
   data() {
     const validateUsername = (rule, value, callback) => {
-      if (!validUsername(value)) {
+      const reg = new RegExp(/^[a-zA-Z0-9_-]{3,17}$/) // 字符串正则表达式 4到14位（字母，数字，下划线，减号）
+      if (!reg.test(value)) {
         callback(new Error('请输入正确的用户名称！'))
       } else {
         callback()
