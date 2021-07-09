@@ -380,22 +380,13 @@ export default {
           // this.temp.id = parseInt(Math.random() * 100) + 1024 // mock a id
           addMenu(this.temp).then(response => {
             const { meta } = response
-            if (meta.code === '00000') {
-              this.list.unshift(this.temp)
-              this.$notify({
-                title: '成功',
-                message: meta.msg,
-                type: 'success',
-                duration: 2000
-              })
-            } else {
-              this.$notify({
-                title: '失败',
-                message: meta.msg,
-                type: 'danger',
-                duration: 2000
-              })
-            }
+            this.list.unshift(this.temp)
+            this.$notify({
+              title: '成功',
+              message: meta.msg,
+              type: 'success',
+              duration: 2000
+            })
           })
           this.dialogFormVisible = false
           this.handleFilter()
@@ -417,23 +408,14 @@ export default {
           const tempData = Object.assign({}, this.temp)
           updateMenu(tempData.id, tempData).then(response => {
             const { meta } = response
-            if (meta.code === '00000') {
-              const index = this.list.findIndex(v => v.id === this.temp.id)
-              this.list.splice(index, 1, this.temp)
-              this.$notify({
-                title: '成功',
-                message: meta.msg,
-                type: 'success',
-                duration: 2000
-              })
-            } else {
-              this.$notify({
-                title: '失败',
-                message: meta.msg,
-                type: 'danger',
-                duration: 2000
-              })
-            }
+            const index = this.list.findIndex(v => v.id === this.temp.id)
+            this.list.splice(index, 1, this.temp)
+            this.$notify({
+              title: '成功',
+              message: meta.msg,
+              type: 'success',
+              duration: 2000
+            })
             this.dialogFormVisible = false
             this.handleFilter()
           })
@@ -443,23 +425,15 @@ export default {
     handleDelete(row, index) {
       deleteMenu(row.id).then(response => {
         const { meta } = response
-        if (meta.code === '00000') {
-          const index = this.list.findIndex(v => v.id === this.temp.id)
-          this.list.splice(index, 1)
-          this.$notify({
-            title: '成功',
-            message: meta.msg,
-            type: 'success',
-            duration: 2000
-          })
-        } else {
-          this.$notify({
-            title: '失败',
-            message: meta.msg,
-            type: 'danger',
-            duration: 2000
-          })
-        }
+        const index = this.list.findIndex(v => v.id === this.temp.id)
+        this.list.splice(index, 1)
+        this.$notify({
+          title: '成功',
+          message: meta.msg,
+          type: 'success',
+          duration: 2000
+        })
+        this.handleFilter()
         // Just to simulate the time of the request
         setTimeout(() => {
           this.listLoading = false
