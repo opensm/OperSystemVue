@@ -105,6 +105,7 @@ export default {
             type: 'success',
             message: '删除成功'
           })
+          this.getFlowEngines()
         })
         .catch(err => { console.error(err) })
     },
@@ -135,6 +136,7 @@ export default {
 `,
         type: 'success'
       })
+      this.getFlowEngines()
     }
   }
 }
