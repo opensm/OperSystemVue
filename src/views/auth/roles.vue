@@ -130,7 +130,7 @@ export default {
       this.post = res.post_tag
     },
     async getDatapermission() {
-      const res = await getDataPermissions({'limit': '2000' })
+      const res = await getDataPermissions({ 'limit': '2000' })
       this.dataPermission = res.data
     },
     // Reshape the routes structure so that it looks the same as the sidebar
