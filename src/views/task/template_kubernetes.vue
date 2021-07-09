@@ -268,7 +268,6 @@ export default {
         .then(() => {
           deleteTemplateKubernete(row.id).then(response => {
             const { data } = response
-            this.kubernetesTemplateList.splice($index, 1)
             this.$notify({
               title: '成功',
               dangerouslyUseHTMLString: true,
@@ -294,6 +293,8 @@ export default {
             message: `<div>ID: ${data.id}</div><div>名称: ${data.name}</div>`,
             type: 'success'
           })
+          this.dialogVisible = false
+          this.getTemplates()
         })
       } else {
         addTemplateKubernete(this.kubernetesTemplate).then(response => {
@@ -304,10 +305,10 @@ export default {
             message: `<div>项目ID: ${data.id}</div><div>项目名称: ${data.name}</div>`,
             type: 'success'
           })
+          this.dialogVisible = false
+          this.getTemplates()
         })
       }
-      this.dialogVisible = false
-      this.getTemplates()
     }
   }
 }
