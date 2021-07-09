@@ -278,7 +278,6 @@ export default {
       handler(newValue, oldValue) {
         // this.temp.value = ''
         this.temp.value = []
-        this.check_value = []
       }
     }
   },
