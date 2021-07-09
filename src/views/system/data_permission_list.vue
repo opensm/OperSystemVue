@@ -149,6 +149,7 @@
             multiple
             filterable
             default-first-option
+            allow-create
             placeholder="请选择关联列值"
           >
             <el-option
