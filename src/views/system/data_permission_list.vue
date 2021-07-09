@@ -305,7 +305,7 @@ export default {
       if (this.listQuery.level === '') {
         this.listQuery.level = undefined
       }
-      getDataPermissions({ 'is_all': 0 }).then(response => {
+      getDataPermissions({ 'is_all': 0, 'limit': 2000 }).then(response => {
         this.data_permission = response.data
       })
       getDataPermissionLists(this.listQuery).then(response => {
