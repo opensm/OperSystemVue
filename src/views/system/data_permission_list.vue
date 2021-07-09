@@ -65,10 +65,10 @@
       </el-table-column>
       <el-table-column label="操作" align="center" width="230" class-name="small-padding fixed-width">
         <template slot-scope="{row,$index}">
-          <el-button type="primary" size="mini" :disabled=" ! 'PUT' in row.button" @click="handleUpdate(row)">
+          <el-button type="primary" size="mini" :disabled=" ! buttonStatus(row.button,'PUT')" @click="handleUpdate(row)">
             修改
           </el-button>
-          <el-button size="mini" type="danger" :disabled=" ! 'DELETE' in row.button" @click="handleDelete(row,$index)">
+          <el-button size="mini" type="danger" :disabled=" ! buttonStatus(row.button,'DELETE')" @click="handleDelete(row,$index)">
             删除
           </el-button>
         </template>
@@ -317,6 +317,13 @@ export default {
           this.listLoading = false
         }, 1.5 * 1000)
       })
+    },
+    buttonStatus(data, button) {
+      if (data === undefined || data.length <= 0){
+        return false
+      } else {
+        return data.includes(button)
+      }
     },
     selectField(data) {
       const that = this
