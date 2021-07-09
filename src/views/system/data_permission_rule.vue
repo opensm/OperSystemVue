@@ -359,10 +359,10 @@ export default {
               type: 'success',
               duration: 2000
             })
+            this.dialogFormVisible = false
+            this.handleFilter()
           })
         }
-        this.dialogFormVisible = false
-        this.handleFilter()
       })
     },
     handleUpdate(row) {
