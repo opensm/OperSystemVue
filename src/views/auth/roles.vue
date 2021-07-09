@@ -166,6 +166,7 @@ export default {
             type: 'success',
             message: '删除成功'
           })
+          this.getRoles()
         })
         .catch(err => { console.error(err) })
     },
@@ -187,6 +188,7 @@ export default {
       }
       const { desc, id, name } = this.role
       this.dialogVisible = false
+      this.getRoles()
       this.$notify({
         title: '成功',
         dangerouslyUseHTMLString: true,
