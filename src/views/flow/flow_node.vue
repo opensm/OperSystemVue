@@ -343,7 +343,7 @@ export default {
           meta
         } = response.data
         this.list.splice(index, 1)
-        this.getList()
+        this.getNodeList()
         // this.total = response.data.total
         this.$notify({
           title: '成功',
