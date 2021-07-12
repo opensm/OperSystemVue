@@ -191,13 +191,22 @@
         </el-form-item>
         <el-form-item label="关联子任务" prop="sub_task">
           <el-checkbox-group v-model="temp.sub_task">
-            <el-card v-for="(item,key) in subTaskList" :key="key" class="box-card" shadow="hover" style="margin-bottom: 10px">
-              <el-checkbox :label="item.id" :value="item.id">
-                <div>
-                  {{ 'ID：' + item.id + '， 名称：' + item.container }}
-                </div>
-              </el-checkbox>
-            </el-card>
+            <template v-for="(item,key) in subTaskList">
+              <el-card v-if="item.status !== 'not_start_exec' && ! temp.sub_task.includes(item.id) " :key="key" class="box-card" shadow="hover" style="margin-bottom: 10px">
+                <el-checkbox :label="item.id" :value="item.id">
+                  <div>
+                    {{ 'ID：' + item.id + '， 名称：' + item.container }}
+                  </div>
+                </el-checkbox>
+              </el-card>
+              <el-card v-if="item.status === 'not_start_exec' && temp.sub_task.includes(item.id) " :key="key" class="box-card" shadow="hover" style="margin-bottom: 10px">
+                <el-checkbox :label="item.id" :value="item.id">
+                  <div>
+                    {{ 'ID：' + item.id + '， 名称：' + item.container }}
+                  </div>
+                </el-checkbox>
+              </el-card>
+            </template>
           </el-checkbox-group>
         </el-form-item>
       </el-form>
@@ -441,22 +450,13 @@ export default {
           this.getList()
           addTask(this.temp).then(response => {
             const { meta } = response
-            if (meta.code === '00000') {
-              this.list.unshift(this.temp)
-              this.$notify({
-                title: '成功',
-                message: meta.msg,
-                type: 'success',
-                duration: 2000
-              })
-            } else {
-              this.$notify({
-                title: '失败',
-                message: meta.msg,
-                type: 'danger',
-                duration: 2000
-              })
-            }
+            this.list.unshift(this.temp)
+            this.$notify({
+              title: '成功',
+              message: meta.msg,
+              type: 'success',
+              duration: 2000
+            })
             this.dialogFormVisible = false
             this.handleFilter()
           })
@@ -479,23 +479,14 @@ export default {
           tempData.task_time = this.moment(tempData.task_time).format('YYYY-MM-DD HH:mm:ss')
           updateTask(tempData.id, tempData).then(response => {
             const { meta } = response
-            if (meta.code === '00000') {
-              const index = this.list.findIndex(v => v.id === this.temp.id)
-              this.list.splice(index, 1, this.temp)
-              this.$notify({
-                title: '成功',
-                message: meta.msg,
-                type: 'success',
-                duration: 2000
-              })
-            } else {
-              this.$notify({
-                title: '失败',
-                message: meta.msg,
-                type: 'danger',
-                duration: 2000
-              })
-            }
+            const index = this.list.findIndex(v => v.id === this.temp.id)
+            this.list.splice(index, 1, this.temp)
+            this.$notify({
+              title: '成功',
+              message: meta.msg,
+              type: 'success',
+              duration: 2000
+            })
             this.dialogFormVisible = false
             this.handleFilter()
           })
@@ -505,22 +496,13 @@ export default {
     handleDelete(row, index) {
       deleteTask(row.id).then(response => {
         const { meta } = response
-        if (meta.code === '00000') {
-          this.list.splice(index, 1)
-          this.$notify({
-            title: '成功',
-            message: meta.msg,
-            type: 'success',
-            duration: 2000
-          })
-        } else {
-          this.$notify({
-            title: '失败',
-            message: meta.msg,
-            type: 'danger',
-            duration: 2000
-          })
-        }
+        this.list.splice(index, 1)
+        this.$notify({
+          title: '成功',
+          message: meta.msg,
+          type: 'success',
+          duration: 2000
+        })
         this.dialogFormVisible = false
         this.handleFilter()
         // Just to simulate the time of the request
