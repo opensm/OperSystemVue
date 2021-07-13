@@ -1,4 +1,4 @@
-<template xmlns="http://www.w3.org/1999/html">
+<template>
   <div class="app-container">
     <div class="filter-container">
       <el-input
@@ -111,10 +111,20 @@
 
       <el-table-column label="操作" align="center" width="230" class-name="small-padding fixed-width">
         <template slot-scope="{row,$index}">
-          <el-button type="primary" size="mini" :disabled="! row.button.includes('PUT')" @click="handleUpdate(row)">
+          <el-button
+            type="primary"
+            size="mini"
+            :disabled="! row.button.includes('PUT')"
+            @click="handleUpdate(row)"
+          >
             修改
           </el-button>
-          <el-button size="mini" type="danger" :disabled="! row.button.includes('DELETE')" @click="handleDelete(row,$index)">
+          <el-button
+            size="mini"
+            type="danger"
+            :disabled="! row.button.includes('DELETE')"
+            @click="handleDelete(row,$index)"
+          >
             删除
           </el-button>
         </template>
@@ -179,8 +189,7 @@
             type="datetime"
             placeholder="选择日期时间"
             default-time="00:00:00"
-          >
-          </el-date-picker>
+          />
         </el-form-item>
         <el-form-item label="备注" prop="note">
           <el-input
@@ -192,15 +201,27 @@
         <el-form-item label="关联子任务" prop="sub_task">
           <el-checkbox-group v-model="temp.sub_task">
             <template v-for="(item,key) in subTaskList">
-              <el-card v-if="item.status === 'unbond' && ! temp.sub_task.includes(item.id)" :key="key" class="box-card" shadow="hover" style="margin-bottom: 10px">
-                <el-checkbox :label="item.id" :value="item.id">
+              <el-card
+                v-if="item.status === 'unbond' && ! temp.sub_task.includes(Number(item.id))"
+                :key="key"
+                class="box-card"
+                shadow="hover"
+                style="margin-bottom: 10px"
+              >
+                <el-checkbox :label="Number(item.id)" :value="Number(item.id)">
                   <div>
-                    {{ 'ID：' + item.id + '， 名称：' + item.container }} 1
+                    {{ 'ID：' + item.id + '， 名称：' + item.container }}
                   </div>
                 </el-checkbox>
               </el-card>
-              <el-card v-else-if="temp.sub_task.includes(item.id)" :key="key" class="box-card" shadow="hover" style="margin-bottom: 10px">
-                <el-checkbox :label="item.id" :value="item.id" checked>
+              <el-card
+                v-else-if="temp.sub_task.includes(Number(item.id))"
+                :key="key"
+                class="box-card"
+                shadow="hover"
+                style="margin-bottom: 10px"
+              >
+                <el-checkbox :label="Number(item.id)" :value="Number(item.id)" checked>
                   <div>
                     {{ 'ID：' + item.id + '， 名称：' + item.container }}
                   </div>
@@ -364,6 +385,31 @@ export default {
     this.getFlowEngine()
   },
   methods: {
+    buttonStatus(data, button) {
+      if (data === undefined || data.length <= 0) {
+        return false
+      } else {
+        return data.includes(button)
+      }
+    },
+    b_include(data, item) {
+      if (data === undefined || data.length <= 0) {
+        return false
+      } else {
+        data.map(e => {
+          console.log(111111111111111)
+          console.log(e)
+          console.log(typeof e)
+          console.log(typeof item)
+          console.log(111111111111112)
+          let i = Number(item)
+          if (e === Number(item)) {
+            return true
+          }
+        })
+        return false
+      }
+    },
     getProjects() {
       getProjects().then(response => {
         this.project = response.data
@@ -523,10 +569,12 @@ export default {
 .demo-table-expand {
   font-size: 0;
 }
+
 .demo-table-expand label {
   width: 90px;
   color: #99a9bf;
 }
+
 .demo-table-expand .el-form-item {
   margin-right: 0;
   margin-bottom: 0;
