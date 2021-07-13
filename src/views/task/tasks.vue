@@ -192,15 +192,22 @@
         <el-form-item label="关联子任务" prop="sub_task">
           <el-checkbox-group v-model="temp.sub_task">
             <template v-for="(item,key) in subTaskList">
-              <el-card v-if="item.status !== 'not_start_exec' && ! temp.sub_task.includes(item.id) " :key="key" class="box-card" shadow="hover" style="margin-bottom: 10px">
+              <el-card v-if="item.status === 'unbond' && ! temp.sub_task.includes(item.id)" :key="key" class="box-card" shadow="hover" style="margin-bottom: 10px">
                 <el-checkbox :label="item.id" :value="item.id">
                   <div>
                     {{ 'ID：' + item.id + '， 名称：' + item.container }}
                   </div>
                 </el-checkbox>
               </el-card>
-              <el-card v-if="item.status === 'not_start_exec' && temp.sub_task.includes(item.id) " :key="key" class="box-card" shadow="hover" style="margin-bottom: 10px">
-                <el-checkbox :label="item.id" :value="item.id">
+              <el-card v-else-if="item.status !== 'unbond' && temp.sub_task.includes(item.id) " :key="key" class="box-card" shadow="hover" style="margin-bottom: 10px">
+                <el-checkbox :label="item.id" :value="item.id" checked>
+                  <div>
+                    {{ 'ID：' + item.id + '， 名称：' + item.container }}
+                  </div>
+                </el-checkbox>
+              </el-card>
+              <el-card v-if="item.status === 'unbond' && temp.sub_task.includes(item.id)" :key="key" class="box-card" shadow="hover" style="margin-bottom: 10px">
+                <el-checkbox :label="item.id" :value="item.id" checked>
                   <div>
                     {{ 'ID：' + item.id + '， 名称：' + item.container }}
                   </div>
