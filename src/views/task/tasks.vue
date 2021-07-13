@@ -195,18 +195,11 @@
               <el-card v-if="item.status === 'unbond' && ! temp.sub_task.includes(item.id)" :key="key" class="box-card" shadow="hover" style="margin-bottom: 10px">
                 <el-checkbox :label="item.id" :value="item.id">
                   <div>
-                    {{ 'ID：' + item.id + '， 名称：' + item.container }}
+                    {{ 'ID：' + item.id + '， 名称：' + item.container }} 1
                   </div>
                 </el-checkbox>
               </el-card>
-              <el-card v-else-if="item.status !== 'unbond' && temp.sub_task.includes(item.id) " :key="key" class="box-card" shadow="hover" style="margin-bottom: 10px">
-                <el-checkbox :label="item.id" :value="item.id" checked>
-                  <div>
-                    {{ 'ID：' + item.id + '， 名称：' + item.container }}
-                  </div>
-                </el-checkbox>
-              </el-card>
-              <el-card v-if="item.status === 'unbond' && temp.sub_task.includes(item.id)" :key="key" class="box-card" shadow="hover" style="margin-bottom: 10px">
+              <el-card v-else-if="temp.sub_task.includes(item.id)" :key="key" class="box-card" shadow="hover" style="margin-bottom: 10px">
                 <el-checkbox :label="item.id" :value="item.id" checked>
                   <div>
                     {{ 'ID：' + item.id + '， 名称：' + item.container }}
