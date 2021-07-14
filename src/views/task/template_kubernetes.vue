@@ -2,8 +2,8 @@
   <div class="app-container">
     <el-button type="primary" @click="handleAddData">添加</el-button>
 
-    <el-table :data="kubernetesTemplateList" style="width: 100%;margin-top:30px;" border>
-      <el-table-column align="center" label="ID">
+    <el-table :data="kubernetesTemplateList" stripe style="width: 100%;margin-top:30px;" border>
+      <el-table-column align="center" label="ID" fit>
         <template slot-scope="scope">
           {{ scope.row.id }}
         </template>
@@ -43,7 +43,7 @@
           {{ scope.row.control_type }}
         </template>
       </el-table-column>
-      <el-table-column align="header-center" label="yaml模板">
+      <el-table-column align="header-center" label="yaml模板" show-overflow-tooltip>
         <template slot-scope="scope">
           {{ scope.row.yaml }}
         </template>
@@ -63,7 +63,7 @@
           {{ scope.row.create_user_st }}
         </template>
       </el-table-column>
-      <el-table-column align="header-center" label="创建时间">
+      <el-table-column align="header-center" label="创建时间" show-overflow-tooltip>
         <template slot-scope="scope">
           {{ scope.row.create_time }}
         </template>
@@ -73,7 +73,7 @@
           <el-button
             type="primary"
             size="small"
-            :disabled=" ! scope.row.button.includes('PUT')"
+            :disabled=" ! buttonStatus(scope.row.button,'PUT')"
             @click="handleEdit(scope)"
           >
             修改
@@ -81,7 +81,7 @@
           <el-button
             type="danger"
             size="small"
-            :disabled=" ! scope.row.button.includes('DELETE')"
+            :disabled=" ! buttonStatus(scope.row.button,'DELETE')"
             @click="handleDelete(scope)"
           >
             删除
@@ -229,6 +229,13 @@ export default {
     this.getProjects()
   },
   methods: {
+    buttonStatus(data, button) {
+      if (data === undefined || data.length <= 0) {
+        return false
+      } else {
+        return data.includes(button)
+      }
+    },
     getProjects() {
       getProjects().then(response => {
         const { data } = response

@@ -295,7 +295,6 @@ export default {
       this.$refs['dataForm'].validate((valid) => {
         if (valid) {
           addFlowNode(this.temp).then(() => {
-            this.flowNodeList.unshift(this.temp)
             this.dialogFormVisible = false
             this.$notify({
               title: '成功',
@@ -303,9 +302,9 @@ export default {
               type: 'success',
               duration: 2000
             })
+            this.dialogFormVisible = false
+            this.handleFilter()
           })
-          this.dialogFormVisible = false
-          this.getNodeList()
         }
       })
     },
@@ -324,14 +323,14 @@ export default {
           const tempData = Object.assign({}, this.temp)
           updateFlowNode(tempData.id, tempData).then(() => {
             this.$notify({
-              title: '成功' + tempData.flow,
-              message: '修改成功:' + tempData.desc,
+              title: '成功',
+              message: '修改成功:' + tempData.flow_st,
               type: 'success',
               duration: 2000
             })
+            this.dialogFormVisible = false
+            this.handleFilter()
           })
-          this.dialogFormVisible = false
-          this.getNodeList()
         }
       })
     },
@@ -339,8 +338,7 @@ export default {
       deleteFlowNode(row.id).then(response => {
         const {
           meta
-        } = response.data
-        this.list.splice(index, 1)
+        } = response
         // this.total = response.data.total
         this.$notify({
           title: '成功',
@@ -348,8 +346,8 @@ export default {
           type: 'success',
           duration: 2000
         })
+        this.handleFilter()
       })
-      this.getNodeList()
     },
     getSortClass: function(key) {
       const sort = this.listQuery.sort

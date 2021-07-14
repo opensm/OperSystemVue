@@ -55,8 +55,10 @@
       </el-table-column>
       <el-table-column align="center" label="操作">
         <template slot-scope="scope">
-          <el-button type="primary" size="small" :disabled=" ! scope.row.button.includes('PUT')" @click="handleEdit(scope)">修改</el-button>
-          <el-button type="danger" size="small" :disabled=" ! scope.row.button.includes('DELETE')" @click="handleDelete(scope)">删除</el-button>
+<!--          <el-button type="primary" size="small" :disabled=" ! scope.row.button.includes('PUT')" @click="handleEdit(scope)">修改</el-button>-->
+          <el-button type="primary" size="small" :disabled=" ! buttonStatus(scope.row.button,'PUT')" @click="handleEdit(scope)">修改</el-button>
+<!--          <el-button type="danger" size="small" :disabled=" ! scope.row.button.includes('DELETE')" @click="handleDelete(scope)">删除</el-button>-->
+          <el-button type="danger" size="small" :disabled=" ! buttonStatus(scope.row.button,'DELETE')" @click="handleDelete(scope)">删除</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -193,6 +195,13 @@ export default {
     this.getProjects()
   },
   methods: {
+    buttonStatus(data, button) {
+      if (data === undefined || data.length <= 0) {
+        return false
+      } else {
+        return data.includes(button)
+      }
+    },
     getKeys() {
       getAuthKEYs().then(response => {
         const { data, meta } = response
@@ -221,7 +230,7 @@ export default {
       })
     },
     handleDelete({ $index, row }) {
-      this.$confirm('确认都删除该密钥?', 'Warning', {
+      this.$confirm('确认都删除该密钥?', '提示', {
         confirmButtonText: '确认',
         cancelButtonText: '取消',
         type: 'warning'
@@ -229,27 +238,19 @@ export default {
         .then(() => {
           deleteAuthKey(row.id).then(response => {
             const { meta } = response
-            if (meta.code === '00000') {
-              this.authKeyList.splice($index, 1)
-              this.dialogVisible = false
-              this.getKeys()
-              const { id, name } = this.authKey
-              this.$notify({
-                title: '成功',
-                dangerouslyUseHTMLString: true,
-                message: `
+            this.authKeyList.splice($index, 1)
+            const { id, name } = this.authKey
+            this.$notify({
+              title: '成功',
+              dangerouslyUseHTMLString: true,
+              message: `
             <div>ID: ${id}</div>
             <div>校验名称: ${name}</div>
             <div>返回信息: ${meta.msg}</div>`,
-                type: 'success'
-              })
-            } else {
-              this.authKeyList.splice($index, 1)
-              this.$message({
-                type: 'danger',
-                message: meta.msg
-              })
-            }
+              type: 'success'
+            })
+            this.dialogVisible = false
+            this.getKeys()
           })
         })
         .catch(err => { console.error(err) })
@@ -261,57 +262,40 @@ export default {
           if (isEdit) {
             updateAuthKey(this.authKey.id, this.authKey).then(response => {
               const { data, meta } = response
-              if (meta.code === '00000') {
-                this.authKey.id = data.id
-                // this.authKeyList.update(this.authKey)
-                const { id, name } = this.authKey
-                this.$notify({
-                  title: '成功',
-                  dangerouslyUseHTMLString: true,
-                  message: `
+              this.authKey.id = data.id
+              const { id, name } = this.authKey
+              this.$notify({
+                title: '成功',
+                dangerouslyUseHTMLString: true,
+                message: `
             <div>ID: ${id}</div>
             <div>校验名称: ${name}</div>
             <div>返回信息: ${meta.msg}</div>`,
-                  type: 'success'
-                })
-              } else {
-                this.$notify({
-                  title: '失败',
-                  dangerouslyUseHTMLString: true,
-                  message: `<div>返回信息: ${meta.msg}</div>`,
-                  type: 'success'
-                })
-              }
+                type: 'success'
+              })
+              this.dialogVisible = false
+              this.getKeys()
             })
           } else {
             addAuthKey(this.authKey).then(response => {
               const { data, meta } = response
-              if (meta.code === '00000') {
-                this.authKey.id = data.id
-                this.authKey.create_time = data.create_time
-                this.authKeyList.push(this.authKey)
-                const { id, name } = this.authKey
-                this.$notify({
-                  title: '成功',
-                  dangerouslyUseHTMLString: true,
-                  message: `
+              this.authKey.id = data.id
+              this.authKey.create_time = data.create_time
+              this.authKeyList.push(this.authKey)
+              const { id, name } = this.authKey
+              this.$notify({
+                title: '成功',
+                dangerouslyUseHTMLString: true,
+                message: `
             <div>ID: ${id}</div>
             <div>校验名称: ${name}</div>
             <div>返回信息: ${meta.msg}</div>`,
-                  type: 'success'
-                })
-              } else {
-                this.$notify({
-                  title: '失败',
-                  dangerouslyUseHTMLString: true,
-                  message: `<div>返回信息: ${meta.msg}</div>`,
-                  type: 'success'
-                })
-              }
+                type: 'success'
+              })
             })
+            this.dialogVisible = false
+            this.getKeys()
           }
-          this.dialogVisible = false
-          this.getKeys()
         }
       })
     }

@@ -392,24 +392,6 @@ export default {
         return data.includes(button)
       }
     },
-    b_include(data, item) {
-      if (data === undefined || data.length <= 0) {
-        return false
-      } else {
-        data.map(e => {
-          console.log(111111111111111)
-          console.log(e)
-          console.log(typeof e)
-          console.log(typeof item)
-          console.log(111111111111112)
-          let i = Number(item)
-          if (e === Number(item)) {
-            return true
-          }
-        })
-        return false
-      }
-    },
     getProjects() {
       getProjects().then(response => {
         this.project = response.data
@@ -512,6 +494,14 @@ export default {
     handleUpdate(row) {
       this.temp = Object.assign({}, row) // copy obj
       // this.temp.timestamp = new Date(this.temp.timestamp)
+      const temp_sub_task = []
+      this.temp.sub_task.map(item => {
+        temp_sub_task.push(item)
+      })
+      this.temp.sub_task = []
+      this.temp.sub_task = JSON.parse(JSON.stringify(temp_sub_task))
+      console.log(typeof this.temp.sub_task)
+      console.log(this.temp.sub_task)
       this.dialogStatus = 'update'
       this.dialogFormVisible = true
       this.$nextTick(() => {
