@@ -199,36 +199,50 @@
           />
         </el-form-item>
         <el-form-item label="关联子任务" prop="sub_task">
-          <el-checkbox-group v-model="temp.sub_task">
-            <template v-for="(item,key) in subTaskList">
-              <el-card
-                v-if="item.status === 'unbond' && ! temp.sub_task.includes(Number(item.id))"
-                :key="key"
-                class="box-card"
-                shadow="hover"
-                style="margin-bottom: 10px"
-              >
-                <el-checkbox :label="Number(item.id)" :value="Number(item.id)">
-                  <div>
-                    {{ 'ID：' + item.id + '， 名称：' + item.container }}
-                  </div>
-                </el-checkbox>
-              </el-card>
-              <el-card
-                v-else-if="temp.sub_task.includes(Number(item.id))"
-                :key="key"
-                class="box-card"
-                shadow="hover"
-                style="margin-bottom: 10px"
-              >
-                <el-checkbox :label="Number(item.id)" :value="Number(item.id)" checked>
-                  <div>
-                    {{ 'ID：' + item.id + '， 名称：' + item.container }}
-                  </div>
-                </el-checkbox>
-              </el-card>
-            </template>
-          </el-checkbox-group>
+          <el-select
+            v-model="temp.sub_task"
+            filterable
+            default-first-option
+            multiple
+            placeholder="请选择子任务"
+          >
+            <el-option
+              v-for="(item,key) in subTaskList"
+              :key="key"
+              :label="'ID：' + item.id + '， 名称：' + item.container"
+              :value="item.id"
+            />
+          </el-select>
+<!--          <el-checkbox-group v-model="temp.sub_task">-->
+<!--            <template v-for="(item,key) in subTaskList">-->
+<!--&lt;!&ndash;              <el-card&ndash;&gt;-->
+<!--&lt;!&ndash;                v-if="item.status === 'unbond' && ! b_include(temp.sub_task, item.id)"&ndash;&gt;-->
+<!--&lt;!&ndash;                :key="key"&ndash;&gt;-->
+<!--&lt;!&ndash;                class="box-card"&ndash;&gt;-->
+<!--&lt;!&ndash;                shadow="hover"&ndash;&gt;-->
+<!--&lt;!&ndash;                style="margin-bottom: 10px"&ndash;&gt;-->
+<!--&lt;!&ndash;              >&ndash;&gt;-->
+<!--&lt;!&ndash;                <el-checkbox :label="Number(item.id)" :value="Number(item.id)">&ndash;&gt;-->
+<!--&lt;!&ndash;                  <div>&ndash;&gt;-->
+<!--&lt;!&ndash;                    {{ 'ID：' + item.id + '， 名称：' + item.container }}&ndash;&gt;-->
+<!--&lt;!&ndash;                  </div>&ndash;&gt;-->
+<!--&lt;!&ndash;                </el-checkbox>&ndash;&gt;-->
+<!--&lt;!&ndash;              </el-card>&ndash;&gt;-->
+<!--              <el-card-->
+<!--                v-if="b_include(temp.sub_task, item.id, temp)"-->
+<!--                :key="key"-->
+<!--                class="box-card"-->
+<!--                shadow="hover"-->
+<!--                style="margin-bottom: 10px"-->
+<!--              >-->
+<!--                <el-checkbox :label="Number(item.id)" :value="Number(item.id)" checked>-->
+<!--                  <div>-->
+<!--                    {{ 'ID：' + item.id + '， 名称：' + item.container }}-->
+<!--                  </div>-->
+<!--                </el-checkbox>-->
+<!--              </el-card>-->
+<!--            </template>-->
+<!--          </el-checkbox-group>-->
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -392,6 +406,27 @@ export default {
         return data.includes(button)
       }
     },
+    b_include(elemts, item, data) {
+      console.log(data)
+      if (elemts === undefined || elemts.length <= 0 ) {
+        return false
+      } else {
+        const copy = []
+        console.log(elemts)
+        // console.log(1111111111111)
+        // elemts = JSON.parse(JSON.stringify(elemts))
+        // console.log(typeof elemts)
+        // console.log(elemts)
+        // console.log(222222222222)
+        // return elemts.includes(Number(item))
+        console.log(typeof elemts)
+        elemts.map(b => {
+          copy.push(b)
+        })
+        elemts = JSON.parse(JSON.stringify(copy))
+        return elemts.includes(Number(item))
+      }
+    },
     getProjects() {
       getProjects().then(response => {
         this.project = response.data
@@ -475,7 +510,6 @@ export default {
       this.$refs['dataForm'].validate((valid) => {
         if (valid) {
           this.temp.task_time = this.moment(this.temp.task_time).format('YYYY-MM-DD HH:mm:ss')
-          this.getList()
           addTask(this.temp).then(response => {
             const { meta } = response
             this.list.unshift(this.temp)
@@ -492,16 +526,9 @@ export default {
       })
     },
     handleUpdate(row) {
+      this.temp = {}
       this.temp = Object.assign({}, row) // copy obj
       // this.temp.timestamp = new Date(this.temp.timestamp)
-      const temp_sub_task = []
-      this.temp.sub_task.map(item => {
-        temp_sub_task.push(item)
-      })
-      this.temp.sub_task = []
-      this.temp.sub_task = JSON.parse(JSON.stringify(temp_sub_task))
-      console.log(typeof this.temp.sub_task)
-      console.log(this.temp.sub_task)
       this.dialogStatus = 'update'
       this.dialogFormVisible = true
       this.$nextTick(() => {
