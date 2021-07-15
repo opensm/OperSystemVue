@@ -331,13 +331,10 @@ export default {
     resetTemp() {
       this.temp = {
         id: undefined,
-        path: '',
-        model: '',
         name: '',
-        icon: '',
-        level: '',
-        parent: '',
-        component: ''
+        content_type: '',
+        request_type: [],
+        is_all: false
       }
     },
     handleCreate() {

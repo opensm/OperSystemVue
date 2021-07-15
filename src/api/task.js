@@ -37,3 +37,10 @@ export function deleteTask(id) {
     method: 'delete'
   })
 }
+export function get_exec_logs(params) {
+  return request({
+    url: `/task/execlistlogs`,
+    method: 'get',
+    params
+  })
+}

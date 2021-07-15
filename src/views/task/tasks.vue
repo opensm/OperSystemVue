@@ -109,7 +109,7 @@
         </template>
       </el-table-column>
 
-      <el-table-column label="操作" align="center" width="230" class-name="small-padding fixed-width">
+      <el-table-column label="操作" align="center" width="400" class-name="small-padding fixed-width">
         <template slot-scope="{row,$index}">
           <el-button
             type="primary"
@@ -126,6 +126,14 @@
             @click="handleDelete(row,$index)"
           >
             删除
+          </el-button>
+          <el-button
+            size="mini"
+            type="info"
+            style="margin-left: 16px;"
+            @click="handleLogs(row.id)"
+          >
+            日志
           </el-button>
         </template>
       </el-table-column>
@@ -214,36 +222,36 @@
               :disabled="item.status !== 'unbond' && item.status !== 'not_start_exec'"
             />
           </el-select>
-<!--          <el-checkbox-group v-model="temp.sub_task">-->
-<!--            <template v-for="(item,key) in subTaskList">-->
-<!--&lt;!&ndash;              <el-card&ndash;&gt;-->
-<!--&lt;!&ndash;                v-if="item.status === 'unbond' && ! b_include(temp.sub_task, item.id)"&ndash;&gt;-->
-<!--&lt;!&ndash;                :key="key"&ndash;&gt;-->
-<!--&lt;!&ndash;                class="box-card"&ndash;&gt;-->
-<!--&lt;!&ndash;                shadow="hover"&ndash;&gt;-->
-<!--&lt;!&ndash;                style="margin-bottom: 10px"&ndash;&gt;-->
-<!--&lt;!&ndash;              >&ndash;&gt;-->
-<!--&lt;!&ndash;                <el-checkbox :label="Number(item.id)" :value="Number(item.id)">&ndash;&gt;-->
-<!--&lt;!&ndash;                  <div>&ndash;&gt;-->
-<!--&lt;!&ndash;                    {{ 'ID：' + item.id + '， 名称：' + item.container }}&ndash;&gt;-->
-<!--&lt;!&ndash;                  </div>&ndash;&gt;-->
-<!--&lt;!&ndash;                </el-checkbox>&ndash;&gt;-->
-<!--&lt;!&ndash;              </el-card>&ndash;&gt;-->
-<!--              <el-card-->
-<!--                v-if="b_include(temp.sub_task, item.id, temp)"-->
-<!--                :key="key"-->
-<!--                class="box-card"-->
-<!--                shadow="hover"-->
-<!--                style="margin-bottom: 10px"-->
-<!--              >-->
-<!--                <el-checkbox :label="Number(item.id)" :value="Number(item.id)" checked>-->
-<!--                  <div>-->
-<!--                    {{ 'ID：' + item.id + '， 名称：' + item.container }}-->
-<!--                  </div>-->
-<!--                </el-checkbox>-->
-<!--              </el-card>-->
-<!--            </template>-->
-<!--          </el-checkbox-group>-->
+          <!--          <el-checkbox-group v-model="temp.sub_task">-->
+          <!--            <template v-for="(item,key) in subTaskList">-->
+          <!--&lt;!&ndash;              <el-card&ndash;&gt;-->
+          <!--&lt;!&ndash;                v-if="item.status === 'unbond' && ! b_include(temp.sub_task, item.id)"&ndash;&gt;-->
+          <!--&lt;!&ndash;                :key="key"&ndash;&gt;-->
+          <!--&lt;!&ndash;                class="box-card"&ndash;&gt;-->
+          <!--&lt;!&ndash;                shadow="hover"&ndash;&gt;-->
+          <!--&lt;!&ndash;                style="margin-bottom: 10px"&ndash;&gt;-->
+          <!--&lt;!&ndash;              >&ndash;&gt;-->
+          <!--&lt;!&ndash;                <el-checkbox :label="Number(item.id)" :value="Number(item.id)">&ndash;&gt;-->
+          <!--&lt;!&ndash;                  <div>&ndash;&gt;-->
+          <!--&lt;!&ndash;                    {{ 'ID：' + item.id + '， 名称：' + item.container }}&ndash;&gt;-->
+          <!--&lt;!&ndash;                  </div>&ndash;&gt;-->
+          <!--&lt;!&ndash;                </el-checkbox>&ndash;&gt;-->
+          <!--&lt;!&ndash;              </el-card>&ndash;&gt;-->
+          <!--              <el-card-->
+          <!--                v-if="b_include(temp.sub_task, item.id, temp)"-->
+          <!--                :key="key"-->
+          <!--                class="box-card"-->
+          <!--                shadow="hover"-->
+          <!--                style="margin-bottom: 10px"-->
+          <!--              >-->
+          <!--                <el-checkbox :label="Number(item.id)" :value="Number(item.id)" checked>-->
+          <!--                  <div>-->
+          <!--                    {{ 'ID：' + item.id + '， 名称：' + item.container }}-->
+          <!--                  </div>-->
+          <!--                </el-checkbox>-->
+          <!--              </el-card>-->
+          <!--            </template>-->
+          <!--          </el-checkbox-group>-->
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -255,12 +263,28 @@
         </el-button>
       </div>
     </el-dialog>
+    <el-drawer
+      title="任务日志"
+      :visible.sync="drawer"
+      :direction="direction"
+      :before-close="handleClose"
+    >
+      <el-timeline :reverse="reverse">
+        <el-timeline-item
+          v-for="(activity, index) in activities"
+          :key="index"
+          :timestamp="activity.timestamp"
+        >
+          {{ activity.content }}
+        </el-timeline-item>
+      </el-timeline>
+    </el-drawer>
   </div>
 </template>
 
 <script>
 import {
-  getTasks, deleteTask, updateTask, addTask
+  getTasks, deleteTask, updateTask, addTask, get_exec_logs
 } from '@/api/task'
 import waves from '@/directive/waves' // waves directive
 import {
@@ -330,6 +354,13 @@ export default {
   },
   data() {
     return {
+      // 日志弹窗变量
+      drawer: false,
+      direction: 'rtl',
+      // 日志内容变量
+      reverse: true,
+      activities: [],
+      // 任务列表变量
       tableKey: 0,
       total: 0,
       post: true,
@@ -400,6 +431,14 @@ export default {
     this.getFlowEngine()
   },
   methods: {
+    handleClose(done) {
+      this.$confirm('确认关闭？')
+        .then(_ => {
+          done()
+        })
+        .catch(_ => {
+        })
+    },
     buttonStatus(data, button) {
       if (data === undefined || data.length <= 0) {
         return false
@@ -477,6 +516,18 @@ export default {
         note: '',
         project: ''
       }
+    },
+    handleLogs(task) {
+      this.drawer = true
+      get_exec_logs({'task': task}).then(response => {
+        const { data } = response
+        data.map(item => {
+          this.activities.push({
+            content: item.log,
+            timestamp: item.create_time
+          })
+        })
+      })
     },
     handleCreate() {
       this.resetTemp()
