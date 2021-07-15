@@ -260,7 +260,7 @@ export default {
               params: { type: 'string', required: true, label: '更新参数', message: '更新参数必填', placeholder: '更新参数' },
               content_type: {
                 type: 'enum',
-                label: '模板选择',
+                label: '模板类型',
                 enum: that.template_obj,
                 required: true,
                 message: '模板类型必须选择！',
