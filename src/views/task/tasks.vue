@@ -211,6 +211,7 @@
               :key="key"
               :label="'ID：' + item.id + '， 名称：' + item.container"
               :value="item.id"
+              :disabled="item.status !== 'unbond' && item.status !== 'not_start_exec'"
             />
           </el-select>
 <!--          <el-checkbox-group v-model="temp.sub_task">-->
@@ -404,27 +405,6 @@ export default {
         return false
       } else {
         return data.includes(button)
-      }
-    },
-    b_include(elemts, item, data) {
-      console.log(data)
-      if (elemts === undefined || elemts.length <= 0 ) {
-        return false
-      } else {
-        const copy = []
-        console.log(elemts)
-        // console.log(1111111111111)
-        // elemts = JSON.parse(JSON.stringify(elemts))
-        // console.log(typeof elemts)
-        // console.log(elemts)
-        // console.log(222222222222)
-        // return elemts.includes(Number(item))
-        console.log(typeof elemts)
-        elemts.map(b => {
-          copy.push(b)
-        })
-        elemts = JSON.parse(JSON.stringify(copy))
-        return elemts.includes(Number(item))
       }
     },
     getProjects() {
