@@ -176,6 +176,22 @@
             />
           </el-select>
         </el-form-item>
+        <el-form-item label="环境" prop="env">
+          <el-select
+            v-model="temp.env"
+            filterable
+            allow-create
+            default-first-option
+            placeholder="请选择环境"
+          >
+            <el-option
+              v-for="item in envOptions"
+              :key="item.value"
+              :label="item.value + ':' + item.label"
+              :value="item.value"
+            />
+          </el-select>
+        </el-form-item>
         <el-form-item label="审批流程" prop="approve_flow">
           <el-select
             v-model="temp.approval_flow"
@@ -222,36 +238,6 @@
               :disabled="item.status !== 'unbond' && item.status !== 'not_start_exec'"
             />
           </el-select>
-          <!--          <el-checkbox-group v-model="temp.sub_task">-->
-          <!--            <template v-for="(item,key) in subTaskList">-->
-          <!--&lt;!&ndash;              <el-card&ndash;&gt;-->
-          <!--&lt;!&ndash;                v-if="item.status === 'unbond' && ! b_include(temp.sub_task, item.id)"&ndash;&gt;-->
-          <!--&lt;!&ndash;                :key="key"&ndash;&gt;-->
-          <!--&lt;!&ndash;                class="box-card"&ndash;&gt;-->
-          <!--&lt;!&ndash;                shadow="hover"&ndash;&gt;-->
-          <!--&lt;!&ndash;                style="margin-bottom: 10px"&ndash;&gt;-->
-          <!--&lt;!&ndash;              >&ndash;&gt;-->
-          <!--&lt;!&ndash;                <el-checkbox :label="Number(item.id)" :value="Number(item.id)">&ndash;&gt;-->
-          <!--&lt;!&ndash;                  <div>&ndash;&gt;-->
-          <!--&lt;!&ndash;                    {{ 'ID：' + item.id + '， 名称：' + item.container }}&ndash;&gt;-->
-          <!--&lt;!&ndash;                  </div>&ndash;&gt;-->
-          <!--&lt;!&ndash;                </el-checkbox>&ndash;&gt;-->
-          <!--&lt;!&ndash;              </el-card>&ndash;&gt;-->
-          <!--              <el-card-->
-          <!--                v-if="b_include(temp.sub_task, item.id, temp)"-->
-          <!--                :key="key"-->
-          <!--                class="box-card"-->
-          <!--                shadow="hover"-->
-          <!--                style="margin-bottom: 10px"-->
-          <!--              >-->
-          <!--                <el-checkbox :label="Number(item.id)" :value="Number(item.id)" checked>-->
-          <!--                  <div>-->
-          <!--                    {{ 'ID：' + item.id + '， 名称：' + item.container }}-->
-          <!--                  </div>-->
-          <!--                </el-checkbox>-->
-          <!--              </el-card>-->
-          <!--            </template>-->
-          <!--          </el-checkbox-group>-->
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -382,6 +368,7 @@ export default {
       }, {
         label: 'ID 逆序', key: '-id'
       }],
+      envOptions: [{ 'label': '预生产', 'value': 'pre' }, { 'label': '生产', 'value': 'prod'}],
       showReviewer: false,
       temp: {
         id: undefined,
@@ -392,7 +379,8 @@ export default {
         project: '',
         create_user: '',
         developer: '',
-        task_time: ''
+        task_time: '',
+        env: ''
       },
       dialogFormVisible: false,
       dialogStatus: '',
@@ -405,6 +393,9 @@ export default {
       rules: {
         name: [{
           required: true, message: '任务名称必须填写！', trigger: 'blur'
+        }],
+        env: [{
+          required: true, message: '任务环境必须填写！', trigger: 'blur'
         }],
         approval_flow: [{
           required: true, message: '审批流程必须填写！', trigger: 'blur'
@@ -427,10 +418,16 @@ export default {
   },
   created() {
     this.getList()
-    this.getProjects()
-    this.getFlowEngine()
   },
   methods: {
+    format_time() {
+      const yy = new Date().getFullYear()
+      const mm = new Date().getMonth() + 1
+      const dd = new Date().getDate()
+      const hh = new Date().getHours()
+      const mf = new Date().getMinutes() < 10 ? '0' + new Date().getMinutes() : new Date().getMinutes()
+      return yy + '-' + mm + '-' + dd + '-' + hh + '-' + mf
+    },
     handleClose(done) {
       this.$confirm('确认关闭？')
         .then(_ => {
@@ -531,6 +528,8 @@ export default {
     },
     handleCreate() {
       this.resetTemp()
+      this.getProjects()
+      this.getFlowEngine()
       this.dialogStatus = 'create'
       this.dialogFormVisible = true
       this.$nextTick(() => {
@@ -540,6 +539,8 @@ export default {
     createData() {
       this.$refs['dataForm'].validate((valid) => {
         if (valid) {
+          const local_time = this.format_time()
+          this.temp.name = local_time + '_' + this.temp.env + '_' + this.temp.name
           this.temp.task_time = this.moment(this.temp.task_time).format('YYYY-MM-DD HH:mm:ss')
           addTask(this.temp).then(response => {
             const { meta } = response
@@ -559,6 +560,10 @@ export default {
     handleUpdate(row) {
       this.temp = {}
       this.temp = Object.assign({}, row) // copy obj
+      this.getProjects()
+      this.getFlowEngine()
+      this.temp.env = this.temp.name.split('_')[1]
+      this.temp.name = this.temp.name.split('_')[2]
       // this.temp.timestamp = new Date(this.temp.timestamp)
       this.dialogStatus = 'update'
       this.dialogFormVisible = true

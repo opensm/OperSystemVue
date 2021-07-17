@@ -2,7 +2,7 @@
   <div class="app-container">
     <div class="filter-container" style="margin-bottom: 10px;">
       <el-input
-        v-model="listQuery.container"
+        v-model="temp.container"
         placeholder="发版名称"
         style="width: 300px;"
         class="filter-item"
@@ -214,7 +214,6 @@ export default {
       listQuery: {
         page: 1,
         limit: 10,
-        container: undefined,
         sort: '-id'
       },
       sortOptions: [{
@@ -240,6 +239,15 @@ export default {
       const that = this
       return {
         container: { type: 'string', required: true, label: '更新服务', message: '服务名称必须填', placeholder: '填入服务名称' },
+        env: {
+          type: 'enum',
+          label: '请选择环境',
+          message: '所属请选择环境必须选择！',
+          enum: ['prod', 'pre', 'dev'],
+          required: true,
+          options: [{ 'label': '预生产', 'value': 'pre' }, { 'label': '生产', 'value': 'prod' }],
+          placeholder: '请选择环境'
+        },
         project: {
           type: 'enum',
           label: '相关项目',
@@ -370,6 +378,14 @@ export default {
       }
       this.handleFilter()
     },
+    format_time() {
+      const yy = new Date().getFullYear()
+      const mm = new Date().getMonth() + 1
+      const dd = new Date().getDate()
+      const hh = new Date().getHours()
+      const mf = new Date().getMinutes() < 10 ? '0' + new Date().getMinutes() : new Date().getMinutes()
+      return yy + '-' + mm + '-' + dd + '-' + hh + '-' + mf
+    },
     resetTemp() {
       this.temp = {
         id: undefined,
@@ -393,6 +409,8 @@ export default {
     createData() {
       this.$refs['dataForm'].validate((valid) => {
         if (valid) {
+          const local_time = this.format_time()
+          this.temp.container = local_time + '_' + this.temp.env + '_' + this.temp.container
           addSubtask(this.temp).then(response => {
             const { meta } = response
             if (meta.code === '00000') {
@@ -421,6 +439,8 @@ export default {
       this.temp = Object.assign({}, row) // copy obj
       this.dialogStatus = 'update'
       this.dialogFormVisible = true
+      this.temp.env = this.temp.container.split('_')[1]
+      this.temp.container = this.temp.container.split('_')[2]
       this.$nextTick(() => {
         this.$refs['dataForm'].clearValidate()
       })
@@ -429,25 +449,18 @@ export default {
       this.$refs['dataForm'].validate((valid) => {
         if (valid) {
           const tempData = Object.assign({}, this.temp)
+          const local_time = this.format_time()
+          tempData.container = local_time + '_' + tempData.env + '_' + tempData.container
           updateSubtask(tempData.id, tempData).then(response => {
             const { meta } = response
-            if (meta.code === '00000') {
-              const index = this.list.findIndex(v => v.id === this.temp.id)
-              this.list.splice(index, 1, this.temp)
-              this.$notify({
-                title: '成功',
-                message: meta.msg,
-                type: 'success',
-                duration: 2000
-              })
-            } else {
-              this.$notify({
-                title: '失败',
-                message: meta.msg,
-                type: 'danger',
-                duration: 2000
-              })
-            }
+            const index = this.list.findIndex(v => v.id === this.temp.id)
+            this.list.splice(index, 1, this.temp)
+            this.$notify({
+              title: '成功',
+              message: meta.msg,
+              type: 'success',
+              duration: 2000
+            })
             this.dialogFormVisible = false
             this.handleFilter()
           })
@@ -457,22 +470,13 @@ export default {
     handleDelete(row, index) {
       deleteSubtask(row.id).then(response => {
         const { meta } = response
-        if (meta.code === '00000') {
-          this.list.splice(index, 1)
-          this.$notify({
-            title: '成功',
-            message: meta.msg,
-            type: 'success',
-            duration: 2000
-          })
-        } else {
-          this.$notify({
-            title: '失败',
-            message: meta.msg,
-            type: 'danger',
-            duration: 2000
-          })
-        }
+        this.list.splice(index, 1)
+        this.$notify({
+          title: '成功',
+          message: meta.msg,
+          type: 'success',
+          duration: 2000
+        })
         this.dialogFormVisible = false
         this.handleFilter()
         // Just to simulate the time of the request
