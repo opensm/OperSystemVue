@@ -215,7 +215,6 @@ export default {
   },
   created() {
     this.getNodeList()
-    this.getRoles()
     this.getEngine()
   },
   methods: {
@@ -285,6 +284,7 @@ export default {
     },
     handleCreate() {
       this.resetTemp()
+      this.getRoles()
       this.dialogStatus = 'create'
       this.dialogFormVisible = true
       this.$nextTick(() => {
@@ -311,6 +311,7 @@ export default {
     handleUpdate(row) {
       this.temp = Object.assign({}, row) // copy obj
       // this.temp.timestamp = new Date(this.temp.timestamp)
+      this.getRoles()
       this.dialogStatus = 'update'
       this.dialogFormVisible = true
       this.$nextTick(() => {
