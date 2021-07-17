@@ -6,7 +6,7 @@
         style="margin-left: 10px;"
         type="primary"
         icon="el-icon-edit"
-        :disabled="post ==='false'"
+        :disabled="post === false"
         @click="handleCreate"
       >
         新增
