@@ -384,7 +384,7 @@ export default {
       const dd = new Date().getDate()
       const hh = new Date().getHours()
       const mf = new Date().getMinutes() < 10 ? '0' + new Date().getMinutes() : new Date().getMinutes()
-      return `${yy} + ${mm} + ${dd} + ${hh} + ${mf}`
+      return `${yy}${mm}${dd}${hh}${mf}`
     },
     resetTemp() {
       this.temp = {
