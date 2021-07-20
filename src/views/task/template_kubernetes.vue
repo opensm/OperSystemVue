@@ -314,7 +314,6 @@ export default {
   },
   created() {
     this.getTemplates()
-    this.getClusters()
   },
   methods: {
     getTemplates() {
@@ -362,6 +361,7 @@ export default {
     },
     handleCreate() {
       this.kubernetesTemplate = Object.assign({}, this.kubernetesTemplate)
+      this.getClusters()
       this.dialogStatus = 'create'
       this.dialogFormVisible = true
       this.$nextTick(() => {
@@ -388,6 +388,7 @@ export default {
     },
     handleUpdate(row) {
       this.kubernetesTemplate = Object.assign({}, row) // copy obj
+      this.getClusters()
       this.dialogStatus = 'update'
       this.dialogFormVisible = true
       this.$nextTick(() => {

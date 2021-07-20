@@ -114,7 +114,7 @@
           <el-button
             type="primary"
             size="mini"
-            :disabled="! row.button.includes('PUT')"
+            :disabled="! buttonStatus(row.button, 'PUT')"
             @click="handleUpdate(row)"
           >
             修改
@@ -122,7 +122,7 @@
           <el-button
             size="mini"
             type="danger"
-            :disabled="! row.button.includes('DELETE')"
+            :disabled="! buttonStatus(row.button,'DELETE')"
             @click="handleDelete(row,$index)"
           >
             删除
@@ -277,7 +277,6 @@ import {
   getSubtasks
 } from '@/api/subtask'
 import { getProjects } from '@/api/project'
-import { getUsersInfo } from '@/api/user'
 import { getFlowEngines } from '@/api/flow_engine'
 import Pagination from '@/components/Pagination'
 
@@ -455,6 +454,11 @@ export default {
         this.flowEngineList = data
       })
     },
+    getSubtask() {
+      getSubtasks({ 'status': 'unbond', 'limit': 100 }).then(response => {
+        this.subTaskList = response.data
+      })
+    },
     getList() {
       this.listLoading = true
       // 重置选择上的空
@@ -470,12 +474,6 @@ export default {
         setTimeout(() => {
           this.listLoading = false
         }, 1.5 * 1000)
-      })
-      getSubtasks().then(response => {
-        this.subTaskList = response.data
-      })
-      getUsersInfo().then(response => {
-        this.userList = response.data
       })
     },
     handleFilter() {
@@ -531,6 +529,7 @@ export default {
       this.resetTemp()
       this.getProjects()
       this.getFlowEngine()
+      this.getSubtask()
       this.dialogStatus = 'create'
       this.dialogFormVisible = true
       this.$nextTick(() => {
@@ -563,6 +562,7 @@ export default {
       this.temp = Object.assign({}, row) // copy obj
       this.getProjects()
       this.getFlowEngine()
+      this.getSubtask()
       this.temp.env = this.temp.name.split('_')[1]
       this.temp.name = this.temp.name.split('_')[2]
       // this.temp.timestamp = new Date(this.temp.timestamp)

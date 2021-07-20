@@ -22,7 +22,7 @@
         style="margin-left: 10px;"
         type="primary"
         icon="el-icon-edit"
-        :disabled="post ==='false'"
+        :disabled="post === false"
         @click="handleCreate"
       >
         新增
@@ -92,10 +92,10 @@
 
       <el-table-column label="操作" align="center" width="230" class-name="small-padding fixed-width">
         <template slot-scope="{row,$index}">
-          <el-button type="primary" size="mini" :disabled="! row.button.includes('PUT')" @click="handleUpdate(row)">
+          <el-button type="primary" size="mini" :disabled="! buttonStatus(row.button, 'PUT')" @click="handleUpdate(row)">
             修改
           </el-button>
-          <el-button size="mini" type="danger" :disabled="! row.button.includes('DELETE')" @click="handleDelete(row,$index)">
+          <el-button size="mini" type="danger" :disabled="! buttonStatus(row.button,'DELETE')" @click="handleDelete(row,$index)">
             删除
           </el-button>
         </template>
@@ -357,6 +357,13 @@ export default {
         type: 'success'
       })
       row.status = status
+    },
+    buttonStatus(data, button) {
+      if (data === undefined || data.length <= 0) {
+        return false
+      } else {
+        return data.includes(button)
+      }
     },
     sortChange(data) {
       const {

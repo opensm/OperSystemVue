@@ -155,7 +155,7 @@ export default {
       statusChoice: [{ 'key': 'pass', 'value': '通过' }, { 'key': 'refuse', 'value': '拒绝' }],
       listQuery: {
         page: 1,
-        limit: 10000,
+        limit: 10,
         level: undefined,
         sort: '-id'
       },
@@ -184,8 +184,8 @@ export default {
     getList() {
       this.listLoading = true
       getFlowTasks(this.listQuery).then(response => {
-        const { data } = response
-        this.total = data.total
+        const { data, total } = response
+        this.total = total
         this.addJsonForm.params = data.map(v => {
           this.$set(v, 'edit', false) // https://vuejs.org/v2/guide/reactivity.html
           return v
