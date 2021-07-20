@@ -141,8 +141,7 @@
         <dynamic-form
           v-model="temp"
           :descriptors="descriptors"
-        >
-        </dynamic-form>
+        />
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogFormVisible = false">
@@ -158,7 +157,7 @@
 
 <script>
 import {
-  getSubtasks, deleteSubtask, updateSubtask, addSubtask, getObjectid, getTemplateValues
+  getSubtasks, deleteSubtask, updateSubtask, addSubtask, getTemplateValues
 } from '@/api/subtask'
 import waves from '@/directive/waves' // waves directive
 import { getProjects } from '@/api/project'
@@ -318,7 +317,7 @@ export default {
         this.template_obj_list = data
         data.map(item => {
           this.template_obj.push(item.label)
-          this.template_list.push({'label': item.label, 'value': item.value})
+          this.template_list.push({ 'label': item.label, 'value': item.value })
         })
         this.template_obj = JSON.parse(JSON.stringify(this.template_obj))
         this.template_list = JSON.parse(JSON.stringify(this.template_list))
@@ -382,7 +381,7 @@ export default {
       const yy = new Date().getFullYear()
       const mm = new Date().getMonth() + 1
       const dd = new Date().getDate()
-      const hh = new Date().getHours()
+      const hh = new Date().getHours() < 10 ? '0' + new Date().getHours() : new Date().getHours()
       const mf = new Date().getMinutes() < 10 ? '0' + new Date().getMinutes() : new Date().getMinutes()
       return `${yy}${mm}${dd}${hh}${mf}`
     },

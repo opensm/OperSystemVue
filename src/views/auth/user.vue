@@ -402,23 +402,14 @@ export default {
         if (valid) {
           // this.temp.id = parseInt(Math.random() * 100) + 1024 // mock a id
           addUser(this.temp).then(response => {
-            const { data, meta } = response
-            if (meta.code === '00000') {
-              this.list.unshift(this.temp)
-              this.$notify({
-                title: '成功',
-                message: '创建用户成功,用户名:' + data.username,
-                type: 'success',
-                duration: 2000
-              })
-            } else {
-              this.$notify({
-                title: '失败',
-                message: meta.msg,
-                type: 'danger',
-                duration: 2000
-              })
-            }
+            const { data } = response
+            this.list.unshift(this.temp)
+            this.$notify({
+              title: '成功',
+              message: '创建用户成功,用户名:' + data.username,
+              type: 'success',
+              duration: 2000
+            })
             this.dialogFormVisible = false
             this.handleFilter()
           })
@@ -435,30 +426,19 @@ export default {
       })
     },
     updateData() {
-      console.log('111111111111111')
       this.$refs['dataForm'].validate((valid) => {
-        console.log(valid)
         if (valid) {
           const tempData = Object.assign({}, this.temp)
           updateUser(tempData.id, tempData).then(response => {
             const { data, meta } = response
-            if (meta.code === '00000') {
-              const index = this.list.findIndex(v => v.id === this.temp.id)
-              this.list.splice(index, 1, this.temp)
-              this.$notify({
-                title: '成功',
-                message: meta.msg + ',用户名:' + data.username,
-                type: 'success',
-                duration: 2000
-              })
-            } else {
-              this.$notify({
-                title: '失败',
-                message: meta.msg,
-                type: 'danger',
-                duration: 2000
-              })
-            }
+            const index = this.list.findIndex(v => v.id === this.temp.id)
+            this.list.splice(index, 1, this.temp)
+            this.$notify({
+              title: '成功',
+              message: meta.msg + ',用户名:' + data.username,
+              type: 'success',
+              duration: 2000
+            })
             this.handleFilter()
             this.dialogFormVisible = false
           })
@@ -468,25 +448,14 @@ export default {
     handleDelete(row, index) {
       deleteUser(row.id).then(response => {
         const { meta, data } = response.data
-        this.list.splice(index, 1)
-        if (meta.code === '00000') {
-          this.getList()
-          this.list.splice(index, 1, this.temp)
-          this.$notify({
-            title: '成功',
-            message: meta.msg + ',用户名:' + data.username,
-            type: 'success',
-            duration: 2000
-          })
-        } else {
-          this.$notify({
-            title: '失败',
-            message: meta.msg,
-            type: 'danger',
-            duration: 2000
-          })
-        }
-
+        this.list.splice(index, 1, this.temp)
+        this.$notify({
+          title: '成功',
+          message: meta.msg + ',用户名:' + data.username,
+          type: 'success',
+          duration: 2000
+        })
+        this.handleFilter()
         // Just to simulate the time of the request
         setTimeout(() => {
           this.listLoading = false

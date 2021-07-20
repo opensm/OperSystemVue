@@ -368,7 +368,7 @@ export default {
       }, {
         label: 'ID 逆序', key: '-id'
       }],
-      envOptions: [{ 'label': '预生产', 'value': 'pre' }, { 'label': '生产', 'value': 'prod'}],
+      envOptions: [{ 'label': '预生产', 'value': 'pre' }, { 'label': '生产', 'value': 'prod' }],
       showReviewer: false,
       temp: {
         id: undefined,
@@ -424,7 +424,7 @@ export default {
       const yy = new Date().getFullYear()
       const mm = new Date().getMonth() + 1
       const dd = new Date().getDate()
-      const hh = new Date().getHours()
+      const hh = new Date().getHours() < 10 ? '0' + new Date().getHours() : new Date().getHours()
       const mf = new Date().getMinutes() < 10 ? '0' + new Date().getMinutes() : new Date().getMinutes()
       return `${yy}${mm}${dd}${hh}${mf}`
     },
@@ -432,6 +432,7 @@ export default {
       this.$confirm('确认关闭？')
         .then(_ => {
           done()
+          this.activities = []
         })
         .catch(_ => {
         })
@@ -478,7 +479,7 @@ export default {
       })
     },
     handleFilter() {
-      this.listQuery.page = 1
+      // this.listQuery.page = 1
       this.getList()
     },
     handleModifyStatus(row, status) {
@@ -516,7 +517,7 @@ export default {
     },
     handleLogs(task) {
       this.drawer = true
-      get_exec_logs({'task': task}).then(response => {
+      get_exec_logs({ 'task': task }).then(response => {
         const { data } = response
         data.map(item => {
           this.activities.push({

@@ -1,9 +1,10 @@
 import request from '@/utils/request'
 
-export function getTemplateKubernetes() {
+export function getTemplateKubernetes(params) {
   return request({
     url: '/task/templatekubernetes',
-    method: 'get'
+    method: 'get',
+    params
   })
 }
 
