@@ -18,27 +18,27 @@
           {{ scope.row.instance_st }}
         </template>
       </el-table-column>
-      <el-table-column align="header-center" label="调用类">
+      <el-table-column align="center" label="调用类">
         <template slot-scope="scope">
           {{ scope.row.exec_class }}
         </template>
       </el-table-column>
-      <el-table-column align="header-center" label="调用方法">
+      <el-table-column align="center" label="调用方法">
         <template slot-scope="scope">
           {{ scope.row.exec_function }}
         </template>
       </el-table-column>
-      <el-table-column align="header-center" label="所属项目">
+      <el-table-column align="center" label="所属项目">
         <template slot-scope="scope">
           {{ scope.row.project_st }}
         </template>
       </el-table-column>
-      <el-table-column align="header-center" label="操作用户">
+      <el-table-column align="center" label="操作用户">
         <template slot-scope="scope">
           {{ scope.row.create_user_st }}
         </template>
       </el-table-column>
-      <el-table-column align="header-center" label="操作时间">
+      <el-table-column align="center" label="操作时间">
         <template slot-scope="scope">
           {{ scope.row.create_time }}
         </template>
@@ -132,8 +132,6 @@ export default {
   created() {
     // Mock: get all routes and roles list from server
     this.getTemplateDB()
-    this.getInstance()
-    this.getProjects()
   },
   methods: {
     getProjects() {
@@ -157,11 +155,15 @@ export default {
     // Reshape the routes structure so that it looks the same as the sidebar
     handleAddRole() {
       this.templateDb = Object.assign({}, defaultTemplate)
+      this.getInstance()
+      this.getProjects()
       this.dialogType = 'new'
       this.dialogVisible = true
     },
     handleEdit(scope) {
       this.dialogType = 'edit'
+      this.getInstance()
+      this.getProjects()
       this.dialogVisible = true
       this.checkStrictly = true
       this.templateDb = deepClone(scope.row)
@@ -178,23 +180,15 @@ export default {
         .then(async() => {
           deleteTemplateDB(row.id).then(response => {
             const { meta } = response
-            if (meta.code === '00000') {
-              this.templateDbList.splice($index, 1)
-              this.dialogVisible = false
-              const { id, name } = this.templateDb
-              this.$notify({
-                title: '成功',
-                dangerouslyUseHTMLString: true,
-                message: `<div>ID: ${id}</div><div>名称: ${name}</div><div>返回信息: ${meta.msg}</div>`,
-                type: 'success'
-              })
-            } else {
-              this.templateDbList.splice($index, 1)
-              this.$message({
-                type: 'error',
-                message: meta.msg
-              })
-            }
+            this.templateDbList.splice($index, 1)
+            this.dialogVisible = false
+            const { id, name } = this.templateDb
+            this.$notify({
+              title: '成功',
+              dangerouslyUseHTMLString: true,
+              message: `<div>ID: ${id}</div><div>名称: ${name}</div><div>返回信息: ${meta.msg}</div>`,
+              type: 'success'
+            })
             this.dialogVisible = false
             this.getTemplateDB()
           })
@@ -206,54 +200,36 @@ export default {
       if (isEdit) {
         updateTemplateDB(this.templateDb.id, this.templateDb).then(response => {
           const { data, meta } = response
-          if (meta.code === '00000') {
-            this.templateDb.id = data.id
-            // this.authKeyList.update(this.authKey)
-            const { id, name } = this.templateDb
-            this.$notify({
-              title: '成功',
-              dangerouslyUseHTMLString: true,
-              message: `
+          this.templateDb.id = data.id
+          // this.authKeyList.update(this.authKey)
+          const { id, name } = this.templateDb
+          this.$notify({
+            title: '成功',
+            dangerouslyUseHTMLString: true,
+            message: `
             <div>ID: ${id}</div>
             <div>校验名称: ${name}</div>
             <div>返回信息: ${meta.msg}</div>`,
-              type: 'success'
-            })
-          } else {
-            this.$notify({
-              title: '失败',
-              dangerouslyUseHTMLString: true,
-              message: `<div>返回信息: ${meta.msg}</div>`,
-              type: 'success'
-            })
-          }
+            type: 'success'
+          })
           this.dialogVisible = false
           this.getTemplateDB()
         })
       } else {
         addTemplateDB(this.templateDb).then(response => {
           const { data, meta } = response
-          if (meta.code === '00000') {
-            this.templateDb.id = data.id
-            this.templateDbList.push(this.templateDb)
-            const { id, name } = this.templateDb
-            this.$notify({
-              title: '成功',
-              dangerouslyUseHTMLString: true,
-              message: `
+          this.templateDb.id = data.id
+          this.templateDbList.push(this.templateDb)
+          const { id, name } = this.templateDb
+          this.$notify({
+            title: '成功',
+            dangerouslyUseHTMLString: true,
+            message: `
             <div>ID: ${id}</div>
             <div>校验名称: ${name}</div>
             <div>返回信息: ${meta.msg}</div>`,
-              type: 'success'
-            })
-          } else {
-            this.$notify({
-              title: '失败',
-              dangerouslyUseHTMLString: true,
-              message: `<div>返回信息: ${meta.msg}</div>`,
-              type: 'success'
-            })
-          }
+            type: 'success'
+          })
           this.dialogVisible = false
           this.getTemplateDB()
         })

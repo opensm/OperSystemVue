@@ -132,8 +132,6 @@ export default {
   created() {
     // Mock: get all routes and roles list from server
     this.getTemplateNacos()
-    this.getAuthKey()
-    this.getProjects()
   },
   methods: {
     getProjects() {
@@ -157,17 +155,21 @@ export default {
     // Reshape the routes structure so that it looks the same as the sidebar
     handleAddRole() {
       this.templateNacos = Object.assign({}, defaultTemplate)
+      this.getAuthKey()
+      this.getProjects()
       this.dialogType = 'new'
       this.dialogVisible = true
     },
     handleEdit(scope) {
       this.dialogType = 'edit'
+      this.getAuthKey()
+      this.getProjects()
       this.dialogVisible = true
       this.checkStrictly = true
       this.templateNacos = deepClone(scope.row)
     },
     handleDelete({ $index, row }) {
-      this.$confirm('删除nacos操作类?', 'Warning', {
+      this.$confirm('删除nacos操作类?', '提示', {
         confirmButtonText: '确认',
         cancelButtonText: '取消',
         type: 'warning'

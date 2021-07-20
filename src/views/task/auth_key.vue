@@ -18,46 +18,44 @@
           {{ scope.row.auth_type }}
         </template>
       </el-table-column>
-      <el-table-column align="header-center" label="验证地址">
+      <el-table-column align="center" label="验证地址">
         <template slot-scope="scope">
           {{ scope.row.auth_host }}
         </template>
       </el-table-column>
-      <el-table-column align="header-center" label="验证端口">
+      <el-table-column align="center" label="验证端口">
         <template slot-scope="scope">
           {{ scope.row.auth_port }}
         </template>
       </el-table-column>
-      <el-table-column align="header-center" label="验证用户">
+      <el-table-column align="center" label="验证用户">
         <template slot-scope="scope">
           {{ scope.row.auth_user }}
         </template>
       </el-table-column>
-      <el-table-column align="header-center" label="验证参数">
+      <el-table-column align="center" label="验证参数">
         <template slot-scope="scope">
           {{ scope.row.auth_params }}
         </template>
       </el-table-column>
-      <el-table-column align="header-center" label="创建用户">
+      <el-table-column align="center" label="创建用户">
         <template slot-scope="scope">
           {{ scope.row.create_user_st }}
         </template>
       </el-table-column>
-      <el-table-column align="header-center" label="所属项目">
+      <el-table-column align="center" label="所属项目">
         <template slot-scope="scope">
           {{ scope.row.project_st }}
         </template>
       </el-table-column>
-      <el-table-column align="header-center" label="创建日期">
+      <el-table-column align="center" label="创建日期">
         <template slot-scope="scope">
           {{ scope.row.create_time }}
         </template>
       </el-table-column>
       <el-table-column align="center" label="操作">
         <template slot-scope="scope">
-<!--          <el-button type="primary" size="small" :disabled=" ! scope.row.button.includes('PUT')" @click="handleEdit(scope)">修改</el-button>-->
           <el-button type="primary" size="small" :disabled=" ! buttonStatus(scope.row.button,'PUT')" @click="handleEdit(scope)">修改</el-button>
-<!--          <el-button type="danger" size="small" :disabled=" ! scope.row.button.includes('DELETE')" @click="handleDelete(scope)">删除</el-button>-->
           <el-button type="danger" size="small" :disabled=" ! buttonStatus(scope.row.button,'DELETE')" @click="handleDelete(scope)">删除</el-button>
         </template>
       </el-table-column>
@@ -192,7 +190,6 @@ export default {
   created() {
     // Mock: get all routes and Keys list from server
     this.getKeys()
-    this.getProjects()
   },
   methods: {
     buttonStatus(data, button) {
@@ -218,12 +215,14 @@ export default {
     // Reshape the routes structure so that it looks the same as the sidebar
     handleAddKey() {
       this.authKey = Object.assign({}, defaultKey)
+      this.getProjects()
       this.dialogType = 'new'
       this.dialogVisible = true
     },
     handleEdit(scope) {
       this.dialogType = 'edit'
       this.dialogVisible = true
+      this.getProjects()
       this.authKey = deepClone(scope.row)
       this.$nextTick(() => {
         this.$refs['dataForm'].clearValidate()
