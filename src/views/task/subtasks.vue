@@ -2,7 +2,7 @@
   <div class="app-container">
     <div class="filter-container" style="margin-bottom: 10px;">
       <el-input
-        v-model="temp.container"
+        v-model="listQuery.container"
         placeholder="发版名称"
         style="width: 300px;"
         class="filter-item"
@@ -213,7 +213,8 @@ export default {
       listQuery: {
         page: 1,
         limit: 10,
-        sort: '-id'
+        sort: '-id',
+        container: ''
       },
       sortOptions: [{
         label: 'ID 正序', key: '+id'
