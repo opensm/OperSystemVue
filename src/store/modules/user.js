@@ -61,7 +61,7 @@ const actions = {
           reject('Verification failed, please Login again.')
         }
 
-        const { roles, username, user_permissions } = data
+        const { roles, username, user_permissions, id } = data
         // roles must be a non-empty array
         if (!user_permissions || user_permissions.length <= 0) {
           reject('严重报错: 用户权限列表为空!')
@@ -69,11 +69,16 @@ const actions = {
         if (!roles || roles.length <= 0) {
           reject('角色获取异常！')
         }
-        const mobile = 'https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif'
+        if (id % 2 !== 0 && id % 3 !== 0) {
+          commit('SET_AVATAR', 'naruto')
+        } else if (id % 2 === 0 && id % 3 !== 0) {
+          commit('SET_AVATAR', 'jiraiya')
+        } else {
+          commit('SET_AVATAR', 'shinnosuke')
+        }
         commit('SET_MENUS', user_permissions)
         commit('SET_ROLES', roles)
         commit('SET_NAME', username)
-        commit('SET_AVATAR', mobile)
         resolve(data)
       }).catch(error => {
         reject(error)
