@@ -7,9 +7,10 @@
     <div class="right-menu">
       <el-dropdown class="avatar-container" trigger="click">
         <div class="avatar-wrapper">
-<!--          <img src="../../assets/images/naruto.jpeg" class="user-avatar">-->
-          <img :src="require('../../assets/images/' + avatar + '.jpeg')" class="user-avatar">{{ name }}
-          <i class="el-icon-caret-right" />
+          <img :src="require('../../assets/images/' + avatar + '.jpeg')" class="user-avatar">
+          <span style="font-size: 14px; position: relative; bottom: 15px">{{ name }}
+            <i class="el-icon-caret-right" />
+          </span>
         </div>
         <el-dropdown-menu slot="dropdown" class="user-dropdown">
           <router-link to="/">
