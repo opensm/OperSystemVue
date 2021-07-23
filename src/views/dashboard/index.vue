@@ -18,7 +18,7 @@
         </chart-card>
       </el-col>
       <el-col :sm="24" :xs="24" :md="6" :xl="6" :lg="6" :style="{ marginBottom: '12px' }">
-        <chart-card title="待审核工单" :total="getFlowTaskCommitTotal()">
+        <chart-card title="待审核工单" :total="getUnCommit">
           <el-tooltip slot="action" class="item" effect="dark" content="需要审批的工单数" placement="top-start">
             <i class="el-icon-warning-outline" />
           </el-tooltip>
@@ -93,7 +93,10 @@ export default {
       'roles',
       'role_name',
       'last'
-    ])
+    ]),
+    getUnCommit: function() {
+      return this.flowTaskTotal - (this.unCommit + this.commit)
+    }
   },
   created() {
     this.getTotalTask()
@@ -102,6 +105,7 @@ export default {
     this.getFailedTask()
     this.getFlowTaskTotal()
     this.getSubTask()
+    this.getFlowTaskCommitTotal()
   },
   methods: {
     getLastLogin() {
@@ -123,7 +127,6 @@ export default {
         const { total } = response
         this.unCommit = total
       })
-      return this.flowTaskTotal - (this.unCommit + this.commit)
     },
     getRoleName() {
       return this.role_name
