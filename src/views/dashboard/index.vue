@@ -112,18 +112,18 @@ export default {
       return this.last
     },
     getFlowTaskTotal() {
-      getFlowTasks({ 'limit': 10000 }).then(response => {
+      getFlowTasks().then(response => {
         const { total } = response
         this.flowTaskTotal = total
       })
       return this.flowTaskTotal
     },
     getFlowTaskCommitTotal() {
-      getFlowTasks({ 'limit': 10000, 'status': 'pass' }).then(response => {
+      getFlowTasks({ 'status': 'pass' }).then(response => {
         const { total } = response
         this.commit = total
       })
-      getFlowTasks({ 'limit': 10000, 'status': 'refuse' }).then(response => {
+      getFlowTasks({ 'status': 'refuse' }).then(response => {
         const { total } = response
         this.unCommit = total
       })
@@ -132,31 +132,31 @@ export default {
       return this.role_name
     },
     getTotalTask() {
-      getTasks({ 'limit': 100000 }).then(response => {
+      getTasks().then(response => {
         const { total } = response
         this.taskTotal = total
       })
     },
     getRunningTask() {
-      getTasks({ 'limit': 100000, 'status': 'progressing' }).then(response => {
+      getTasks({ 'status': 'progressing' }).then(response => {
         const { total } = response
         this.runningTaskTotal = total
       })
     },
     getSuccessTask() {
-      getTasks({ 'limit': 100000, 'status': 'success' }).then(response => {
+      getTasks({ 'status': 'success' }).then(response => {
         const { total } = response
         this.successTaskTotal = total
       })
     },
     getFailedTask() {
-      getTasks({ 'limit': 100000, 'status': 'fail' }).then(response => {
+      getTasks({ 'status': 'fail' }).then(response => {
         const { total } = response
         this.failedTaskTotal = total
       })
     },
     getSubTask() {
-      getSubtasks({ 'limit': 100000 }).then(response => {
+      getSubtasks().then(response => {
         const { total } = response
         this.subTaskTotal = total
       })
