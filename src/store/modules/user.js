@@ -8,8 +8,10 @@ const getDefaultState = () => {
     token: getToken(),
     name: '',
     avatar: '',
-    roles: [],
-    menu: []
+    role_name: [],
+    menu: [],
+    roles: '',
+    last: ''
   }
 }
 
@@ -31,8 +33,14 @@ const mutations = {
   SET_ROLES: (state, roles) => {
     state.roles = roles
   },
+  SET_ROLE: (state, roles) => {
+    state.role_name = roles
+  },
   SET_MENUS: (state, menu) => {
     state.menu = menu
+  },
+  SET_LAST: (state, last) => {
+    state.last = last
   }
 }
 
@@ -61,12 +69,12 @@ const actions = {
           reject('Verification failed, please Login again.')
         }
 
-        const { roles, username, user_permissions, id } = data
+        const { last_login, roles, name, user_permissions, id, role_set } = data
         // roles must be a non-empty array
         if (!user_permissions || user_permissions.length <= 0) {
           reject('严重报错: 用户权限列表为空!')
         }
-        if (!roles || roles.length <= 0) {
+        if (!roles) {
           reject('角色获取异常！')
         }
         if (id % 2 !== 0 && id % 3 !== 0) {
@@ -78,7 +86,9 @@ const actions = {
         }
         commit('SET_MENUS', user_permissions)
         commit('SET_ROLES', roles)
-        commit('SET_NAME', username)
+        commit('SET_ROLE', role_set)
+        commit('SET_NAME', name)
+        commit('SET_LAST', last_login)
         resolve(data)
       }).catch(error => {
         reject(error)

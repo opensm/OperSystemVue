@@ -8,9 +8,8 @@
       <el-dropdown class="avatar-container" trigger="click">
         <div class="avatar-wrapper">
 <!--          <img src="../../assets/images/naruto.jpeg" class="user-avatar">-->
-          <img :src="require('../../assets/images/' + avatar + '.jpeg')" class="user-avatar">
-<!--          <img :src="avatar+'?imageView2/1/w/80/h/80'" class="user-avatar">-->
-          <i class="el-icon-caret-bottom" />
+          <img :src="require('../../assets/images/' + avatar + '.jpeg')" class="user-avatar">{{ name }}
+          <i class="el-icon-caret-right" />
         </div>
         <el-dropdown-menu slot="dropdown" class="user-dropdown">
           <router-link to="/">
