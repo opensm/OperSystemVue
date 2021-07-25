@@ -400,6 +400,8 @@ export default {
     },
     handleCreate() {
       this.resetTemp()
+      this.projectList = []
+      this.template_list = []
       this.getProjects()
       this.getTemplates()
       this.dialogStatus = 'create'
@@ -430,6 +432,8 @@ export default {
     },
     handleUpdate(row) {
       this.temp = Object.assign({}, row) // copy obj
+      this.projectList = []
+      this.template_list = []
       this.getProjects()
       this.getTemplates()
       this.dialogStatus = 'update'
