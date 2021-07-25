@@ -400,6 +400,8 @@ export default {
     },
     handleCreate() {
       this.resetTemp()
+      this.getProjects()
+      this.getTemplates()
       this.dialogStatus = 'create'
       this.dialogFormVisible = true
       this.$nextTick(() => {
@@ -413,22 +415,13 @@ export default {
           this.temp.container = local_time + '_' + this.temp.env + '_' + this.temp.container
           addSubtask(this.temp).then(response => {
             const { meta } = response
-            if (meta.code === '00000') {
-              this.list.unshift(this.temp)
-              this.$notify({
-                title: '成功',
-                message: meta.msg,
-                type: 'success',
-                duration: 2000
-              })
-            } else {
-              this.$notify({
-                title: '失败',
-                message: meta.msg,
-                type: 'danger',
-                duration: 2000
-              })
-            }
+            this.list.unshift(this.temp)
+            this.$notify({
+              title: '成功',
+              message: meta.msg,
+              type: 'success',
+              duration: 2000
+            })
             this.dialogFormVisible = false
             this.handleFilter()
           })
@@ -437,6 +430,8 @@ export default {
     },
     handleUpdate(row) {
       this.temp = Object.assign({}, row) // copy obj
+      this.getProjects()
+      this.getTemplates()
       this.dialogStatus = 'update'
       this.dialogFormVisible = true
       this.temp.env = this.temp.container.split('_')[1]
