@@ -114,6 +114,7 @@
           <el-button
             type="primary"
             size="mini"
+            icon="el-icon-document"
             :disabled="! buttonStatus(row.button, 'PUT')"
             @click="handleUpdate(row)"
           >
@@ -122,6 +123,7 @@
           <el-button
             size="mini"
             type="danger"
+            icon="el-icon-delete-solid"
             :disabled="! buttonStatus(row.button,'DELETE')"
             @click="handleDelete(row,$index)"
           >
@@ -129,7 +131,17 @@
           </el-button>
           <el-button
             size="mini"
+            icon="el-icon-copy-document"
+            type="warning"
+            :disabled="! buttonStatus(row.button,'DELETE')"
+            @click="handleCopy(row)"
+          >
+            拷贝
+          </el-button>
+          <el-button
+            size="mini"
             type="info"
+            icon="el-icon-info"
             style="margin-left: 16px;"
             @click="handleLogs(row.id)"
           >
@@ -510,7 +522,11 @@ export default {
         approval_flow: '',
         sub_task: [],
         note: '',
-        project: ''
+        project: '',
+        create_user: '',
+        developer: '',
+        task_time: '',
+        env: ''
       }
     },
     handleLogs(task) {
@@ -567,6 +583,22 @@ export default {
       this.temp.name = this.temp.name.split('_')[2]
       // this.temp.timestamp = new Date(this.temp.timestamp)
       this.dialogStatus = 'update'
+      this.dialogFormVisible = true
+      this.$nextTick(() => {
+        this.$refs['dataForm'].clearValidate()
+      })
+    },
+    handleCopy(row) {
+      this.temp = {}
+      this.temp = Object.assign({}, row) // copy obj
+      this.getProjects()
+      this.getFlowEngine()
+      this.getSubtask()
+      this.temp.task_time = ''
+      this.temp.env = this.temp.name.split('_')[1]
+      this.temp.name = this.temp.name.split('_')[2]
+      // this.temp.timestamp = new Date(this.temp.timestamp)
+      this.dialogStatus = 'create'
       this.dialogFormVisible = true
       this.$nextTick(() => {
         this.$refs['dataForm'].clearValidate()
