@@ -115,7 +115,7 @@
             type="primary"
             size="mini"
             icon="el-icon-document"
-            :disabled="! buttonStatus(row.button, 'PUT')"
+            :disabled="! buttonStatus(row.button, 'PUT') || ! ['not_start_approve','approveing'].includes(row.status)"
             @click="handleUpdate(row)"
           >
             修改
@@ -124,7 +124,7 @@
             size="mini"
             type="danger"
             icon="el-icon-delete-solid"
-            :disabled="! buttonStatus(row.button,'DELETE')"
+            :disabled="! buttonStatus(row.button,'DELETE') || ! ['not_start_approve','approveing'].includes(row.status)"
             @click="handleDelete(row,$index)"
           >
             删除
@@ -607,8 +607,10 @@ export default {
     updateData() {
       this.$refs['dataForm'].validate((valid) => {
         if (valid) {
+          const local_time = this.format_time()
           const tempData = Object.assign({}, this.temp)
           tempData.task_time = this.moment(tempData.task_time).format('YYYY-MM-DD HH:mm:ss')
+          tempData.name = local_time + '_' + this.temp.env + '_' + this.temp.name
           updateTask(tempData.id, tempData).then(response => {
             const { meta } = response
             const index = this.list.findIndex(v => v.id === this.temp.id)

@@ -108,13 +108,16 @@
       </el-table-column>
       <el-table-column label="操作" align="center" width="230" class-name="small-padding fixed-width">
         <template slot-scope="{row,$index}">
-          <el-button type="primary" size="mini" :disabled="! row.button.includes('PUT')" @click="handleUpdate(row)">
+          <el-button type="primary" size="mini" :disabled="! row.button.includes('PUT') || ! ['not_start_exec','unbond'].includes(row.status)" @click="handleUpdate(row)">
             修改
+          </el-button>
+          <el-button type="warning" size="mini" @click="handleCopy(row)">
+            拷贝
           </el-button>
           <el-button
             size="mini"
             type="danger"
-            :disabled="! row.button.includes('DELETE')"
+            :disabled="! row.button.includes('DELETE') || ! ['not_start_exec','unbond'].includes(row.status)"
             @click="handleDelete(row,$index)"
           >
             删除
@@ -410,6 +413,28 @@ export default {
         this.$refs['dataForm'].clearValidate()
       })
     },
+    handleCopy(row) {
+      this.temp = Object.assign({}, row) // copy obj
+      this.projectList = []
+      this.template_list = []
+      this.getProjects()
+      this.getTemplates()
+      this.dialogStatus = 'create'
+      this.dialogFormVisible = true
+      this.temp.env = this.temp.container.split('_')[1]
+      this.temp.container = this.temp.container.split('_')[2]
+      const { exec_list } = this.temp
+      this.temp.exec_list = []
+      exec_list.map(item => {
+        item.status = 'not_start_exec'
+        item.output = ''
+        item.finish_time = ''
+        this.temp.exec_list.push(item)
+      })
+      this.$nextTick(() => {
+        this.$refs['dataForm'].clearValidate()
+      })
+    },
     createData() {
       this.$refs['dataForm'].validate((valid) => {
         if (valid) {
@@ -447,10 +472,10 @@ export default {
     updateData() {
       this.$refs['dataForm'].validate((valid) => {
         if (valid) {
-          const tempData = Object.assign({}, this.temp)
+          // const tempData = Object.assign({}, this.temp)
           const local_time = this.format_time()
-          tempData.container = local_time + '_' + tempData.env + '_' + tempData.container
-          updateSubtask(tempData.id, tempData).then(response => {
+          this.temp.container = local_time + '_' + this.temp.env + '_' + this.temp.container
+          updateSubtask(this.temp.id, this.temp).then(response => {
             const { meta } = response
             const index = this.list.findIndex(v => v.id === this.temp.id)
             this.list.splice(index, 1, this.temp)
