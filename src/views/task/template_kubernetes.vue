@@ -373,7 +373,6 @@ export default {
         if (valid) {
           addTemplateKubernete(this.kubernetesTemplate).then(response => {
             const { meta } = response
-            this.list.unshift(this.kubernetesTemplate)
             this.$notify({
               title: '成功',
               message: meta.msg,
@@ -399,6 +398,7 @@ export default {
       this.$refs['dataForm'].validate((valid) => {
         if (valid) {
           const tempData = Object.assign({}, this.temp)
+          console.log(tempData)
           updateTemplateKubernete(tempData.id, tempData).then(response => {
             const { meta } = response
             const index = this.list.findIndex(v => v.id === this.temp.id)

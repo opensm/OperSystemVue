@@ -440,13 +440,7 @@ export default {
       return `${yy}${mm}${dd}${hh}${mf}`
     },
     handleClose(done) {
-      this.$confirm('确认关闭？')
-        .then(_ => {
-          done()
-          this.activities = []
-        })
-        .catch(_ => {
-        })
+      done()
     },
     buttonStatus(data, button) {
       if (data === undefined || data.length <= 0) {
@@ -668,4 +662,11 @@ export default {
   margin-bottom: 0;
   width: 50%;
 }
+</style>
+<style rel="stylesheet/scss" lang="scss">
+.el-drawer{
+
+  overflow: scroll
+}
+
 </style>
