@@ -1,6 +1,6 @@
 <template>
   <div class="app-container">
-    <el-button type="primary" @click="handleAddRole">添加</el-button>
+    <el-button type="primary" :disabled="post === false" @click="handleAddRole">添加</el-button>
 
     <el-table :data="templateList" style="width: 100%;margin-top:30px;" border>
       <el-table-column align="center" label="ID">
@@ -123,6 +123,7 @@ export default {
       templateList: [],
       keyList: [],
       project: [],
+      post: false,
       dialogVisible: false,
       dialogType: 'new',
       checkStrictly: false
@@ -131,8 +132,6 @@ export default {
   created() {
     // Mock: get all routes and roles list from server
     this.getTemplate()
-    this.getKey()
-    this.getProjects()
   },
   methods: {
     getProjects() {
@@ -143,8 +142,9 @@ export default {
     },
     getTemplate() {
       getTemplateTencentServices().then(response => {
-        const { data } = response
+        const { data, meta } = response
         this.templateList = data
+        this.post = meta.post_tag
       })
     },
     getKey() {
@@ -156,11 +156,15 @@ export default {
     // Reshape the routes structure so that it looks the same as the sidebar
     handleAddRole() {
       this.template = Object.assign({}, defaultTemplate)
+      this.getKey()
+      this.getProjects()
       this.dialogType = 'new'
       this.dialogVisible = true
     },
     handleEdit(scope) {
       this.dialogType = 'edit'
+      this.getKey()
+      this.getProjects()
       this.dialogVisible = true
       this.checkStrictly = true
       this.template = deepClone(scope.row)

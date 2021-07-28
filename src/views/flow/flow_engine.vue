@@ -1,6 +1,6 @@
 <template>
   <div class="app-container">
-    <el-button type="primary" @click="handleAddData">添加</el-button>
+    <el-button type="primary" :disabled="post === false" @click="handleAddData">添加</el-button>
 
     <el-table :data="flowEngineList" style="width: 100%;margin-top:30px;" border>
       <el-table-column align="center" label="" width="220">
@@ -61,6 +61,7 @@ export default {
     return {
       flowEngine: Object.assign({}, defaultFlowEngine),
       flowEngineList: [],
+      post: false,
       dialogVisible: false,
       dialogType: 'new',
       checkStrictly: false
@@ -73,8 +74,9 @@ export default {
   methods: {
     getFlowEngines() {
       getFlowEngines().then(response => {
-        const { data } = response
+        const { data, meta } = response
         this.flowEngineList = data
+        this.post = meta.post_tag
       })
     },
     // Reshape the routes structure so that it looks the same as the sidebar

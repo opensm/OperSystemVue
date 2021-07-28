@@ -1,6 +1,6 @@
 <template>
   <div class="app-container">
-    <el-button type="primary" @click="handleAddRole">添加</el-button>
+    <el-button type="primary" :disabled="post === false" @click="handleAddRole">添加</el-button>
 
     <el-table :data="templateDbList" style="width: 100%;margin-top:30px;" border>
       <el-table-column align="center" label="ID">
@@ -123,7 +123,7 @@ export default {
       templateDbList: [],
       instanceList: [],
       project: [],
-      user: {},
+      post: false,
       dialogVisible: false,
       dialogType: 'new',
       checkStrictly: false
@@ -142,8 +142,9 @@ export default {
     },
     getTemplateDB() {
       getTemplateDBs().then(response => {
-        const { data } = response
+        const { data, meta } = response
         this.templateDbList = data
+        this.post = meta.post_tag
       })
     },
     getInstance() {

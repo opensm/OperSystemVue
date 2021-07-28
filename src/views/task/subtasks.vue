@@ -23,7 +23,7 @@
         style="margin-left: 10px;"
         type="primary"
         icon="el-icon-edit"
-        :disabled="post ==='false'"
+        :disabled="post === false"
         @click="handleCreate"
       >
         新增
@@ -111,7 +111,7 @@
           <el-button type="primary" size="mini" :disabled="! row.button.includes('PUT') || ! ['not_start_exec','unbond'].includes(row.status)" @click="handleUpdate(row)">
             修改
           </el-button>
-          <el-button type="warning" size="mini" @click="handleCopy(row)">
+          <el-button type="warning" size="mini" :disabled="post === false" @click="handleCopy(row)">
             拷贝
           </el-button>
           <el-button
@@ -311,8 +311,6 @@ export default {
   },
   created() {
     this.getList()
-    this.getProjects()
-    this.getTemplates()
   },
   methods: {
     getTemplates() {

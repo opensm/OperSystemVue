@@ -2,7 +2,7 @@
   <div class="app-container">
     <el-button
       type="primary"
-      :disabled="post ==='false'"
+      :disabled="post === false"
       @click="handleAddProject"
     >添加</el-button>
 

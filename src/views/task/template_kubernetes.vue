@@ -22,7 +22,7 @@
         style="margin-left: 10px;"
         type="primary"
         icon="el-icon-edit"
-        :disabled="post ==='false'"
+        :disabled="post === false"
         @click="handleCreate"
       >
         新增
@@ -255,7 +255,7 @@ export default {
     return {
       tableKey: 0,
       total: 0,
-      post: null,
+      post: false,
       listLoading: true,
       listQuery: {
         page: 1,

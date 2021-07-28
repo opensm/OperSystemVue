@@ -23,7 +23,7 @@
         style="margin-left: 10px;"
         type="primary"
         icon="el-icon-edit"
-        :disabled="post ==='false'"
+        :disabled="post === false"
         @click="handleCreate"
       >
         新增
@@ -133,7 +133,7 @@
             size="mini"
             icon="el-icon-copy-document"
             type="warning"
-            :disabled="! buttonStatus(row.button,'DELETE')"
+            :disabled="post === false"
             @click="handleCopy(row)"
           >
             拷贝

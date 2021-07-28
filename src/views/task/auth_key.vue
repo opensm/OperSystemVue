@@ -160,7 +160,6 @@ export default {
       authKeyList: [],
       post: false,
       authType: ['MySQL', 'Mongo', 'Kubernetes', 'Nacos', 'Qcloud'],
-      user: {},
       project: [],
       dialogVisible: false,
       dialogType: 'new',
