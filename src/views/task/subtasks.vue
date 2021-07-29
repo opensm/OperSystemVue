@@ -301,7 +301,7 @@ export default {
                 required: true,
                 message: '模板必须选择！',
                 placeholder: '选择模板',
-                options: [...that.objectsList]
+                options: that.objectsList
               }
             }
           }
