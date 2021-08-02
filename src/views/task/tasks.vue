@@ -441,6 +441,7 @@ export default {
     },
     handleClose(done) {
       done()
+      this
     },
     buttonStatus(data, button) {
       if (data === undefined || data.length <= 0) {
