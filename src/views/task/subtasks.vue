@@ -271,29 +271,34 @@ export default {
             type: 'object',
             fields: {
               params: { type: 'string', required: true, label: '更新参数', message: '更新参数必填', placeholder: '更新参数' },
-              // content_type: {
-              //   type: 'enum',
-              //   label: '模板类型',
-              //   enum: that.template_obj,
-              //   required: true,
-              //   message: '模板类型必须选择！',
-              //   placeholder: '请选择模板类型',
-              //   // events: {
-              //   //   change(event) {
-              //   //     that.objects = []
-              //   //     that.objectsList = []
-              //   //     that.template_obj_list.map(item => {
-              //   //       if (item.value === event) {
-              //   //         item.template.map(data => {
-              //   //           that.objects.push(data.id)
-              //   //           that.objectsList.push({ 'label': data.id + ':' + data.name, 'value': data.id })
-              //   //         })
-              //   //       }
-              //   //     })
-              //   //   }
-              //   // },
-              //   options: that.template_list
-              // },
+              content_type: {
+                type: 'enum',
+                label: '模板类型',
+                enum: that.template_obj,
+                required: true,
+                message: '模板类型必须选择！',
+                placeholder: '请选择模板类型',
+                events: {
+                  change(event) {
+                    that.objects = []
+                    that.objectsList = []
+                    that.template_obj_list.map(item => {
+                      if (item.value === event) {
+                        item.template.map(data => {
+                          that.objects.push(data.id)
+                          that.objectsList.push({ 'label': data.id + ':' + data.name, 'value': data.id })
+                        })
+                      } else {
+                        item.template.map(data => {
+                          that.objects.push(data.id)
+                          that.objectsList.push({ 'label': data.id + ':' + data.name, 'value': data.id, 'disabled': true })
+                        })
+                      }
+                    })
+                  }
+                },
+                options: that.template_list
+              },
               object_id: {
                 type: 'enum',
                 label: '模板选择',
@@ -318,17 +323,11 @@ export default {
         const { data } = response
         this.template_obj_list = data
         data.map(item => {
-          // this.template_obj.push(item.value)
-          // this.template_list.push({ 'label': item.label, 'value': item.value })
-          item.template.map(data => {
-            this.objects.push(data.id)
-            this.objectsList.push({ 'label': data.id + ':' + data.name, 'value': data.id })
-          })
+          this.template_obj.push(item.value)
+          this.template_list.push({ 'label': item.label, 'value': item.value })
         })
-        this.objects = JSON.parse(JSON.stringify(this.objects))
-        this.objectsList = JSON.parse(JSON.stringify(this.objectsList))
-        // this.template_obj = JSON.parse(JSON.stringify(this.template_obj))
-        // this.template_list = JSON.parse(JSON.stringify(this.template_list))
+        this.template_obj = JSON.parse(JSON.stringify(this.template_obj))
+        this.template_list = JSON.parse(JSON.stringify(this.template_list))
       })
     },
     getProjects() {

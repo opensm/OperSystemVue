@@ -441,7 +441,6 @@ export default {
     },
     handleClose(done) {
       done()
-      this
     },
     buttonStatus(data, button) {
       if (data === undefined || data.length <= 0) {
@@ -526,6 +525,7 @@ export default {
     },
     handleLogs(task) {
       this.drawer = true
+      this.activities = []
       get_exec_logs({ 'task': task }).then(response => {
         const { data } = response
         data.map(item => {
