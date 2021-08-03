@@ -280,6 +280,9 @@ export default {
                 placeholder: '请选择模板类型',
                 events: {
                   change(event) {
+                    console.log(that.temp)
+                    console.log(that.temp.exec_list)
+                    console.log()
                     that.objects = []
                     that.objectsList = []
                     that.template_obj_list.map(item => {
@@ -287,6 +290,11 @@ export default {
                         item.template.map(data => {
                           that.objects.push(data.id)
                           that.objectsList.push({ 'label': data.id + ':' + data.name, 'value': data.id })
+                        })
+                      } else {
+                        item.template.map(data => {
+                          that.objects.push(data.id)
+                          that.objectsList.push({ 'label': data.id + ':' + data.name, 'value': data.id, 'disabled': true })
                         })
                       }
                     })
