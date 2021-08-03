@@ -288,11 +288,6 @@ export default {
                           that.objects.push(data.id)
                           that.objectsList.push({ 'label': data.id + ':' + data.name, 'value': data.id })
                         })
-                      } else {
-                        item.template.map(data => {
-                          that.objects.push(data.id)
-                          that.objectsList.push({ 'label': data.id + ':' + data.name, 'value': data.id, 'disabled': true })
-                        })
                       }
                     })
                   }
